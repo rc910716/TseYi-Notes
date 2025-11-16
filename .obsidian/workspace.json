@@ -1,0 +1,332 @@
+{
+  "main": {
+    "id": "9adfd963d182d29b",
+    "type": "split",
+    "children": [
+      {
+        "id": "f73f6bc1f4714664",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "720bf6f620e4052b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/gnn_learning26/task05.md",
+                "mode": "preview",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "task05"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "3ca54dc87ad80aa1",
+    "type": "split",
+    "children": [
+      {
+        "id": "a671721e629c394f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2283e3c9000d77d7",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "byCreatedTime",
+                "autoReveal": true
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "298b55d56e351d00",
+            "type": "leaf",
+            "state": {
+              "type": "file-tree-view",
+              "state": {},
+              "icon": "sheets-in-box",
+              "title": "File Tree"
+            }
+          },
+          {
+            "id": "7814ba86d6cc6247",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          },
+          {
+            "id": "39a98517b0b63269",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          },
+          {
+            "id": "450e8e74c17fdf2b",
+            "type": "leaf",
+            "state": {
+              "type": "trash-explorer",
+              "state": {},
+              "icon": "trash",
+              "title": "Trash explorer"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 316
+  },
+  "right": {
+    "id": "a213403f976db962",
+    "type": "split",
+    "children": [
+      {
+        "id": "1f697b8d900b7a22",
+        "type": "tabs",
+        "dimension": 52.59481037924152,
+        "children": [
+          {
+            "id": "3480429ca1628bdf",
+            "type": "leaf",
+            "state": {
+              "type": "quiet-outline",
+              "state": {},
+              "icon": "lines-of-text",
+              "title": "Quiet Outline"
+            }
+          },
+          {
+            "id": "dd26f3c198823890",
+            "type": "leaf",
+            "state": {
+              "type": "recent-files",
+              "state": {},
+              "icon": "clock",
+              "title": "Recent Files"
+            }
+          },
+          {
+            "id": "96b6d38f2ed1e31e",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {},
+              "icon": "spreadsheet",
+              "title": "Advanced Tables"
+            }
+          },
+          {
+            "id": "803711421d0e6bd4",
+            "type": "leaf",
+            "state": {
+              "type": "side-panel-control-view",
+              "state": {},
+              "icon": "viewIcon",
+              "title": "Markdown-Autocomplete"
+            }
+          }
+        ]
+      },
+      {
+        "id": "2c93c117c6a55225",
+        "type": "tabs",
+        "dimension": 47.40518962075848,
+        "children": [
+          {
+            "id": "3f6beaaec20e79cc",
+            "type": "leaf",
+            "state": {
+              "type": "localgraph",
+              "state": {
+                "file": "docs/gnn_learning26/task05.md",
+                "options": {
+                  "collapse-filter": false,
+                  "search": "",
+                  "localJumps": 3,
+                  "localBacklinks": true,
+                  "localForelinks": true,
+                  "localInterlinks": false,
+                  "showTags": true,
+                  "showAttachments": false,
+                  "hideUnresolved": false,
+                  "collapse-color-groups": true,
+                  "colorGroups": [],
+                  "collapse-display": false,
+                  "showArrow": true,
+                  "textFadeMultiplier": -3,
+                  "nodeSizeMultiplier": 0.814583333333333,
+                  "lineSizeMultiplier": 0.993229166666667,
+                  "collapse-forces": false,
+                  "centerStrength": 0.518713248970312,
+                  "repelStrength": 10,
+                  "linkStrength": 1,
+                  "linkDistance": 250,
+                  "scale": 0.7366533309977186,
+                  "close": true
+                }
+              },
+              "icon": "lucide-git-fork",
+              "title": "task05 的关系图"
+            }
+          },
+          {
+            "id": "14a83e5c43e6fd39",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:Astro",
+                "matchingCase": true,
+                "explainSearch": true,
+                "collapseAll": true,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "ebdcb29a81b0d948",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": false,
+                "showSearch": true,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "d45859d362fc1725",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "src/content/posts/超超级实用，关于深度学习科研必备网站-论文,代码项目, 数据集.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "超超级实用，关于深度学习科研必备网站-论文,代码项目, 数据集 的出链列表"
+            }
+          },
+          {
+            "id": "d90368761e6d6abc",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "src/content/posts/Astro Blog Layout Refactoring and UX Optimization——Astro 博客布局重构与用户体验优化.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Astro Blog Layout Refactoring and UX Optimization——Astro 博客布局重构与用户体验优化 的反向链接列表"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 311
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "bases:创建新数据库": false,
+      "graph:查看关系图谱": false,
+      "command-palette:打开命令面板": true,
+      "switcher:打开快速切换": true,
+      "workspaces:管理工作区布局": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false,
+      "templater-obsidian:Templater": false,
+      "obsidian-git:Open Git source control": false,
+      "pdf-plus:PDF++: Toggle auto-copy": false,
+      "pdf-plus:PDF++: Toggle auto-focus": false,
+      "pdf-plus:PDF++: Toggle auto-paste": false,
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
+      "obsidian-trash-explorer:Open trash explorer": false,
+      "remotely-save:Remotely Save": false,
+      "obsidian-markdown-formatting-assistant-plugin:Open Markdown Formatting Assistant": false,
+      "media-extended:Open external media": false
+    }
+  },
+  "active": "720bf6f620e4052b",
+  "lastOpenFiles": [
+    "docs/cs224w_learning46/task07.md",
+    "docs/cs224w_learning46/task08.md",
+    "docs/cs224w_learning46/task09.md",
+    "docs/cs224w_learning46/task10-12.md",
+    "docs/cs224w_learning46/task06.md",
+    "docs/cs224w_learning46/task04.md",
+    "docs/cs224w_learning46/task03.md",
+    "docs/cs224w_learning46/task02.md",
+    "docs/cs224w_learning46/task01.md",
+    "docs/cs224w_learning46/ext-task.md",
+    "docs/diffusion_models_learning51/contents.md",
+    "docs/diffusion_models_learning51/ch02.md",
+    "docs/diffusion_models_learning51/ch01.md",
+    "docs/ensemble_learning23/task06.md",
+    "docs/ensemble_learning23/task05.md",
+    "docs/ensemble_learning23/task04.md",
+    "docs/ensemble_learning23/task02.md",
+    "docs/ensemble_learning23/task01.md",
+    "docs/ensemble_learning24/task11.md",
+    "docs/ensemble_learning24/task10.md",
+    "docs/ensemble_learning24/task09.md",
+    "docs/ensemble_learning24/task08.md",
+    "docs/ensemble_learning24/task07.md",
+    "docs/ensemble_learning25/task15.md",
+    "docs/ensemble_learning25/task14.md",
+    "docs/ensemble_learning25/task13.md",
+    "docs/knowledge_graph_basic21/images/task05/01.png",
+    "docs/res/qrcode.jpeg",
+    "docs/diffusion_models_learning51/ch03/output_8_0.png",
+    "All-in-one-Obsidian/HKUST/HKUST-FuXieyi.pdf",
+    "All-in-one-Obsidian/OpenMind/设计思维手册/设计思维手册：斯坦福创新方法论 (迈克尔·勒威克, 帕特里克·林克, 纳迪亚·兰格萨德) (Z-Library).pdf",
+    "All-in-one-Obsidian/AI/Datawhale/LLM/Happy-LLM：从零开始的大语言模型原理与实践教程.pdf",
+    "attachments/rbcc合照.png",
+    "attachments",
+    "All-in-one-Obsidian/游玩攻略/张北草原/attachments/9bec43d1417b2e479d9f37d72870408f.png",
+    "All-in-one-Obsidian/游玩攻略/张北草原/attachments/Pasted Image 20250930210140_502.png",
+    "All-in-one-Obsidian/游玩攻略/张北草原/attachments",
+    "All-in-one-Obsidian/游玩攻略/张北草原",
+    "All-in-one-Obsidian/游玩攻略",
+    "All-in-one-Obsidian/OpenMind/设计思维手册",
+    "src/content/posts/attachments/IMG_9895.heic",
+    "src/content/posts/attachments",
+    "src/content/posts/attachments/rbcc合照.png",
+    "All-in-one-Obsidian/English/雅思A类/附件/attachments/2025-07-20_21-32-57.png",
+    "All-in-one-Obsidian/AI/深度学习/一些笔记/attachments/2025-07-25_17-08-24.png",
+    "All-in-one-Obsidian/港科广/红鸟挑战营/指南/attachments/设计思维.jpg",
+    "未命名.canvas",
+    "All-in-one-Obsidian/我的高达/制作高达.canvas"
+  ]
+}

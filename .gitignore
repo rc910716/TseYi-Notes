@@ -266,3 +266,20 @@ notebook/pandas20/data/task11/
 /notebook/diffusion_models_learning51/assets/unit4/02_diffusion_for_audio_CN.ipynb
 /notebook/diffusion_models_learning51/assets/unit4/README.md
 /notebook/diffusion_models_learning51/assets/unit4/README_CN.md
+
+#Obsidian
+.obsidian/plugins/recent-files-obsidian/data.json
+.trash
+.obsidian/plugins/remotely-save/main.js
+# 可选忽略
+#.obsidian/core-plugins.json
+#.obsidian/community-plugins.json
+#.obsidian/templates.json
+#.obsidian/workspaces.json
+#.obsidian/app.json
+#.obsidian/appearance.json
+#.obsidian/graph.json
+#.obsidian/backlink.json
+#.obsidian/workspace.json
+#.obsidian/workspace-mobile.json
+#.obsidian/webviewer.json

@@ -1,0 +1,13 @@
+{
+  "cssTheme": "Minimal",
+  "showRibbon": true,
+  "baseFontSizeAction": true,
+  "baseFontSize": 18,
+  "theme": "obsidian",
+  "accentColor": "",
+  "enabledCssSnippets": [
+    "file-list"
+  ],
+  "nativeMenus": false,
+  "showViewHeader": true
+}

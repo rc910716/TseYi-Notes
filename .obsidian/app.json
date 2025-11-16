@@ -1,0 +1,42 @@
+{
+  "promptDelete": true,
+  "readableLineLength": false,
+  "useMarkdownLinks": true,
+  "defaultViewMode": "source",
+  "trashOption": "local",
+  "attachmentFolderPath": "./attachments",
+  "userIgnoreFilters": [
+    "docs/",
+    "dist/",
+    "node_modules/",
+    "public/",
+    "scripts/",
+    "src/assets/",
+    "src/components/",
+    "src/constants/",
+    "src/i18n/",
+    "src/layouts/",
+    "src/pages/",
+    "src/plugins/",
+    "src/styles/",
+    "src/types/",
+    "src/utils/",
+    "dist/"
+  ],
+  "spellcheck": false,
+  "showLineNumber": true,
+  "strictLineBreaks": false,
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "showInlineTitle": true,
+  "smartIndentList": true,
+  "rightToLeft": false,
+  "newFileFolderPath": "All-in-one-Obsidian/新文件创建",
+  "pdfExportSettings": {
+    "includeName": false,
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  }
+}

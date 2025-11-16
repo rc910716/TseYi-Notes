@@ -1,23 +1,24 @@
-# Task04 数据完整存储与内存的数据集类+节点预测与边预测任务实践
+## Task04 数据完整存储与内存的数据集类 + 节点预测与边预测任务实践
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 使用数据集的一般过程
+#### 1.1 使用数据集的一般过程
+
 1. 从网络上**下载**数据原始文件；
-2. 对数据原始文件做处理，为每一个图样本生成一个`Data`对象；
-3. 对每一个`Data`对象**执行数据处理**，使其转换成新的`Data`对象；
-4. **过滤`Data`对象**；
-5. **保存`Data`对象到文件**；
-6. 获取`Data`对象，在每一次获取`Data`对象时，都先对`Data`对象做数据变换（于是获取到的是数据变换后的`Data`对象）。
+2. 对数据原始文件做处理，为每一个图样本生成一个 `Data` 对象；
+3. 对每一个 `Data` 对象**执行数据处理**，使其转换成新的 `Data` 对象；
+4. **过滤 `Data` 对象**；
+5. **保存 `Data` 对象到文件**；
+6. 获取 `Data` 对象，在每一次获取 `Data` 对象时，都先对 `Data` 对象做数据变换（于是获取到的是数据变换后的 `Data` 对象）。
 
-### 1.2 边预测任务
+#### 1.2 边预测任务
+
 - 思路：生成负样本，使得正负样本数量平衡
-- 使用`train_test_split_edges`函数，采样得到负样本，并将正负样本分成训练集、验证集和测试集
+- 使用 `train_test_split_edges` 函数，采样得到负样本，并将正负样本分成训练集、验证集和测试集
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 PlanetoidPubMed数据集类的构造
-
+#### 2.1 PlanetoidPubMed 数据集类的构造
 
 ```python
 import os.path as osp
@@ -74,9 +75,9 @@ class PlanetoidPubMed(InMemoryDataset):
 ```
 
 程序运行流程：
+
 1. 检查数据原始文件是否已经下载
 2. 检查数据是否经过处理：检查数据变换的方法、检查样本过滤的方法、检查是否处理好数据
-
 
 ```python
 dataset = PlanetoidPubMed('dataset/PlanetoidPubMed')
@@ -92,8 +93,7 @@ print('节点特征维度:', dataset[0].num_features)
     节点特征维度: 500
     
 
-### 2.2 使用GAT图神经网络进行节点预测
-
+#### 2.2 使用 GAT 图神经网络进行节点预测
 
 ```python
 from torch_geometric.nn import GATConv, Sequential
@@ -120,7 +120,6 @@ class GAT(torch.nn.Module):
         return x
 ```
 
-
 ```python
 def train():
     model.train()
@@ -142,7 +141,6 @@ def test():
     return test_acc
 ```
 
-
 ```python
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -157,7 +155,6 @@ def visualize(h, color):
     plt.scatter(z[:, 0], z[:, 1], s=70, c=color.cpu(), cmap="Set2")
     plt.show()
 ```
-
 
 ```python
 from torch_geometric.transforms import NormalizeFeatures
@@ -219,12 +216,9 @@ visualize(out, color=data.y)
     Test Accuracy: 0.7720
     
 
-
 ![png](images/ch04/01.png)
 
-
-### 2.3 使用两层GCNConv神经网络进行边预测
-
+#### 2.3 使用两层 GCNConv 神经网络进行边预测
 
 ```python
 from torch_geometric.datasets import Planetoid
@@ -244,7 +238,6 @@ data.train_mask = data.val_mask = data.test_mask = data.y = None
 data = train_test_split_edges(data)
 data = data.to(device)
 ```
-
 
 ```python
 from torch_geometric.nn import GCNConv
@@ -269,7 +262,6 @@ class Net(torch.nn.Module):
         prob_adj = z @ z.t()
         return (prob_adj > 0).nonzero(as_tuple=False).t()
 ```
-
 
 ```python
 from torch_geometric.utils import negative_sampling
@@ -303,7 +295,6 @@ def train(data, model, optimizer):
     return loss
 ```
 
-
 ```python
 from sklearn.metrics import roc_auc_score
 
@@ -324,7 +315,6 @@ def test(data, model):
         results.append(roc_auc_score(link_labels.cpu(), link_probs.cpu()))
     return results
 ```
-
 
 ```python
 model = Net(dataset.num_features, 64).to(device)

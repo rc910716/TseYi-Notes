@@ -1,13 +1,11 @@
-# Task09 Transformers解决机器翻译任务
+## Task09 Transformers 解决机器翻译任务
 
-## 1 加载数据
-
+### 1 加载数据
 
 ```python
 # 使用opus-mt-en-ro模型
 model_checkpoint = "Helsinki-NLP/opus-mt-en-ro" 
 ```
-
 
 ```python
 from datasets import load_dataset, load_metric
@@ -19,15 +17,10 @@ metric = load_metric("sacrebleu")
 ```
 
     Reusing dataset wmt16 (C:\Users\hurui\.cache\huggingface\datasets\wmt16\ro-en\1.0.0\0d9fb3e814712c785176ad8cdb9f465fbe6479000ee6546725db30ad8a8b5f8a)
-    
-
 
 ```python
 raw_datasets
 ```
-
-
-
 
     DatasetDict({
         train: Dataset({
@@ -44,22 +37,13 @@ raw_datasets
         })
     })
 
-
-
-
 ```python
 # 查看训练集第一条数据
 raw_datasets["train"][0]
 ```
 
-
-
-
     {'translation': {'en': 'Membership of Parliament: see Minutes',
       'ro': 'Componenţa Parlamentului: a se vedea procesul-verbal'}}
-
-
-
 
 ```python
 import datasets
@@ -85,11 +69,9 @@ def show_random_elements(dataset, num_examples=5):
     display(HTML(df.to_html()))
 ```
 
-
 ```python
 show_random_elements(raw_datasets["train"])
 ```
-
 
 <table border="0" class="dataframe">
   <thead>
@@ -122,15 +104,10 @@ show_random_elements(raw_datasets["train"])
   </tbody>
 </table>
 
-
-
 ```python
 # 查看metric
 metric
 ```
-
-
-
 
     Metric(name: "sacrebleu", features: {'predictions': Value(dtype='string', id='sequence'), 'references': Sequence(feature=Value(dtype='string', id='sequence'), length=-1, id='references')}, usage: """
     Produces BLEU scores along with its sufficient statistics
@@ -167,19 +144,17 @@ metric
         100.0
     """, stored examples: 0)
 
+### 2 数据预处理
 
+#### 2.1 数据预处理流程
 
-## 2 数据预处理
-
-### 2.1 数据预处理流程
 - 使用工具：Tokenizer
 - 流程：
-  1. 对输入数据进行tokenize，得到tokens
-  2. 将tokens转化为预训练模型中需要对应的token ID
-  3. 将token ID转化为模型需要的输入格式
+  1. 对输入数据进行 tokenize，得到 tokens
+  2. 将 tokens 转化为预训练模型中需要对应的 token ID
+  3. 将 token ID 转化为模型需要的输入格式
 
-### 2.2 构建模型对应的tokenizer
-
+#### 2.2 构建模型对应的 tokenizer
 
 ```python
 from transformers import AutoTokenizer
@@ -187,8 +162,7 @@ from transformers import AutoTokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 ```
 
-### 2.3 整合预处理函数
-
+#### 2.3 整合预处理函数
 
 ```python
 max_input_length = 128
@@ -213,30 +187,21 @@ def preprocess_function(examples):
     return model_inputs
 ```
 
-
 ```python
 preprocess_function(raw_datasets['train'][:2])
 ```
 
-
-
-
     {'input_ids': [[393, 4462, 14, 1137, 53, 216, 28636, 0], [24385, 14, 28636, 14, 4646, 4622, 53, 216, 28636, 0]], 'attention_mask': [[1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], 'labels': [[42140, 494, 1750, 53, 8, 59, 903, 3543, 9, 15202, 0], [36199, 6612, 9, 15202, 122, 568, 35788, 21549, 53, 8, 59, 903, 3543, 9, 15202, 0]]}
 
-
-
-### 2.4 对数据集datasets所有样本进行预处理
-
+#### 2.4 对数据集 datasets 所有样本进行预处理
 
 ```python
 tokenized_datasets = raw_datasets.map(preprocess_function, batched=True)
 ```
 
+### 3 微调预训练模型
 
-## 3 微调预训练模型
-
-### 3.1 加载seq2seq模型
-
+#### 3.1 加载 seq2seq 模型
 
 ```python
 from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqTrainingArguments, Seq2SeqTrainer
@@ -244,8 +209,7 @@ from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqT
 model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
 ```
 
-### 3.2 设定训练参数
-
+#### 3.2 设定训练参数
 
 ```python
 batch_size = 16
@@ -267,14 +231,12 @@ args = Seq2SeqTrainingArguments(
 )
 ```
 
-
 ```python
 # 数据收集器，用于将处理好的数据输入给模型
 data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 ```
 
-### 3.3 数据后处理
-
+#### 3.3 数据后处理
 
 ```python
 import numpy as np
@@ -307,8 +269,7 @@ def compute_metrics(eval_preds):
     return result
 ```
 
-### 3.4 训练模型
-
+#### 3.4 训练模型
 
 ```python
 trainer = Seq2SeqTrainer(
@@ -322,17 +283,16 @@ trainer = Seq2SeqTrainer(
 )
 ```
 
-
 ```python
 trainer.train()
 ```
 
-
-
 <div>
 
   <progress value='38145' max='38145' style='width:300px; height:20px; vertical-align: middle;'></progress>
+
   [38145/38145 1&#58;05&#58;45, Epoch 1/1]
+
 </div>
 <table border="0" class="dataframe">
   <thead>
@@ -355,7 +315,6 @@ trainer.train()
   </tbody>
 </table><p>
 
-
     E:\LearningDisk\Learning_Projects\MyPythonProjects\my-team-learning\venv\lib\site-packages\torch\_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ..\aten\src\ATen\native\BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
@@ -366,9 +325,8 @@ trainer.train()
 
     TrainOutput(global_step=38145, training_loss=0.7717016278345786, metrics={'train_runtime': 3946.4558, 'train_samples_per_second': 154.65, 'train_steps_per_second': 9.666, 'total_flos': 2.128216892689613e+16, 'train_loss': 0.7717016278345786, 'epoch': 1.0})
 
+### 4 总结
 
+&emsp;&emsp; 本次任务，主要介绍了用 Helsinki-NLP/opus-mt-en-ro 模型解决机器翻译任务的方法及步骤，步骤主要分为加载数据、数据预处理、微调预训练模型。在加载数据阶段中，使用 WMT 数据集；在数据预处理阶段中，对 tokenizer 分词器的建模，使用 as_target_tokenizer 控制 target 对应的特殊 token，并完成数据集中所有样本的预处理；在微调预训练模型阶段，使用 Seq2SeqTrainingArguments 对模型参数进行设置，并构建 Seq2SeqTrainer 训练器，进行模型训练和评估。
 
-## 4 总结
-
-&emsp;&emsp;本次任务，主要介绍了用Helsinki-NLP/opus-mt-en-ro模型解决机器翻译任务的方法及步骤，步骤主要分为加载数据、数据预处理、微调预训练模型。在加载数据阶段中，使用WMT数据集；在数据预处理阶段中，对tokenizer分词器的建模，使用as_target_tokenizer控制target对应的特殊token，并完成数据集中所有样本的预处理；在微调预训练模型阶段，使用Seq2SeqTrainingArguments对模型参数进行设置，并构建Seq2SeqTrainer训练器，进行模型训练和评估。  
-&emsp;&emsp;其中在数据集下载时，需要使用外网方式建立代理；sacrebleu需要安装1.5.1版本；本次任务中的模型训练，笔者使用的是3070  GPU显卡，需要训练模型长达1小时。
+&emsp;&emsp; 其中在数据集下载时，需要使用外网方式建立代理；sacrebleu 需要安装 1.5.1 版本；本次任务中的模型训练，笔者使用的是 3070 GPU 显卡，需要训练模型长达 1 小时。

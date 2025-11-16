@@ -1,44 +1,47 @@
-# Task11 综合练习
-
+## Task11 综合练习
 
 ```python
 import pandas as pd
 import numpy as np
 ```
 
-## 任务四 显卡日志
+### 任务四 显卡日志
 
-【题目描述】  
-下面给出了3090显卡的性能测评日志结果，每一条日志有如下结构：
-```
+【题目描述】
+下面给出了 3090 显卡的性能测评日志结果，每一条日志有如下结构：
+
+```bash
 Benchmarking #2# #4# precision type #1#  
 #1#  model average #2# time :  #3# ms
 ```
+
 其中：
+
 - #1#代表的是模型名称
-- #2#的值为train(ing)或inference，表示训练状态或推断状态
+- #2#的值为 train(ing) 或 inference，表示训练状态或推断状态
 - #3#表示耗时
-- #4#表示精度，其中包含了float, half, double三种类型，
+- #4#表示精度，其中包含了 float, half, double 三种类型，
 
 下面是一个具体的例子：
-```
+
+```bash
 Benchmarking Inference float precision type resnet50
 resnet50  model average inference time :  13.426570892333984 ms
 ```
-请把日志结果进行整理，变换成如下状态，`model_i`用相应模型名称填充，按照字母顺序排序，数值保留三位小数：
+
+请把日志结果进行整理，变换成如下状态，`model_i` 用相应模型名称填充，按照字母顺序排序，数值保留三位小数：
 
 | |Train_half | Train_float |	Train_double | Inference_half | Inference_float	| Inference_double |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | model_1 | 0.954 | 0.901 | 0.357 | 0.281 | 0.978 | 1.130 |
 | model_2 | 0.360 | 0.794 | 0.011 | 1.083 | 1.137 | 0.394 |
-| … | … | …	| … | …	| … | … 
+| … | … | …	| … | …	| … | …
 
-【数据下载】  
-链接：https://pan.baidu.com/s/1CjfdtavEywHtZeWSmCGv3A  
+【数据下载】
+链接：<https://pan.baidu.com/s/1CjfdtavEywHtZeWSmCGv3A>
 提取码：4mui
 
 **解答：**
-
 
 ```python
 # 将日志内容存储到lines里
@@ -50,7 +53,6 @@ for line in open('../data/task11/task04/benchmark.txt'):
     if 'model average' in line:
         lines.append(line)
 ```
-
 
 ```python
 # 构造df
@@ -71,15 +73,11 @@ while i < len(lines):
     i += 2    
 ```
 
-
 ```python
 # 对耗时的数值保留三位小数
 df.time = df.time.astype(np.float64).round(3)
 df.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -145,9 +143,6 @@ df.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 进行长表变宽表
 df = df.pivot(index='model', columns=['state', 'precision_type'], values='time')
@@ -156,9 +151,6 @@ df = df.sort_index(axis = 1).rename(columns={'Training':'Train'}, level=0)
 df.columns = df.columns.map(lambda x: (x[0] + '_' + x[1]))
 df.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -245,9 +237,6 @@ df.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 修改列名顺序
 new_columns = ['Train_half', 'Train_float', 'Train_double', 'Inference_half',
@@ -255,9 +244,6 @@ new_columns = ['Train_half', 'Train_float', 'Train_double', 'Inference_half',
 df = df.reindex(columns=new_columns).reset_index()
 df.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -341,11 +327,9 @@ df.head()
 </table>
 </div>
 
+### 任务五 水压站点的特征工程
 
-
-## 任务五 水压站点的特征工程
-
-`df1`和`df2`中分别给出了18年和19年各个站点的数据，其中列中的H0至H23分别代表当天0点至23点；`df3`中记录了18-19年的每日该地区的天气情况，请完成如下的任务：
+`df1` 和 `df2` 中分别给出了 18 年和 19 年各个站点的数据，其中列中的 H0 至 H23 分别代表当天 0 点至 23 点；`df3` 中记录了 18-19 年的每日该地区的天气情况，请完成如下的任务：
 
 ```python
 import pandas as pd
@@ -355,38 +339,37 @@ df2 = pd.read_csv('yali19.csv')
 df3 = pd.read_csv('qx1819.csv')
 ```
 
-1. 通过`df1`和`df2`构造`df`，把时间设为索引，第一列为站点编号，第二列为对应时刻的压力大小，排列方式如下（压力数值请用正确的值替换）：
+1. 通过 `df1` 和 `df2` 构造 `df`，把时间设为索引，第一列为站点编号，第二列为对应时刻的压力大小，排列方式如下（压力数值请用正确的值替换）：
 
 | |站点 | 压力 |
 |:---:|:---:|:---:|
 | 2018-01-01 00&#58;00&#58;00 | 1 | 1.0 |
 | 2018-01-01 00&#58;00&#58;00 | 2 | 1.0 |
-| ... | ... | ... |
+| … | … | … |
 | 2018-01-01 00&#58;00&#58;00 | 30 | 1.0 |
 | 2018-01-01 01&#58;00&#58;00 | 1 | 1.0 |
 | 2018-01-01 01&#58;00&#58;00 | 2 | 1.0
-| ... | ... | ... |
+| … | … | … |
 | 2019-12-31 23&#58;00&#58;00 | 30 | 1.0 |
 
-2. 在上一问构造的`df`基础上，构造下面的特征序列或`DataFrame`，并把它们逐个拼接到`df`的右侧
+2. 在上一问构造的 `df` 基础上，构造下面的特征序列或 `DataFrame`，并把它们逐个拼接到 `df` 的右侧
 - 当天最高温、最低温和它们的温差
 - 当天是否有沙暴、是否有雾、是否有雨、是否有雪、是否为晴天
 - 选择一种合适的方法度量雨量/下雪量的大小（构造两个序列分别表示二者大小）
-- 限制只用4列，对风向进行0-1编码
+- 限制只用 4 列，对风向进行 0-1 编码
 
-3. 对`df`的水压一列构造如下时序特征：
-- 当前时刻该站点水压与本月的相同整点时间水压均值的差，例如当前时刻为2018-05-20 17&#58;00&#58;00，那么对应需要减去的值为当前月所有17&#58;00&#58;00时间点水压值的均值
+3. 对 `df` 的水压一列构造如下时序特征：
+- 当前时刻该站点水压与本月的相同整点时间水压均值的差，例如当前时刻为 2018-05-20 17&#58;00&#58;00，那么对应需要减去的值为当前月所有 17&#58;00&#58;00 时间点水压值的均值
 - 当前时刻所在周的周末该站点水压均值与工作日水压均值之差
-- 当前时刻向前7日内，该站点水压的均值、标准差、0.95分位数、下雨天数与下雪天数的总和
-- 当前时刻向前7日内，该站点同一整点时间水压的均值、标准差、0.95分位数
+- 当前时刻向前 7 日内，该站点水压的均值、标准差、0.95 分位数、下雨天数与下雪天数的总和
+- 当前时刻向前 7 日内，该站点同一整点时间水压的均值、标准差、0.95 分位数
 - 当前时刻所在日的该站点水压最高值与最低值出现时刻的时间差
 
-【数据下载】  
-链接：https://pan.baidu.com/s/1Tqad4b7zN1HBbc-4t4xc6w   
+【数据下载】
+链接：<https://pan.baidu.com/s/1Tqad4b7zN1HBbc-4t4xc6w>
 提取码：ijbd
 
 **解答：**
-
 
 ```python
 df_2018 = pd.read_csv('../data/task11/task05/yali18.csv')
@@ -394,8 +377,7 @@ df_2019 = pd.read_csv('../data/task11/task05/yali19.csv')
 df3 = pd.read_csv('../data/task11/task05/qx1819.csv')
 ```
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 def convert_df(df):
@@ -419,12 +401,10 @@ def convert_df(df):
     return df
 ```
 
-
 ```python
 df_2018 = convert_df(df_2018)
 df_2019 = convert_df(df_2019)
 ```
-
 
 ```python
 # 将两个数据集进行拼接
@@ -434,13 +414,9 @@ df.set_index(['Time'], inplace=True)
 df.index.name = ''
 ```
 
-
 ```python
 df
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -496,9 +472,9 @@ df
       <td>0.314625</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
+      <th>…</th>
+      <td>…</td>
+      <td>…</td>
     </tr>
     <tr>
       <th>2019-12-31 23&#58;00&#58;00</th>
@@ -530,16 +506,12 @@ df
 <p>525600 rows × 2 columns</p>
 </div>
 
-
-
-**第2问：**
-
+**第 2 问：**
 
 ```python
 df3 = pd.read_csv('../data/task11/task05/qx1819.csv')
 df3['日期'] = pd.to_datetime(df3['日期'])
 ```
-
 
 ```python
 df_q21 = df3.copy()
@@ -561,7 +533,6 @@ df_q21.iloc[643, -2] = 9
 df_q21['Delta_Temp'] = df_q21['High_Temp'] - df_q21['Low_Temp']
 ```
 
-
 ```python
 df_q21 = df_q21[['日期', 'High_Temp', 'Low_Temp', 'Delta_Temp']]
 
@@ -573,9 +544,6 @@ def concat_df(df, res):
 res = concat_df(df, df_q21)
 res.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -646,9 +614,6 @@ res.head()
   </tbody>
 </table>
 </div>
-
-
-
 
 ```python
 df_q22 = df3.copy()
@@ -664,9 +629,6 @@ res = concat_df(res, df_q22)
 res.head()
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -766,9 +728,6 @@ res.head()
   </tbody>
 </table>
 </div>
-
-
-
 
 ```python
 df_q23 = df3.copy()
@@ -783,9 +742,6 @@ res1 = df_q23[['日期', 'Rain_Range']]
 res1.head()
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -837,9 +793,6 @@ res1.head()
   </tbody>
 </table>
 </div>
-
-
-
 
 ```python
 my_dict = dict(zip(['大雪', '中雪', '小雪'], [3, 2, 1]))
@@ -852,9 +805,6 @@ res2 = df_q23[['日期', 'Sown_Range']]
 res2.head()
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -907,16 +857,10 @@ res2.head()
 </table>
 </div>
 
-
-
-
 ```python
 res_q23 = pd.concat([res1, res2['Sown_Range']], 1)
 res_q23.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -976,16 +920,10 @@ res_q23.head()
 </table>
 </div>
 
-
-
-
 ```python
 res = concat_df(res, res_q23)
 res.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1099,14 +1037,10 @@ res.head()
 </table>
 </div>
 
-
-
-
 ```python
 for i in ['Sand', 'Fog', 'Rain', 'Snow', 'Sun', 'Rain_Range', 'Sown_Range']:
     res[i] = res[i].astype('int64')
 ```
-
 
 ```python
 df_q24 = df3.copy()
@@ -1118,9 +1052,6 @@ df_q24 = df_q24[['日期', *list('东南西北')]]
 df_q24.head()
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1191,9 +1122,6 @@ df_q24.head()
 </table>
 </div>
 
-
-
-
 ```python
 res = concat_df(res, df_q24)
 
@@ -1202,9 +1130,6 @@ for i in ['东','南', '西', '北']:
 
 res.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1342,10 +1267,7 @@ res.head()
 </table>
 </div>
 
-
-
-**第3问：**
-
+**第 3 问：**
 
 ```python
 def fun1(x):
@@ -1356,9 +1278,6 @@ def fun1(x):
 res_q31 = res.groupby('MeasName')['HydraulicPressure'].transform(fun1)
 res_q31
 ```
-
-
-
 
     2018-01-01 00:00:00    0.014988
     2018-01-01 00:00:00    0.000835
@@ -1373,9 +1292,6 @@ res_q31
     2019-12-31 23:00:00   -0.011625
     Name: HydraulicPressure, Length: 525600, dtype: float64
 
-
-
-
 ```python
 def fun2(x):
     temp = x.index.dayofweek.isin([0,1,2,3,4])
@@ -1386,9 +1302,6 @@ def fun2(x):
 res_q32 = res.groupby('MeasName')['HydraulicPressure'].resample('w').agg(fun2)
 res_q32
 ```
-
-
-
 
     MeasName            
     1         2018-01-07   -0.001511
@@ -1404,15 +1317,9 @@ res_q32
               2020-01-05         NaN
     Name: HydraulicPressure, Length: 3150, dtype: float64
 
-
-
-
 ```python
 res.groupby('MeasName')['HydraulicPressure'].transform(lambda x: x.rolling('7D').mean())
 ```
-
-
-
 
     2018-01-01 00:00:00    0.288625
     2018-01-01 00:00:00    0.317750
@@ -1427,9 +1334,6 @@ res.groupby('MeasName')['HydraulicPressure'].transform(lambda x: x.rolling('7D')
     2019-12-31 23:00:00    0.276750
     Name: HydraulicPressure, Length: 525600, dtype: float64
 
-
-
-
 ```python
 def fun4(x):
     res = x.rolling(24*7+1).apply(lambda x:x.iloc[0::24].mean())
@@ -1437,9 +1341,6 @@ def fun4(x):
 
 res.groupby('MeasName')['HydraulicPressure'].transform(fun4)
 ```
-
-
-
 
     2018-01-01 00:00:00         NaN
     2018-01-01 00:00:00         NaN
@@ -1454,16 +1355,10 @@ res.groupby('MeasName')['HydraulicPressure'].transform(fun4)
     2019-12-31 23:00:00    0.283453
     Name: HydraulicPressure, Length: 525600, dtype: float64
 
-
-
-
 ```python
 res.groupby(['MeasName', df.index.date])['HydraulicPressure'].agg(
     lambda x: x.idxmax() - x.idxmin())
 ```
-
-
-
 
     MeasName            
     1         2018-01-01   -1 days +18:00:00
@@ -1478,5 +1373,3 @@ res.groupby(['MeasName', df.index.date])['HydraulicPressure'].agg(
               2019-12-30   -1 days +16:00:00
               2019-12-31   -1 days +07:00:00
     Name: HydraulicPressure, Length: 21900, dtype: timedelta64[ns]
-
-

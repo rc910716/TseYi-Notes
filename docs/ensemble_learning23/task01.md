@@ -1,20 +1,19 @@
-# Task01 熟悉机器学习的三大主要任务
+## Task01 熟悉机器学习的三大主要任务
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 机器学习概念
+#### 1.1 机器学习概念
 
 - 机器学习概念：利用数学模型来理解数据，发现数据中的规律，用于数据的分析和预测
 
-### 1.2 机器学习任务分类
+#### 1.2 机器学习任务分类
 
 - 有监督学习：给定特征进行估计因变量，预测结果
     - 回归：因变量是连续变量
     - 分类：因变量是离散变量
 - 无监督学习：给定特征，但不给定因变量，寻找数据中的结构和关系
 
-## 2 实战练习
-
+### 2 实战练习
 
 ```python
 # 引入相关科学计算包
@@ -26,8 +25,7 @@ plt.style.use("ggplot")
 import seaborn as sns
 ```
 
-### 2.1 回归
-
+#### 2.1 回归
 
 ```python
 from sklearn import datasets
@@ -41,9 +39,6 @@ diabetes_data = pd.DataFrame(X,columns=features)
 diabetes_data['disease_progression'] = y
 diabetes_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -151,9 +146,6 @@ diabetes_data.head()
 </table>
 </div>
 
-
-
-
 ```python
 sns.scatterplot(x=diabetes_data['s4'],
                 y=diabetes_data['disease_progression'],
@@ -162,13 +154,10 @@ plt.title("s4~bp")
 plt.show()
 ```
 
-
-    
 ![png](images/task01/01.png)
-    
-
 
 各个特征的相关解释：
+
 - age：年龄
 - sex：性别
 - bmi：体重指标
@@ -176,8 +165,7 @@ plt.show()
 - s1、s2、s3、s4、s5、s6：六次血清测量值
 - disease_progression：一年疾病进展的测量值
 
-### 2.2 分类
-
+#### 2.2 分类
 
 ```python
 from sklearn import datasets
@@ -190,9 +178,6 @@ wine_data = pd.DataFrame(X,columns=features)
 wine_data['target'] = y
 wine_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -318,9 +303,6 @@ wine_data.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 可视化特征
 marker = ['s','x','o']
@@ -332,13 +314,10 @@ plt.legend()
 plt.show()
 ```
 
-
-    
 ![png](images/task01/02.png)
-    
-
 
 各个特征的相关解释：
+
    - alcohol：酒精
    - malic_acid：苹果酸
    - ash：灰
@@ -350,16 +329,14 @@ plt.show()
    - proanthocyanins：原花青素
    - color_intensity：色彩强度
    - hue：色调
-   - od280/od315_of_diluted_wines：稀释酒的OD280 / OD315
+   - od280/od315_of_diluted_wines：稀释酒的 OD280 / OD315
    - proline：脯氨酸
 
-### 2.3 无监督学习
-
+#### 2.3 无监督学习
 
 ```python
 from sklearn import datasets
 ```
-
 
 ```python
 # 生成具有恒定块对角线结构的数据
@@ -369,12 +346,7 @@ data, rows, columns = datasets.make_biclusters(shape=(300, 300),
 plt.matshow(data, cmap=plt.cm.Blues);
 ```
 
-
-    
 ![png](images/task01/03.png)
-    
-
-
 
 ```python
 # 生产包含较小圆圈的大圆圈数据集
@@ -382,8 +354,5 @@ X, y = datasets.make_circles(factor=0.5, random_state=0, noise=0.05)
 plt.scatter(X[:, 0], X[:, 1], c=y, s=12, edgecolor='k');
 ```
 
-
-    
 ![png](images/task01/04.png)
-    
 

@@ -1,37 +1,42 @@
-# Task4 分组
+## Task4 分组
 
-## 1 知识梳理（重点记忆）
+### 1 知识梳理（重点记忆）
 
-### 1.1 分组模式及其对象
+#### 1.1 分组模式及其对象
+
 - 每个组可以返回一个标量值
-- 每个组可以返回一个Series类型
-- 可以返回整个组所在行，该类型是`DataFrame`类型
+- 每个组可以返回一个 Series 类型
+- 可以返回整个组所在行，该类型是 `DataFrame` 类型
 
-### 1.2 agg方法
+#### 1.2 agg 方法
+
 - 将多个聚合函数，采用列表的形式传参
 - 使用字典的方式，针对不同的列进行聚合统计
 - 使用自定义函数进行计算，迭代值是每列
 - 通过元组进行索引列的重命名
 
-### 1.3 变换和过滤
-#### 1.3.1 transform方法
-- 使用group对象，迭代值是每列
+#### 1.3 变换和过滤
+
+##### 1.3.1 transform 方法
+
+- 使用 group 对象，迭代值是每列
 - 可传入聚合方法对应的字符串
 
-### 1.3.2 组索引与过滤
-使用`filter`方法进行组的筛选，迭代值是每个分组的`DataFrame`对象
+#### 1.3.2 组索引与过滤
 
-### 1.4 跨组分组
-使用`apply`方法，传入的函数只允许返回布尔值，即条件函数
+使用 `filter` 方法进行组的筛选，迭代值是每个分组的 `DataFrame` 对象
 
-## 2 练一练
+#### 1.4 跨组分组
 
-### 2.1 第1题
+使用 `apply` 方法，传入的函数只允许返回布尔值，即条件函数
 
-请根据上下四分位数分割，将体重分为high、normal、low三组，统计身高的均值。
+### 2 练一练
+
+#### 2.1 第 1 题
+
+请根据上下四分位数分割，将体重分为 high、normal、low 三组，统计身高的均值。
 
 **我的解答：**
-
 
 ```python
 import pandas as pd
@@ -39,64 +44,43 @@ import pandas as pd
 df = pd.read_csv('../data/learn_pandas.csv')
 ```
 
-
 ```python
 low_condition = df.Weight < df.Weight.quantile(0.25)
 df.groupby(low_condition)['Height'].mean()
 ```
-
-
-
 
     Weight
     False    165.950704
     True     153.753659
     Name: Height, dtype: float64
 
-
-
-
 ```python
 normal_condition = (df.Weight.quantile(0.25) < df.Weight) & (df.Weight < df.Weight.quantile(0.75))
 df.groupby(normal_condition)['Height'].mean()
 ```
-
-
-
 
     Weight
     False    164.084000
     True     162.174699
     Name: Height, dtype: float64
 
-
-
-
 ```python
 high_condition = df.Weight > df.Weight.quantile(0.75)
 df.groupby(high_condition)['Height'].mean()
 ```
-
-
-
 
     Weight
     False    159.727660
     True     174.935714
     Name: Height, dtype: float64
 
+#### 2.2 第 2 题
 
-
-### 2.2 第2题
-上一小节介绍了可以通过`drop_duplicates`得到具体的组类别，现请用`groups`属性完成类似的功能。
-
+上一小节介绍了可以通过 `drop_duplicates` 得到具体的组类别，现请用 `groups` 属性完成类似的功能。
 
 ```python
 df[['School', 'Gender']].drop_duplicates()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -165,10 +149,7 @@ df[['School', 'Gender']].drop_duplicates()
 </table>
 </div>
 
-
-
 **我的解答：**
-
 
 ```python
 groups = df.groupby(['School', 'Gender']).groups
@@ -181,9 +162,6 @@ for key, value in groups.items():
 pd.DataFrame(data={'School':school_list, 'Gender':gender_list}, index=index_list).sort_index()  
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -251,13 +229,11 @@ pd.DataFrame(data={'School':school_list, 'Gender':gender_list}, index=index_list
 </table>
 </div>
 
+#### 2.3 第 3 题
 
-
-### 2.3 第3题
-请查阅文档，明确`all/any/mad/skew/sem/prod`函数的含义。
+请查阅文档，明确 `all/any/mad/skew/sem/prod` 函数的含义。
 
 **我的解答：**
-
 
 ```python
 import numpy as np
@@ -267,9 +243,6 @@ df_ex3 = pd.DataFrame(np.random.randint(0,2,(6,4)), columns=['a', 'b', 'c', 'd']
 df_ex3['e'] = [[i, j] for (i, j) in zip(df_ex3['a'], df_ex3['b'])]
 df_ex3
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -349,16 +322,10 @@ df_ex3
 </table>
 </div>
 
-
-
-
 ```python
 # 如果分组中的该列的所有值（1为True，0为False）都是True，则为True，否则为False
 df_ex3.groupby(['a', 'b']).all()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -415,18 +382,12 @@ df_ex3.groupby(['a', 'b']).all()
   </tbody>
 </table>
 </div>
-
-
-
 
 ```python
 # 如果分组中的该列的任何值为（1为True，0为False）是True，则为True，否则为False
 df_ex3.groupby(['a', 'b']).any()
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -483,16 +444,10 @@ df_ex3.groupby(['a', 'b']).any()
 </table>
 </div>
 
-
-
-
 ```python
 # 计算各分组的平均绝对偏差
 df_ex3.groupby(['a', 'b']).mad()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -545,16 +500,10 @@ df_ex3.groupby(['a', 'b']).mad()
 </table>
 </div>
 
-
-
-
 ```python
 # 计算各分组的偏度
 df_ex3.groupby(['a', 'b']).skew()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -607,16 +556,10 @@ df_ex3.groupby(['a', 'b']).skew()
 </table>
 </div>
 
-
-
-
 ```python
 # 计算各分组的平均无偏标准误差
 df_ex3.groupby(['a', 'b']).sem()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -669,16 +612,10 @@ df_ex3.groupby(['a', 'b']).sem()
 </table>
 </div>
 
-
-
-
 ```python
 # 计算各分组的乘积
 df_ex3.groupby(['a', 'b']).prod()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -731,11 +668,9 @@ df_ex3.groupby(['a', 'b']).prod()
 </table>
 </div>
 
+#### 2.4 第 4 题
 
-
-### 2.4 第4题
 请使用【b】中的传入字典的方法完成【a】中等价的聚合任务
-
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
@@ -745,9 +680,6 @@ gb = df.groupby('Gender')[['Height', 'Weight']]
 gb.agg(['sum', 'idxmax', 'skew'])
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -815,10 +747,7 @@ gb.agg(['sum', 'idxmax', 'skew'])
 </table>
 </div>
 
-
-
 **我的解答：**
-
 
 ```python
 methods = ['sum','idxmax', 'skew']
@@ -826,9 +755,6 @@ methods = ['sum','idxmax', 'skew']
 gb.agg({'Height':methods, 'Weight':methods})
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -896,11 +822,9 @@ gb.agg({'Height':methods, 'Weight':methods})
 </table>
 </div>
 
+#### 2.5 第 5 题
 
-
-### 2.5 第5题
-在`groupby`对象中可以使用`describe`方法进行统计信息汇总，请同时使用多个聚合函数，完成与该方法相同的功能。
-
+在 `groupby` 对象中可以使用 `describe` 方法进行统计信息汇总，请同时使用多个聚合函数，完成与该方法相同的功能。
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
@@ -908,9 +832,6 @@ gb = df.groupby('Gender')[['Height', 'Weight']]
 
 gb.describe()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1019,10 +940,7 @@ gb.describe()
 </table>
 </div>
 
-
-
 **我的解答：**
-
 
 ```python
 def quantile(n):
@@ -1038,9 +956,6 @@ res = res.astype(np.float64)
 res
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1148,32 +1063,27 @@ res
 </table>
 </div>
 
+#### 2.6 第 6 题
 
-
-### 2.6 第6题
-在`groupby`对象中，`rank`方法也是一个实用的变换函数，请查阅它的功能并给出一个使用的例子。
+在 `groupby` 对象中，`rank` 方法也是一个实用的变换函数，请查阅它的功能并给出一个使用的例子。
 
 **我的解答：**
 
-`rank`方法主要功能是对其它列的属于同分组数据进行数值大小排序，重点参数如下表：  
+`rank` 方法主要功能是对其它列的属于同分组数据进行数值大小排序，重点参数如下表：
 
 |参数|描述|
 |---|:---|
-|method|如果值相同，采用方法进行计算排名，默认方法为average，可选方法为average、min、max、first、dense|
-|ascending|默认升序为True，降序为False|
-|na_option|NaN的数据位置，默认为keep（保持原位）,可选值为keep、top、bottom|
+|method|如果值相同，采用方法进行计算排名，默认方法为 average，可选方法为 average、min、max、first、dense|
+|ascending|默认升序为 True，降序为 False|
+|na_option|NaN 的数据位置，默认为 keep（保持原位）,可选值为 keep、top、bottom|
 |pct|计算分组数据的百分比值|
-|axis|默认为0，0为列，1为行|
-
+|axis|默认为 0，0 为列，1 为行|
 
 ```python
 np.random.seed(0)
 df_ex6 = pd.DataFrame(np.random.randint(0,6,(6,4)), columns=['a', 'b', 'c', 'd'])
 df_ex6
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1246,20 +1156,13 @@ df_ex6
 </table>
 </div>
 
-
-
-
 ```python
 gb = df_ex6.groupby('a')
 ```
 
-
 ```python
 gb.rank(method='first')
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1325,19 +1228,16 @@ gb.rank(method='first')
 </table>
 </div>
 
+#### 2.7 第 7 题
 
-
-### 2.7 第7题
-对于`transform`方法无法像`agg`一样，通过传入字典来对指定列使用特定的变换，如果需要在一次`transform`的调用中实现这种功能，请给出解决方案。
+对于 `transform` 方法无法像 `agg` 一样，通过传入字典来对指定列使用特定的变换，如果需要在一次 `transform` 的调用中实现这种功能，请给出解决方案。
 
 **我的解答：**
-
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
 gb = df.groupby('Gender')[['Height', 'Weight']]
 ```
-
 
 ```python
 def my_func(method_dict):
@@ -1351,9 +1251,6 @@ def my_func(method_dict):
 
 gb.transform(my_func({'Height':'standardized', 'Weight':'max'})).head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1407,20 +1304,15 @@ gb.transform(my_func({'Height':'standardized', 'Weight':'max'})).head()
 </table>
 </div>
 
+#### 2.8 第 8 题
 
-
-### 2.8 第8题
-从概念上说，索引功能是组过滤功能的子集，请使用`filter`函数完成`loc[...]`的功能，这里假设"`...`"是元素列表。 
-
+从概念上说，索引功能是组过滤功能的子集，请使用 `filter` 函数完成 `loc[…]` 的功能，这里假设 "`…`" 是元素列表。
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv', usecols = ['School', 'Grade', 'Name', 'Gender', 'Weight', 'Transfer'])
 df_demo = df.set_index('Name')
 df_demo.loc[['Qiang Sun','Quan Zhao'], ['School','Gender']]
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1474,10 +1366,7 @@ df_demo.loc[['Qiang Sun','Quan Zhao'], ['School','Gender']]
 </table>
 </div>
 
-
-
 **我的解答：**
-
 
 ```python
 names, cols= ['Qiang Sun','Quan Zhao'], ['School','Gender']
@@ -1493,9 +1382,6 @@ def my_filter(df, names, cols):
 res = my_filter(df, names, cols)
 res
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1544,22 +1430,17 @@ res
 </table>
 </div>
 
+#### 2.9 第 9 题
 
-
-### 2.9 第9题
-请尝试在`apply`传入的自定义函数中，根据组的某些特征返回相同长度但索引不同的`Series`，会报错吗？
+请尝试在 `apply` 传入的自定义函数中，根据组的某些特征返回相同长度但索引不同的 `Series`，会报错吗？
 
 **我的解答：**
-
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
 gb = df.groupby(['Gender','Test_Number'])[['Height','Weight']]
 gb.count()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1627,9 +1508,6 @@ gb.count()
 </table>
 </div>
 
-
-
-
 ```python
 def my_func_ex9(x):
     if x.shape[0] < 100:
@@ -1644,22 +1522,19 @@ except Exception as e:
     print("Exception Message:", Exception_Msg)    
 ```
 
-执行函数之后可知，返回相同长度但索引不同的`Series`会报错，原因是`Series`的`name`必须是可哈希的（不可变的），但是代码中通过强制返回索引不同的`Series`名字，导致报错。
+执行函数之后可知，返回相同长度但索引不同的 `Series` 会报错，原因是 `Series` 的 `name` 必须是可哈希的（不可变的），但是代码中通过强制返回索引不同的 `Series` 名字，导致报错。
 
-### 2.10 第10题
-请尝试在`apply`传入的自定义函数中，根据组的某些特征返回相同大小但列索引不同的`DataFrame`，会报错吗？如果只是行索引不同，会报错吗？
+#### 2.10 第 10 题
+
+请尝试在 `apply` 传入的自定义函数中，根据组的某些特征返回相同大小但列索引不同的 `DataFrame`，会报错吗？如果只是行索引不同，会报错吗？
 
 **我的解答：**
-
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
 gb = df.groupby(['Gender'])[['Height','Weight']]
 gb.count()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1703,9 +1578,6 @@ gb.count()
 </table>
 </div>
 
-
-
-
 ```python
 # 返回相同大小但列索引不同的DataFrame
 def my_func_ex10(x):
@@ -1721,13 +1593,9 @@ except Exception as e:
     print("Exception Message:", Exception_Msg)
 ```
 
-
 ```python
 gb.apply(my_func_ex10)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1807,9 +1675,6 @@ gb.apply(my_func_ex10)
 </table>
 </div>
 
-
-
-
 ```python
 # 返回相同大小但行索引不同的DataFrame
 def my_func_ex10(x):
@@ -1825,13 +1690,9 @@ except Exception as e:
     print("Exception Message:", Exception_Msg)
 ```
 
-
 ```python
 gb.apply(my_func_ex10)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1911,22 +1772,17 @@ gb.apply(my_func_ex10)
 </table>
 </div>
 
-
-
 观察得知，程序执行不会报错
 
-### 2.11 第11题
-在`groupby`对象中还定义了`cov`和`corr`函数，从概念上说也属于跨列的分组处理。请利用之前定义的`gb`对象，使用apply函数实现与`gb.cov()`同样的功能并比较它们的性能。
+#### 2.11 第 11 题
 
+在 `groupby` 对象中还定义了 `cov` 和 `corr` 函数，从概念上说也属于跨列的分组处理。请利用之前定义的 `gb` 对象，使用 apply 函数实现与 `gb.cov()` 同样的功能并比较它们的性能。
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
 gb = df.groupby(['Gender','Test_Number'])[['Height','Weight']]
 gb.cov()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2032,10 +1888,7 @@ gb.cov()
 </table>
 </div>
 
-
-
 **我的解答：**
-
 
 ```python
 def my_cov(x):  
@@ -2049,9 +1902,6 @@ def my_cov(x):
 gb.apply(my_cov)
 ```
 
-
-
-
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -2156,18 +2006,13 @@ gb.apply(my_cov)
 </table>
 </div>
 
-
-
 性能测试对比：
-
 
 ```python
 %timeit -n 30 gb.cov()
 ```
 
     30 loops, best of 5: 4.9 ms per loop
-    
-
 
 ```python
 %timeit -n 30 gb.apply(my_cov)
@@ -2176,21 +2021,18 @@ gb.apply(my_cov)
     30 loops, best of 5: 13.9 ms per loop
     
 
-性能测试分析：my_cov的程序比groupby.cov()慢了一倍，应该是计算Series.cov()时间慢
+性能测试分析：my_cov 的程序比 groupby.cov() 慢了一倍，应该是计算 Series.cov() 时间慢
 
-## 3 练习
+### 3 练习
 
-### 3.1 Ex1：汽车数据集
-现有一份汽车数据集，其中`Brand, Disp., HP`分别代表汽车品牌、发动机蓄量、发动机输出。
+#### 3.1 Ex1：汽车数据集
 
+现有一份汽车数据集，其中 `Brand, Disp., HP` 分别代表汽车品牌、发动机蓄量、发动机输出。
 
 ```python
 df = pd.read_csv('../data/car.csv')
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2236,7 +2078,7 @@ df.head(3)
     </tr>
     <tr>
       <th>1</th>
-      <td>Ford Escort   4</td>
+      <td>Ford Escort 4</td>
       <td>7402</td>
       <td>USA</td>
       <td>2.0</td>
@@ -2262,27 +2104,21 @@ df.head(3)
 </table>
 </div>
 
-
-
-1. 先过滤出所属`Country`数超过2个的汽车，即若该汽车的`Country`在总体数据集中出现次数不超过2则剔除，再按`Country`分组计算价格均值、价格变异系数、该`Country`的汽车数量，其中变异系数的计算方法是标准差除以均值，并在结果中把变异系数重命名为`CoV`。
-2. 按照表中位置的前三分之一、中间三分之一和后三分之一分组，统计`Price`的均值。
-3. 对类型`Type`分组，对`Price`和`HP`分别计算最大值和最小值，结果会产生多级索引，请用下划线把多级列索引合并为单层索引。
-4. 对类型`Type`分组，对`HP`进行组内的`min-max`归一化。
-5. 对类型`Type`分组，计算`Disp.`与`HP`的相关系数。
+1. 先过滤出所属 `Country` 数超过 2 个的汽车，即若该汽车的 `Country` 在总体数据集中出现次数不超过 2 则剔除，再按 `Country` 分组计算价格均值、价格变异系数、该 `Country` 的汽车数量，其中变异系数的计算方法是标准差除以均值，并在结果中把变异系数重命名为 `CoV`。
+2. 按照表中位置的前三分之一、中间三分之一和后三分之一分组，统计 `Price` 的均值。
+3. 对类型 `Type` 分组，对 `Price` 和 `HP` 分别计算最大值和最小值，结果会产生多级索引，请用下划线把多级列索引合并为单层索引。
+4. 对类型 `Type` 分组，对 `HP` 进行组内的 `min-max` 归一化。
+5. 对类型 `Type` 分组，计算 `Disp.` 与 `HP` 的相关系数。
 
 **我的解答：**
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 # 过滤出所属Country数超过2个的汽车
 df_1 = df.groupby('Country').filter(lambda x: x.shape[0] > 2)
 df_1.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2328,7 +2164,7 @@ df_1.head()
     </tr>
     <tr>
       <th>1</th>
-      <td>Ford Escort   4</td>
+      <td>Ford Escort 4</td>
       <td>7402</td>
       <td>USA</td>
       <td>2.0</td>
@@ -2378,15 +2214,9 @@ df_1.head()
 </table>
 </div>
 
-
-
-
 ```python
 df_1.groupby('Country')['Price'].agg(['mean', ('CoV', lambda x : x.std()/x.mean()), 'count'])
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2446,10 +2276,7 @@ df_1.groupby('Country')['Price'].agg(['mean', ('CoV', lambda x : x.std()/x.mean(
 </table>
 </div>
 
-
-
-**第2问：**
-
+**第 2 问：**
 
 ```python
 df_size = df.shape[0]
@@ -2458,26 +2285,17 @@ condition = ['head'] * int(df_size / 3) + ['mid'] * int(df_size / 3) + ['tail'] 
 df.groupby(condition)['Price'].mean()
 ```
 
-
-
-
     head     9069.95
     mid     13356.40
     tail    15420.65
     Name: Price, dtype: float64
 
-
-
-**第3问：**
-
+**第 3 问：**
 
 ```python
 df_2 = df.groupby('Type').agg({'Price':['max'], 'HP':['min']})
 df_2
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2550,16 +2368,10 @@ df_2
 </table>
 </div>
 
-
-
-
 ```python
 df_2.columns = df_2.columns.map(lambda x : '_'.join(x))
 df_2
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2623,17 +2435,11 @@ df_2
 </table>
 </div>
 
-
-
-**第4问：对类型`Type`分组，对HP进行组内的`min-max`归一化。**
-
+**第 4 问：对类型 `Type` 分组，对 HP 进行组内的 `min-max` 归一化。**
 
 ```python
 df.groupby('Type')['HP'].transform(lambda x: (x-x.min())/(x.max() - x.min())).head()
 ```
-
-
-
 
     0    1.00
     1    0.54
@@ -2642,19 +2448,13 @@ df.groupby('Type')['HP'].transform(lambda x: (x-x.min())/(x.max() - x.min())).he
     4    0.80
     Name: HP, dtype: float64
 
-
-
-**第5问：对类型Type分组，计算`Disp.`与`HP`的相关系数**
-
+**第 5 问：对类型 Type 分组，计算 `Disp.` 与 `HP` 的相关系数**
 
 ```python
 gb = df.groupby('Type')[['Disp.', 'HP']]
 
 gb.apply(lambda x: np.corrcoef(x['Disp.'], x['HP'])[0,1])
 ```
-
-
-
 
     Type
     Compact    0.586087
@@ -2665,17 +2465,15 @@ gb.apply(lambda x: np.corrcoef(x['Disp.'], x['HP'])[0,1])
     Van        0.819881
     dtype: float64
 
+#### 3.2 Ex2：实现 transform 函数
 
-
-### 3.2 Ex2：实现transform函数
-* `groupby`对象的构造方法是`my_groupby(df, group_cols)`
-* 支持单列分组与多列分组
-* 支持带有标量广播的`my_groupby(df)[col].transform(my_func)`功能
-* `pandas`的`transform`不能跨列计算，请支持此功能，即仍返回`Series`但`col`参数为多列
-* 无需考虑性能与异常处理，只需实现上述功能，在给出测试样例的同时与`pandas`中的`transform`对比结果是否一致
+- `groupby` 对象的构造方法是 `my_groupby(df, group_cols)`
+- 支持单列分组与多列分组
+- 支持带有标量广播的 `my_groupby(df)[col].transform(my_func)` 功能
+- `pandas` 的 `transform` 不能跨列计算，请支持此功能，即仍返回 `Series` 但 `col` 参数为多列
+- 无需考虑性能与异常处理，只需实现上述功能，在给出测试样例的同时与 `pandas` 中的 `transform` 对比结果是否一致
 
 **解题思路：**
-
 
 ```python
 class my_groupby:
@@ -2751,14 +2549,10 @@ class my_groupby:
             yield group_df
 ```
 
-
 ```python
 df = pd.read_csv('../data/car.csv')
 df.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2804,7 +2598,7 @@ df.head()
     </tr>
     <tr>
       <th>1</th>
-      <td>Ford Escort   4</td>
+      <td>Ford Escort 4</td>
       <td>7402</td>
       <td>USA</td>
       <td>2.0</td>
@@ -2854,9 +2648,6 @@ df.head()
 </table>
 </div>
 
-
-
-
 ```python
 def test1():
     # head()方法测试
@@ -2898,7 +2689,6 @@ def test5():
     print("\n跨列计算：\n", res)
 ```
 
-
 ```python
 test1()
 test2()
@@ -2907,7 +2697,6 @@ test4()
 test5()
 ```
 
-    
     跨列计算：
      0    0.858407
     1    1.266667

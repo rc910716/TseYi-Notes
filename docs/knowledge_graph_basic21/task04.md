@@ -1,54 +1,52 @@
-# Task04 用户输入->知识库的查询语句
-## 1 知识梳理
+## Task04 用户输入 ->知识库的查询语句
 
-### 1.1 问答系统
+### 1 知识梳理
+
+#### 1.1 问答系统
+
 - 问答系统概念：用来回答用户提出的自然语言问题的系统
-- 类型：  
-从知识领域划分：封闭领域、开放领域  
-从实现方式划分：基于流水线（pipeline）实现、基于端到端（end-to-end）实现  
+- 类型：
+从知识领域划分：封闭领域、开放领域
+从实现方式划分：基于流水线（pipeline）实现、基于端到端（end-to-end）实现
 从答案来源划分：知识库问答（KB-QA）、常见问题问答、行为问答、网际网路问答
-- 知识库问答流程：  
-问句->语义解析->语义表达->语义匹配、查询、推理<->知识库
+- 知识库问答流程：
+问句 ->语义解析 ->语义表达 ->语义匹配、查询、推理<->知识库
 
-### 1.2 Query理解
-- 概念：从词法、句法、语义三个层面对Query进行结构化解析
-- 意图识别：检测用户当前输入的（文本/图片/语音）意图，所用方法包括基于词典模板的规则分类、传统的机器学习模型（文本特征工程+分类器）、深度学习模型
+#### 1.2 Query 理解
+
+- 概念：从词法、句法、语义三个层面对 Query 进行结构化解析
+- 意图识别：检测用户当前输入的（文本/图片/语音）意图，所用方法包括基于词典模板的规则分类、传统的机器学习模型（文本特征工程 + 分类器）、深度学习模型
 - 槽值填充：通过既定的字段，将用户输入的信息与字段对应的部分提取出来
-- 序列标注的任务常用模型：词典匹配、BILSTM+CRF、IDCNN、BERT等
+- 序列标注的任务常用模型：词典匹配、BILSTM+CRF、IDCNN、BERT 等
 
-### 1.3 基于知识图谱的问答系统框架
+#### 1.3 基于知识图谱的问答系统框架
 
 ![](images/task04/01.png)
 
-## 2 代码详解
-主要详解主体类`EntityExtractor`代码（entity_extractor.py），主要用于命名实体识别、意图识别以及意图补充和纠正
+### 2 代码详解
 
-### 2.1 命名实体识别
+主要详解主体类 `EntityExtractor` 代码（entity_extractor.py），主要用于命名实体识别、意图识别以及意图补充和纠正
+
+#### 2.1 命名实体识别
+
 整体思路：
-1. 根据用户的输入语句，使用预先构建的`AC Tree`(疾病、疾病别名、并发症和症状)进行匹配
-2. 如果匹配不到上述实体、使用`jieba`词库进行文本切分
-3. 将文本切分后的每一个词与词库（疾病、疾病别名、并发症和症状）中的词计算文本相似度得分（使用overlap score、余弦相似度和编辑距离计算平均得分），如果得分超过0.7，则该词属于相关类的实体
-4. 排序选取相关性得分最高的词作为实体
 
+1. 根据用户的输入语句，使用预先构建的 `AC Tree`(疾病、疾病别名、并发症和症状) 进行匹配
+2. 如果匹配不到上述实体、使用 `jieba` 词库进行文本切分
+3. 将文本切分后的每一个词与词库（疾病、疾病别名、并发症和症状）中的词计算文本相似度得分（使用 overlap score、余弦相似度和编辑距离计算平均得分），如果得分超过 0.7，则该词属于相关类的实体
+4. 排序选取相关性得分最高的词作为实体
 
 ```python
 from py2neo import Graph
 graph = Graph("http://localhost:7474", username="neo4j", password="hun1988")
 ```
 
-
 ```python
 node_labes = list(graph.schema.node_labels)
 node_labes
 ```
 
-
-
-
     ['Complication', 'Alias', 'Drug', 'Symptom', 'Part', 'Department', 'Disease']
-
-
-
 
 ```python
 import pandas as pd
@@ -65,13 +63,9 @@ for label in node_labes:
 df = pd.concat([df, pd.DataFrame(data=[["Total", df.Numbers.sum(), ""]], columns=columns)]).reset_index(drop=True)
 ```
 
-
 ```python
 df
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -149,11 +143,9 @@ df
 </table>
 </div>
 
+##### 2.1.1 AC Tree 创建
 
-
-#### 2.1.1 AC Tree创建
-`pyahocorasick`模块的作用是字符串匹配，比如现在有个数据量很大的列表，根据用户输入一句话，从大列表中匹配出字符串
-
+`pyahocorasick` 模块的作用是字符串匹配，比如现在有个数据量很大的列表，根据用户输入一句话，从大列表中匹配出字符串
 
 ```python
 def build_actree(self, wordlist):
@@ -169,7 +161,6 @@ def build_actree(self, wordlist):
     actree.make_automaton()
     return actree
 ```
-
 
 ```python
 def __init__(self):
@@ -199,8 +190,7 @@ def __init__(self):
     self.complication_tree = self.build_actree(list(set(self.complication_entities)))
 ```
 
-使用`self.disease_tree.iter(question)`可进行快速匹配出结果
-
+使用 `self.disease_tree.iter(question)` 可进行快速匹配出结果
 
 ```python
 def entity_reg(self, question):
@@ -219,8 +209,7 @@ def entity_reg(self, question):
             self.result["Disease"].append(word)
 ```
 
-#### 2.1.2 使用相似度进行实体匹配
-
+##### 2.1.2 使用相似度进行实体匹配
 
 ```python
 def find_sim_words(self, question):
@@ -271,16 +260,17 @@ def find_sim_words(self, question):
         self.result[temp1[0][2]] = [temp1[0][0]]
 ```
 
-### 2.2 意图识别
+#### 2.2 意图识别
 
 整体思路：
-1. 利用`TF-IDF`表征文本特征，并构建人工特征（每一类意图常见词在句子中出现的频数）
+
+1. 利用 `TF-IDF` 表征文本特征，并构建人工特征（每一类意图常见词在句子中出现的频数）
 2. 使用朴素贝叶斯模型进行意图识别
 3. 使用实体信息进行意图的纠正和补充
 
-#### 2.2.1 特征构建
-主要包括`TF-IDF`特征和人工特征的构建
+##### 2.2.1 特征构建
 
+主要包括 `TF-IDF` 特征和人工特征的构建
 
 ```python
 def tfidf_features(self, text, vectorizer):
@@ -347,8 +337,7 @@ def other_features(self, text):
     return np.array(normed_features)
 ```
 
-#### 2.2.2 使用朴素贝叶斯进行意图识别（文本分类） 
-
+##### 2.2.2 使用朴素贝叶斯进行意图识别（文本分类）
 
 ```python
 # 意图预测
@@ -366,7 +355,8 @@ def extractor(self, question):
     intentions.append(predicted[0])
 ```
 
-#### 2.2.3 纠正和补充意图
+##### 2.2.3 纠正和补充意图
+
 - 已知疾病，查询症状
 - 已知疾病或症状，查询治疗方法
 - 已知疾病或症状，查询治疗周期
@@ -378,7 +368,8 @@ def extractor(self, question):
 - 若是疾病和症状同时出现，且出现了查询疾病的特征词，则意图为查询疾病
 - 若没有识别出实体或意图则调用其它方法
 
-## 3 总结
-1. 整个意图识别的过程很清晰，通过使用`AC Tree`和词相似度匹配的方法，得到命名实体，然后根据命名实体，采用`TF-IDF`进行特征提取，再利用已经训练好的朴素贝叶斯模型，进行文本分类预测，即意图识别。
-2. 通过代码的`Debug`可以看到最后得到的意图，例如“乙肝怎么治”，得到的文本分类为`{'Disease': ['乙肝'], 'intentions': ['query_cureway']}`，表示疾病为乙肝，意图是已知疾病或症状，查询治疗方法
+### 3 总结
+
+1. 整个意图识别的过程很清晰，通过使用 `AC Tree` 和词相似度匹配的方法，得到命名实体，然后根据命名实体，采用 `TF-IDF` 进行特征提取，再利用已经训练好的朴素贝叶斯模型，进行文本分类预测，即意图识别。
+2. 通过代码的 `Debug` 可以看到最后得到的意图，例如“乙肝怎么治”，得到的文本分类为 `{'Disease': ['乙肝'], 'intentions': ['query_cureway']}`，表示疾病为乙肝，意图是已知疾病或症状，查询治疗方法
 ![](images\task04\02.png)

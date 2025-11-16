@@ -1,28 +1,26 @@
-# Task05 多智能体开发
+## Task05 多智能体开发
 
-## 1 多智能体组件
+### 1 多智能体组件
 
-### 1.1 Environment介绍
+#### 1.1 Environment 介绍
 
-- Environment：主要管理Agent的活动与信息交流。
+- Environment：主要管理 Agent 的活动与信息交流。
     - `desc`：环境描述
     - `roles`：当前环境中的角色
     - `members`：当前环境中的角色和对应的状态
     - `history`：记录环境中发生的消息记录
+- Environment 的执行过程：
+    - 遍历所有的角色，按顺序执行 `role` 的方法。
+    - `role` 根据运行时的消息，存入到 `role_context` 的 `msg_buffer` 中
+    - `role` 的每次行动时，都先调用 `_observe` 接收消息，从缓冲区和其他源准备新消息进行处理，当未接收到指令时，`role` 继续等待。
+    - `role` 执行行动。
+    - 将 `role` 的执行结果发布到环境中。
+    - 遍历所有的角色，检查它们是否订阅了这条消息，如果订阅了，则将消息存入到 `role` 的 `msg_buffer` 中。
 
-- Environment的执行过程：
-    - 遍历所有的角色，按顺序执行`role`的方法。
-    - `role`根据运行时的消息，存入到`role_context`的`msg_buffer`中
-    - `role`的每次行动时，都先调用`_observe`接收消息，从缓冲区和其他源准备新消息进行处理，当未接收到指令时，`role`继续等待。
-    - `role`执行行动。
-    - 将`role`的执行结果发布到环境中。
-    - 遍历所有的角色，检查它们是否订阅了这条消息，如果订阅了，则将消息存入到`role`的`msg_buffer`中。
-
-### 1.2 实现一个简单的多智能体系统
+#### 1.2 实现一个简单的多智能体系统
 
 - 项目背景：根据给定的主题，撰写一篇优美的英文诗。
 - 需求分析：接收用户的需求，学生关注到布置的题目后就会开始创作，当老师发现学生写作完成后就会给学生提出意见，根据老师给出的意见，学生将修改自己的作品，直到设定循环结束。
-
 
 ```python
 import asyncio
@@ -35,11 +33,9 @@ from metagpt.roles import Role
 from metagpt.schema import Message
 ```
 
-
 ```python
 classroom = Environment()
 ```
-
 
 ```python
 # 编写诗句，并根据老师的建议修改诗句
@@ -61,7 +57,6 @@ class WritePoem(Action):
         return rsp
 ```
 
-
 ```python
 # 读取诗歌作品，并给出修改意见
 class ReviewPoem(Action):
@@ -82,7 +77,6 @@ class ReviewPoem(Action):
 
         return rsp
 ```
-
 
 ```python
 # 定义学生角色
@@ -108,7 +102,6 @@ class Student(Role):
         return msg
 ```
 
-
 ```python
 # 定义老师角色
 class Teacher(Role):
@@ -133,7 +126,6 @@ class Teacher(Role):
         return msg
 ```
 
-
 ```python
 async def main(topic: str, n_round=3):
     classroom.add_roles([Student(), Teacher()])
@@ -150,7 +142,6 @@ async def main(topic: str, n_round=3):
 
         await classroom.run()
 ```
-
 
 ```python
 await main(topic='write a poem about moon')
@@ -314,18 +305,16 @@ await main(topic='write a poem about moon')
     Eternal, just like the mysteries of time.
     
 
-### 1.3 Team介绍
+#### 1.3 Team 介绍
 
-- Team：基于Environment之上的二次封装。
-    - `investment`：用于管理团队成本（限制token消费）
-
-- Team主要方法：
+- Team：基于 Environment 之上的二次封装。
+    - `investment`：用于管理团队成本（限制 token 消费）
+- Team 主要方法：
     - `hire`：用于在团队中添加员工。
     - `invest`：控制预算。
+- Team 的执行过程：调用 `run_project` 方法，给智能体们一个需求，在 `n_round` 循环中，重复检查预算和运行的 `env`，最后返回环境中角色的历史对话。
 
-- Team的执行过程：调用`run_project`方法，给智能体们一个需求，在`n_round`循环中，重复检查预算和运行的`env`，最后返回环境中角色的历史对话。
-
-### 1.4 基于Team实现一个智能体团队
+#### 1.4 基于 Team 实现一个智能体团队
 
 **实现步骤：**
 1. 定义每个角色能够执行的预期动作。
@@ -336,7 +325,6 @@ await main(topic='write a poem about moon')
 - `SimpleCoder`：接收用户的需求，编写主要代码。
 - `SimpleTester`：获取主代码并，为其提供测试用例。
 - `SimpleReviewer`：审查测试用例，检查其覆盖范围和质量。
-
 
 ```python
 import re
@@ -349,7 +337,6 @@ from metagpt.schema import Message
 from metagpt.team import Team
 ```
 
-
 ```python
 def parse_code(rsp):
     pattern = r"```python(.*)```"
@@ -357,7 +344,6 @@ def parse_code(rsp):
     code_text = match.group(1) if match else rsp
     return code_text
 ```
-
 
 ```python
 class SimpleWriteCode(Action):
@@ -377,7 +363,6 @@ class SimpleWriteCode(Action):
 
         return code_text
 ```
-
 
 ```python
 class SimpleWriteTest(Action):
@@ -400,7 +385,6 @@ class SimpleWriteTest(Action):
         return code_text
 ```
 
-
 ```python
 class SimpleWriteReview(Action):
     PROMPT_TEMPLATE: str = """
@@ -418,7 +402,6 @@ class SimpleWriteReview(Action):
         return rsp
 ```
 
-
 ```python
 class SimpleCoder(Role):
     name: str = "Alice"
@@ -429,7 +412,6 @@ class SimpleCoder(Role):
         self._watch([UserRequirement])
         self._init_actions([SimpleWriteCode])
 ```
-
 
 ```python
 class SimpleTester(Role):
@@ -453,7 +435,6 @@ class SimpleTester(Role):
         return msg
 ```
 
-
 ```python
 class SimpleReviewer(Role):
     name: str = "Charlie"
@@ -464,7 +445,6 @@ class SimpleReviewer(Role):
         self._init_actions([SimpleWriteReview])
         self._watch([SimpleWriteTest])
 ```
-
 
 ```python
 async def main(
@@ -488,7 +468,6 @@ async def main(
     team.run_project(idea)
     await team.run(n_round=n_round)
 ```
-
 
 ```python
 await main()
@@ -592,8 +571,7 @@ await main()
     2024-03-01 21:03:11.699 | INFO     | metagpt.utils.cost_manager:update_cost:48 - Total running cost: $0.005 | Max budget: $10.000 | Current cost: $0.000, prompt_tokens: 887, completion_tokens: 115
     
 
-## 2 多智能体案例：辩论
-
+### 2 多智能体案例：辩论
 
 ```python
 import fire
@@ -604,8 +582,7 @@ from metagpt.schema import Message
 from metagpt.team import Team
 ```
 
-### 2.1 定义动作
-
+#### 2.1 定义动作
 
 ```python
 class SpeakAloud(Action):
@@ -632,8 +609,7 @@ class SpeakAloud(Action):
         return rsp
 ```
 
-### 2.2 定义角色
-
+#### 2.2 定义角色
 
 ```python
 class Debater(Role):
@@ -674,8 +650,7 @@ class Debater(Role):
         return msg
 ```
 
-### 2.3 实例化
-
+#### 2.3 实例化
 
 ```python
 async def debate(idea: str, investment: float = 3.0, n_round: int = 5):
@@ -689,7 +664,6 @@ async def debate(idea: str, investment: float = 3.0, n_round: int = 5):
     team.run_project(idea, send_to="Biden")  
     await team.run(n_round=n_round)
 ```
-
 
 ```python
 idea = "The U.S. should commit more in climate change fighting"

@@ -1,55 +1,69 @@
-# Task05 掌握基本的分类模型
+## Task05 掌握基本的分类模型
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 选择度量模型性能的指标
+#### 1.1 选择度量模型性能的指标
+
 - 与回归指标的差异：
   - 分类问题的因变量是离散变量，只衡量预测值和因变量的相似度是不可行的
   - 对于每个类别错误率的代价不同
 - 分类的各种情况：
-  - 真阳性TP：预测值和真实值都为正例；                        
-  - 真阴性TN：预测值与真实值都为负例；                     
-  - 假阳性FP：预测值为正，实际值为负；
-  - 假阴性FN：预测值为负，实际值为正；
+  - 真阳性 TP：预测值和真实值都为正例；
+  - 真阴性 TN：预测值与真实值都为负例；
+  - 假阳性 FP：预测值为正，实际值为负；
+  - 假阴性 FN：预测值为负，实际值为正；
 - 分类模型的指标
-  - 准确率：$\displaystyle ACC = \frac{TP+TN}{FP+FN+TP+TN}$
-  - 精度：$\displaystyle PRE = \frac{TP}{TP+FP}$
-  - 召回率：$\displaystyle REC = \frac{TP}{TP+FN}$
-  - F1值：$\displaystyle F1 = 2 \frac{PRE\times REC}{PRE + REC}$
-  - ROC曲线：以假阳率为横轴，真阳率为纵轴画出来的曲线，曲线下方面积越大越好
+  - 准确率：$\text{ACC} = \frac{TP+TN}{FP+FN+TP+TN}$
+  - 精度：$\text{PRE} = \frac{TP}{TP+FP}$
+  - 召回率：$\text{REC} = \frac{TP}{TP+FN}$
+  - F1 值：$\text{F1} = 2 \frac{PRE\times REC}{PRE + REC}$
+  - ROC 曲线：以假阳率为横轴，真阳率为纵轴画出来的曲线，曲线下方面积越大越好
 
-### 1.2 选择具体的模型并训练
+#### 1.2 选择具体的模型并训练
 
-#### 1.2.1 逻辑回归
-- 如果线性回归模型为$Y=\beta_0 + \beta_1 X$，`logistic`函数为${p(X) = \dfrac{e^{\beta_0 + \beta_1X}}{1+e^{\beta_0 + \beta_1X}}}$
-- 通过假设数据服从0-1分布，计算$P(Y|X)$的极大似然估计：$\arg\max\limits_w \log P(Y|X)$，使用梯度下降法，计算$w_k^{(t+1)}\leftarrow w_k^{(t)} - \eta \sum\limits_{i=1}^{N}(y_i-\sigma(z_i))x_i^{(k)}$，其中$x_i^{(k)}$为第$i$个样本第$k$个特征
+##### 1.2.1 逻辑回归
 
-### 1.3 基于概率的分类模型
+- 如果线性回归模型为 $Y=\beta_0 + \beta_1 X$，`logistic` 函数为 ${p(X) = \dfrac{e^{\beta_0 + \beta_1X}}{1+e^{\beta_0 + \beta_1X}}}$
+- 通过假设数据服从 0-1 分布，计算 $P(Y|X)$ 的极大似然估计：$\arg\max\limits_w \log P(Y|X)$，使用梯度下降法，计算 $w_k^{(t+1)}\leftarrow w_k^{(t)} - \eta \sum\limits_{i=1}^{N}(y_i-\sigma(z_i))x_i^{(k)}$，其中 $x_i^{(k)}$ 为第 $i$ 个样本第 $k$ 个特征
 
-#### 1.3.1 线性判别分析
-- 贝叶斯定理：${P(Y=k|X=x) = \dfrac{{\pi}_kf_k(x)}{\sum\limits_{l=1}^K{\pi}_lf_l(x)}}$ 
-- 通过贝叶斯定理计算分子部分${\pi}_kf_k(x)$，比较分子值最大的哪个类别即为最终的类别，模型如下：  
-  $${\begin{cases}\delta_k(x) = ln(g_k(x))=ln\pi_k+\dfrac{\mu}{\sigma^2}x-\dfrac{\mu^2}{2\sigma^2}\\{\hat{\mu}_k =\dfrac{1}{n_k}\sum\limits_{i:y_i=k}x_i}\\{\hat{\sigma}^2 =\dfrac{1}{n-K}\sum\limits_{k=1}^K\sum\limits_{i:y_i=k}(x_i-\hat{\mu}_k)^2}\end{cases}}$$通过计算${\delta_k(x)}$ ，可得到${k}$对应的${\delta_k(x)}$值大的类为最终的类别
+#### 1.3 基于概率的分类模型
+
+##### 1.3.1 线性判别分析
+
+- 贝叶斯定理：${P(Y=k|X=x) = \dfrac{{\pi}_kf_k(x)}{\sum\limits_{l=1}^K{\pi}_lf_l(x)}}$
+- 通过贝叶斯定理计算分子部分 ${\pi}_kf_k(x)$，比较分子值最大的哪个类别即为最终的类别，模型如下：
+
+  $${\begin{cases}\delta_k(x) = ln(g_k(x))=ln\pi_k+\dfrac{\mu}{\sigma^2}x-\dfrac{\mu^2}{2\sigma^2}\\{\hat{\mu}_k =\dfrac{1}{n_k}\sum\limits_{i:y_i=k}x_i}\\{\hat{\sigma}^2 =\dfrac{1}{n-K}\sum\limits_{k=1}^K\sum\limits_{i:y_i=k}(x_i-\hat{\mu}_k)^2}\end{cases}}$$
+
+通过计算 ${\delta_k(x)}$ ，可得到 ${k}$ 对应的 ${\delta_k(x)}$ 值大的类为最终的类别
+
 - 降维分类：降维后的数据，同一类别的数据自身内部方差小，不同类别之间的方差大，简称为“类内方差小，类间方差大”
 
-#### 1.3.2 朴素贝叶斯
-- 朴素贝叶斯算法，将线性判别分析中的协方差矩阵的协方差全部变为0，只保留各自特征的方差，即假设各个特征之间是不相关的
+##### 1.3.2 朴素贝叶斯
 
-### 1.4 决策树
+- 朴素贝叶斯算法，将线性判别分析中的协方差矩阵的协方差全部变为 0，只保留各自特征的方差，即假设各个特征之间是不相关的
+
+#### 1.4 决策树
+
 - 给定一个观测值，因变量的预测值为它所属的终端结点内训练集的最常出现的类
 - 使用分类错误率（$E = 1-max_k(\hat{p}_{mk})$）作为确定分裂结点的准则，但是在构建决策树时不够准确
-- 基尼系数：$G = \sum\limits_{k=1}^{K} \hat{p}_{mk}(1-\hat{p}_{mk})$，如果取值小，意味着某个节点包含的观测点几乎来自同一类，其分类树也叫做`CART`
+- 基尼系数：$G = \sum\limits_{k=1}^{K} \hat{p}_{mk}(1-\hat{p}_{mk})$，如果取值小，意味着某个节点包含的观测点几乎来自同一类，其分类树也叫做 `CART`
 - 交叉熵：$D = -\sum\limits_{k=1}^{K} \hat{p}_{mk}log\;\hat{p}_{mk}$，如果某个结点纯度越高，交叉熵越小
 
-### 1.5 支持向量机SVM
+#### 1.5 支持向量机 SVM
+
 - 找到最大间隔超平面，将数据分开，即找到一个分隔平面距离最近的观测点最远
-- 根据距离超平面最近的点，可得到SVM模型的具体形式$$\begin{aligned}
+- 根据距离超平面最近的点，可得到 SVM 模型的具体形式 $$\begin{aligned}
 \min _{w, b} & \frac{1}{2}\|w\|^{2} \\
 \text { s.t. } & y^{(i)}\left(w^{T} x^{(i)}+b\right) \geq 1, \quad i=1, \ldots, n
 \end{aligned}$$
-将优化问题转换为拉格朗日问题：$$\mathcal{L}(w, b, \alpha)=\frac{1}{2}\|w\|^{2}-\sum_{i=1}^{n} \alpha_{i}\left[y^{(i)}\left(w^{T} x^{(i)}+b\right)-1\right]$$ 
-对上述问题求最小值，得到$w$和$b$的解,代入上述方程中，可得：$$\mathcal{L}(w, b, \alpha)=\sum_{i=1}^{n} \alpha_{i}-\frac{1}{2} \sum_{i, j=1}^{n} y^{(i)} y^{(j)} \alpha_{i} \alpha_{j}\left(x^{(i)}\right)^{T} x^{(j)}$$
+
+将优化问题转换为拉格朗日问题：$$\mathcal{L}(w, b, \alpha)=\frac{1}{2}\|w\|^{2}-\sum_{i=1}^{n} \alpha_{i}\left[y^{(i)}\left(w^{T} x^{(i)}+b\right)-1\right]$$
+
+对上述问题求最小值，得到 $w$ 和 $b$ 的解,代入上述方程中，可得：$$\mathcal{L}(w, b, \alpha)=\sum_{i=1}^{n} \alpha_{i}-\frac{1}{2} \sum_{i, j=1}^{n} y^{(i)} y^{(j)} \alpha_{i} \alpha_{j}\left(x^{(i)}\right)^{T} x^{(j)}$$
+
 可构造如下对偶问题：
+
 $$\begin{aligned}
     \max _{\alpha} & W(\alpha)=\sum_{i=1}^{n} \alpha_{i}-\frac{1}{2} \sum_{i, j=1}^{n} y^{(i)} y^{(j)} \alpha_{i} \alpha_{j}\left\langle x^{(i)}, x^{(j)}\right\rangle \\
     \text { s.t. } & \alpha_{i} \geq 0, \quad i=1, \ldots, n \\
@@ -332,5 +346,3 @@ svc_wine.score(X,y)
 
 
     1.0
-
-

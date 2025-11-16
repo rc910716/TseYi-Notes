@@ -1,13 +1,14 @@
-# Task8 文本数据
+## Task8 文本数据
 
-## 1 知识梳理（重点记忆）
+### 1 知识梳理（重点记忆）
 
-### 1.1 str对象
-- Series的str对象
-- str[]索引器：取出某个位置的元素
-- string类型：序列中至少有一个可迭代（Iterable）对象，包括但不限于字符串、字典、列表
+#### 1.1 str 对象
 
-### 1.2 正则表达式
+- Series 的 str 对象
+- str[] 索引器：取出某个位置的元素
+- string 类型：序列中至少有一个可迭代（Iterable）对象，包括但不限于字符串、字典、列表
+
+#### 1.2 正则表达式
 
 |元字符 |   描述 |
 | :-----| ----: |
@@ -18,7 +19,7 @@
 |\+       |    匹配前面的子表达式一次或多次|
 |?        |   匹配前面的子表达式零次或一次|
 |{n,m}    |       花括号，匹配前面字符至少 n 次，但是不超过 m 次|
-|(xyz)   |        字符组，按照确切的顺序匹配字符xyz|
+|(xyz)   |        字符组，按照确切的顺序匹配字符 xyz|
 |\|     |      分支结构，匹配符号之前的字符或后面的字符|
 |\\    |       转义符，它可以还原元字符原来的含义|
 |^    |       匹配行的开始|
@@ -34,10 +35,12 @@
 |\\S    |    匹配非空格符: \[^\\s\]|
 |\\B  |      匹配一组非空字符开头或结尾的位置，不代表具体字符|
 
-### 1.3 文本处理的五类操作
-- 拆分：`str.split`方法进行字符串的列拆分
-- 合并：`str.join`和`str.cat`方法进行字符串列表连接
+#### 1.3 文本处理的五类操作
+
+- 拆分：`str.split` 方法进行字符串的列拆分
+- 合并：`str.join` 和 `str.cat` 方法进行字符串列表连接
 - 匹配：
+
 | 方法名 | 是否支持<br>正则表达式 | 描述 |
 | :--- | :--- | :--- |
 |`str.contains` | 是 | 用于判断每个字符串是否包含正则表达式的字符 |
@@ -48,20 +51,21 @@
 |`str.rfind`| 否 | 从右到左第一次匹配的位置的索引 |
 
 - 替换：`str.replace`，可使用自定义的替换函数来处理
-- 提取：`str.extract`只匹配一次，可返回DataFrame；`str.extractall`匹配所有符合条件的字符串
+- 提取：`str.extract` 只匹配一次，可返回 DataFrame；`str.extractall` 匹配所有符合条件的字符串
 
-### 1.4 常用字符串函数
+#### 1.4 常用字符串函数
+
 - 字母型函数：`upper`, `lower`, `title`, `capitalize`, `swapcase`
-- 数值型函数：`pd.to_numeric`用于对字符格式的数值进行快速转换和筛选
-- 统计型函数：`count`出现正则模式的次数，`len`字符串的长度
-- 格式型函数：`strip`, `rstrip`, `lstrip`进行去除空格  
-    `pad`, `rjust`, `ljust`, `center`进行填充
+- 数值型函数：`pd.to_numeric` 用于对字符格式的数值进行快速转换和筛选
+- 统计型函数：`count` 出现正则模式的次数，`len` 字符串的长度
+- 格式型函数：`strip`, `rstrip`, `lstrip` 进行去除空格
+    `pad`, `rjust`, `ljust`, `center` 进行填充
 
-## 2 练习
+### 2 练习
 
-### 2.1 Ex1：房屋信息数据集
+#### 2.1 Ex1：房屋信息数据集
+
 现有一份房屋信息数据集如下：
-
 
 ```python
 import pandas as pd
@@ -70,9 +74,6 @@ import numpy as np
 df = pd.read_excel('../data/house_info.xls', usecols=['floor','year','area','price'])
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -124,29 +125,22 @@ df.head(3)
 </table>
 </div>
 
-
-
-1. 将`year`列改为整数年份存储。
-2. 将`floor`列替换为`Level, Highest`两列，其中的元素分别为`string`类型的层类别（高层、中层、低层）与整数类型的最高层数。
-3. 计算房屋每平米的均价`avg_price`，以`***元/平米`的格式存储到表中，其中`***`为整数。
+1. 将 `year` 列改为整数年份存储。
+2. 将 `floor` 列替换为 `Level, Highest` 两列，其中的元素分别为 `string` 类型的层类别（高层、中层、低层）与整数类型的最高层数。
+3. 计算房屋每平米的均价 `avg_price`，以 `***元/平米` 的格式存储到表中，其中 `***` 为整数。
 
 **我的解答：**
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 # 利用pd.to_numeric函数对数值型数据进行快速转换
 df.year = pd.to_numeric(df.year.str[:4], errors='ignore').astype('Int64')
 ```
 
-
 ```python
 df.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -212,9 +206,6 @@ df.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 检查year的数据类型为Int64
 df.info()
@@ -233,8 +224,7 @@ df.info()
     memory usage: 1017.5+ KB
     
 
-**第2问：**
-
+**第 2 问：**
 
 ```python
 import re
@@ -244,21 +234,12 @@ pat = '(?P<Level>\w层)（共(?P<Highest>\d+)层）'
 re.findall(pat, df.floor[0])
 ```
 
-
-
-
     [('高层', '6')]
-
-
-
 
 ```python
 # 使用str.extract()函数进行抽取
 df.floor.str.extract(pat).head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -312,21 +293,14 @@ df.floor.str.extract(pat).head()
 </table>
 </div>
 
-
-
-
 ```python
 # 进行数据列连接
 df = pd.concat([df.drop(columns='floor'), df.floor.str.extract(pat)], axis=1)
 ```
 
-
 ```python
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -382,15 +356,11 @@ df.head(3)
 </table>
 </div>
 
-
-
-
 ```python
 # 修改数据类型
 df.Level = df.Level.astype('string')
 df.Highest = pd.to_numeric(df.Highest).astype('Int64')
 ```
-
 
 ```python
 # 检查Level列和Highest列的数据类型
@@ -411,26 +381,20 @@ df.info()
     memory usage: 1.3+ MB
     
 
-**第3问：**
-
+**第 3 问：**
 
 ```python
 area_series = pd.to_numeric(df.area.str[:-1])
 price_series = pd.to_numeric(df.price.str[:-1])
 ```
 
-
 ```python
 df['avg_price'] = (round(price_series * 10000 / area_series, 2)).astype('string') + '元/平米'
 ```
 
-
 ```python
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -490,19 +454,14 @@ df.head(3)
 </table>
 </div>
 
+#### 2.2 Ex2：《权力的游戏》剧本数据集
 
-
-### 2.2 Ex2：《权力的游戏》剧本数据集
 现有一份权力的游戏剧本数据集如下：
-
 
 ```python
 df = pd.read_csv('../data/script.csv')
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -538,7 +497,7 @@ df.head(3)
       <td>Episode 1</td>
       <td>Winter is Coming</td>
       <td>waymar royce</td>
-      <td>What do you expect? They're savages. One lot s...</td>
+      <td>What do you expect? They're savages. One lot s…</td>
     </tr>
     <tr>
       <th>1</th>
@@ -547,7 +506,7 @@ df.head(3)
       <td>Episode 1</td>
       <td>Winter is Coming</td>
       <td>will</td>
-      <td>I've never seen wildlings do a thing like this...</td>
+      <td>I've never seen wildlings do a thing like this…</td>
     </tr>
     <tr>
       <th>2</th>
@@ -562,16 +521,13 @@ df.head(3)
 </table>
 </div>
 
-
-
-1. 计算每一个`Episode`的台词条数。
+1. 计算每一个 `Episode` 的台词条数。
 2. 以空格为单词的分割符号，请求出单句台词平均单词量最多的前五个人。
-3. 若某人的台词中含有问号，那么下一个说台词的人即为回答者。若上一人台词中含有n个问号，则认为回答者回答了n个问题，请求出回答最多问题的前五个人。
+3. 若某人的台词中含有问号，那么下一个说台词的人即为回答者。若上一人台词中含有 n 个问号，则认为回答者回答了 n 个问题，请求出回答最多问题的前五个人。
 
 **我的解答：**
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 df.info()
@@ -590,21 +546,15 @@ df.info()
      5   Sentence       23911 non-null  object
     dtypes: object(6)
     memory usage: 1.1+ MB
-    
-
 
 ```python
 # 可观察到Season有空格，故需要str.strip()去除两侧空格
 df.columns = df.columns.str.strip()
 ```
 
-
 ```python
 df.groupby(['Season', 'Episode'])['Sentence'].count()
 ```
-
-
-
 
     Season    Episode   
     Season 1  Episode 1     327
@@ -620,24 +570,17 @@ df.groupby(['Season', 'Episode'])['Sentence'].count()
               Episode 6     240
     Name: Sentence, Length: 73, dtype: int64
 
-
-
-**第2问：**
-
+**第 2 问：**
 
 ```python
 # 设置Name为行索引，得到平均单词量
 res2_series = df.set_index('Name')['Sentence'].str.split(' ').str.len().groupby('Name').mean()
 ```
 
-
 ```python
 # 通过排序得到最多的前5个人
 res2_series.sort_values(ascending=False)[:5].index.tolist()
 ```
-
-
-
 
     ['male singer',
      'slave owner',
@@ -645,19 +588,13 @@ res2_series.sort_values(ascending=False)[:5].index.tolist()
      'lollys stokeworth',
      'dothraki matron']
 
-
-
-**第3问：**
-
+**第 3 问：**
 
 ```python
 # 得到后一个人的名字
 res3_series = pd.Series(index=df.Name.shift(-1), data=df.Sentence.values)
 res3_series
 ```
-
-
-
 
     Name
     will                What do you expect? They're savages. One lot s...
@@ -673,17 +610,11 @@ res3_series
     NaN                 The Queen in the North! The Queen in the North...
     Length: 23911, dtype: object
 
-
-
-
 ```python
 # 根据?进行统计，然后求和排序
 res = res3_series.str.count('\?').groupby('Name').sum().sort_values(ascending=False)
 res
 ```
-
-
-
 
     Name
     tyrion lannister    527
@@ -699,21 +630,13 @@ res
     young rodrik          0
     Length: 564, dtype: int64
 
-
-
-
 ```python
 # 得到回答数最多的前5人
 res[:5].index.tolist()
 ```
-
-
-
 
     ['tyrion lannister',
      'jon snow',
      'jaime lannister',
      'arya stark',
      'cersei lannister']
-
-

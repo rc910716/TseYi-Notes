@@ -1,40 +1,48 @@
-# Task09 Boosting的思路与Adaboost算法
+## Task09 Boosting 的思路与 Adaboost 算法
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 Boosting方法的基本思路
+#### 1.1 Boosting 方法的基本思路
+
 - 弱学习与强学习：
-  - 弱学习：识别错误率小于1/2（即准确率仅比随机猜测略高的学习算法）
+  - 弱学习：识别错误率小于 1/2（即准确率仅比随机猜测略高的学习算法）
   - 强学习：识别准确率很高并能在多项式时间内完成的学习算法
 - 一个概念是强可学习的充分必要条件是这个概念是弱可学习
-- Boosting方法思路：通过反复学习，得到一系列弱分类器，然后通过一定的形式将这些弱分类器构建成一个强分类器
+- Boosting 方法思路：通过反复学习，得到一系列弱分类器，然后通过一定的形式将这些弱分类器构建成一个强分类器
 
-### 1.2 Adaboost算法
+#### 1.2 Adaboost 算法
 
-#### 1.2.1 Adaboost算法的基本原理
+##### 1.2.1 Adaboost 算法的基本原理
+
 - 提高前一轮分类中分类错误的样本权重，降低分类正确的样本权重
 - 采用加权多数表决的方式将弱分类器构建成强分类器
 - 具体算法：
-  1. 初始化数据分布：$\displaystyle D_{1}=\left(w_{11}, \cdots, w_{1 i}, \cdots, w_{1 N}\right), \quad w_{1 i}=\frac{1}{N}, \quad i=1,2, \cdots, N$，其目的是为了每个样本在基本分类器的学习中作用一样
-  2. 对于$m=1,2,\cdots,M$，其中$M$表示基本分类器的个数  
-  （1）使用具有$D_m$分布的训练数据集进行学习，得到基本分类器：$G_{m}(x): \mathcal{X} \rightarrow\{-1,+1\}$  
-  （2）计算$G_m(x)$在训练集上的分类误差率：$\displaystyle e_m=\sum_{i=1}^{N} w_{m i} I\left(G_{m}\left(x_{i}\right) \neq y_{i}\right)$  
-  （3）计算$G_m(x)$的系数：$\displaystyle \alpha_{m}=\frac{1}{2} \log \frac{1-e_{m}}{e_{m}}$，表示在强分类器的重要程度  
+  1. 初始化数据分布：$D_{1}=\left(w_{11}, \cdots, w_{1 i}, \cdots, w_{1 N}\right), \quad w_{1 i}=\frac{1}{N}, \quad i=1,2, \cdots, N$，其目的是为了每个样本在基本分类器的学习中作用一样
+  2. 对于 $m=1,2,\cdots,M$，其中 $M$ 表示基本分类器的个数
+  （1）使用具有 $D_m$ 分布的训练数据集进行学习，得到基本分类器：$G_{m}(x): \mathcal{X} \rightarrow\{-1,+1\}$
+  （2）计算 $G_m(x)$ 在训练集上的分类误差率：$e_m=\sum_{i=1}^{N} w_{m i} I\left(G_{m}\left(x_{i}\right) \neq y_{i}\right)$
+  （3）计算 $G_m(x)$ 的系数：$\alpha_{m}=\frac{1}{2} \log \frac{1-e_{m}}{e_{m}}$，表示在强分类器的重要程度
+
   （4）更新训练数据集的权重分布：$$
+
    \begin{array}{c}
+
    D_{m+1}=\left(w_{m+1,1}, \cdots, w_{m+1, i}, \cdots, w_{m+1, N}\right) \\
-   \displaystyle w_{m+1, i}=\frac{w_{m i}}{Z_{m}} \exp \left(-\alpha_{m} y_{i} G_{m}\left(x_{i}\right)\right), \quad i=1,2, \cdots, N
+
+   w_{m+1, i}=\frac{w_{m i}}{Z_{m}} \exp \left(-\alpha_{m} y_{i} G_{m}\left(x_{i}\right)\right), \quad i=1,2, \cdots, N
+
    \end{array}$$
-  3. 构建基本分类器的线性组合$\displaystyle f(x)=\sum_{m=1}^{M} \alpha_{m} G_{m}(x)$，即将$M$个基本分类器加权表决，得到最终的分类器$$\begin{aligned}
+
+  3. 构建基本分类器的线性组合 $f(x)=\sum_{m=1}^{M} \alpha_{m} G_{m}(x)$，即将 $M$ 个基本分类器加权表决，得到最终的分类器 $$\begin{aligned}
 G(x) &=\operatorname{sign}(f(x)) \\
 &=\operatorname{sign}\left(\sum_{m=1}^{M} \alpha_{m} G_{m}(x)\right)
-\end{aligned}$$  
-    **注：**所有的$\alpha_m$之和不为1
+\end{aligned}$$
 
-## 2 实战练习
+    **注：**所有的 $\alpha_m$ 之和不为 1
 
-### 2.1 使用自编码的Adaboost算法进行建模
+### 2 实战练习
 
+#### 2.1 使用自编码的 Adaboost 算法进行建模
 
 ```python
 import numpy as np
@@ -43,7 +51,6 @@ import numpy as np
 X = np.arange(10)
 y = np.array([1, 1, 1, -1, -1, -1, 1, 1, 1, -1])
 ```
-
 
 ```python
 class AdaBoost:
@@ -181,7 +188,6 @@ class AdaBoost:
         print(s)
 ```
 
-
 ```python
 clf = AdaBoost(X, y, max_iter=10)
 clf.fit()
@@ -204,8 +210,7 @@ print("预测正确率：{:.2%}".format(score))
     预测正确率：100.00%
     
 
-### 2.2 使用鸢尾花数据集对Adaboost建模
-
+#### 2.2 使用鸢尾花数据集对 Adaboost 建模
 
 ```python
 from sklearn import datasets
@@ -219,9 +224,6 @@ iris_data = pd.DataFrame(X,columns=features)
 iris_data['target'] = y
 iris_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -293,9 +295,6 @@ iris_data.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 数据预处理
 # 仅仅考虑0，1类鸢尾花
@@ -309,7 +308,6 @@ le = LabelEncoder()
 y = le.fit_transform(y)
 ```
 
-
 ```python
 # 按8：2分割训练集和测试集
 from sklearn.model_selection import train_test_split
@@ -317,7 +315,6 @@ from sklearn.model_selection import train_test_split
 # stratify参数代表了按照y的类别等比例抽样
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=1,stratify=y)  
 ```
-
 
 ```python
 # 使用单一决策树建模
@@ -333,8 +330,6 @@ print('Decision tree train/test accuracies %.3f/%.3f' % (tree_train,tree_test))
 ```
 
     Decision tree train/test accuracies 0.975/0.850
-    
-
 
 ```python
 # 使用sklearn实现Adaboost(基分类器为决策树)
@@ -357,8 +352,6 @@ print('Adaboost train/test accuracies %.3f/%.3f' % (ada_train,ada_test))
 ```
 
     Adaboost train/test accuracies 1.000/0.900
-    
-
 
 ```python
 import matplotlib.pyplot as plt
@@ -387,10 +380,6 @@ plt.text(0, -0.2,s='sepal width (cm)',ha='center',va='center',fontsize=12,transf
 plt.show()
 ```
 
-
-    
 ![png](images/task09/01.png)
-    
 
-
-从上图的决策边界可以看出：Adaboost模型的决策边界比单层决策树的决策边界要复杂，Adaboost容易出现过拟合。
+从上图的决策边界可以看出：Adaboost 模型的决策边界比单层决策树的决策边界要复杂，Adaboost 容易出现过拟合。

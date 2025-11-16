@@ -1,8 +1,9 @@
-# Task01 MetaGPT环境配置
+## Task01 MetaGPT 环境配置
 
-## 1 安装MetaGPT依赖包
+### 1 安装 MetaGPT 依赖包
 
-基于Python3.9+，在终端输入以下命令，安装MetaGPT依赖包：
+基于 Python3.9+，在终端输入以下命令，安装 MetaGPT 依赖包：
+
 ```shell
 pip install metagpt==0.6.6
 pip install langchain==0.1.6
@@ -10,27 +11,25 @@ pip install langchain-community==0.0.19
 pip install langchain-core==0.1.23
 ```
 
-## 2 配置智谱API Key
+### 2 配置智谱 API Key
 
-在[智谱AI开放平台](https://open.bigmodel.cn/)注册账号，可以获得赠送金额18元。
+在 [智谱AI开放平台](https://open.bigmodel.cn/) 注册账号，可以获得赠送金额 18 元。
 
 ![注册智谱AI开放平台账号](images/task01-01.png)
 
-点击“查看API key”，创建API Key，并配置到系统环境变量中。
+点击“查看 API key”，创建 API Key，并配置到系统环境变量中。
 
 ![创建API Key](images/task01-02.png)
 
 ![配置系统环境变量](images/task01-03.png)
 
-## 3 首次尝试
-
+### 3 首次尝试
 
 ```python
 from metagpt.logs import logger
 
 logger.remove()
 ```
-
 
 ```python
 import asyncio
@@ -40,7 +39,6 @@ from metagpt.environment import Environment
 from metagpt.roles import Role
 from metagpt.team import Team
 ```
-
 
 ```python
 action1 = Action(name="AlexSay", instruction="Express your opinion with emotion and don't repeat it")
@@ -52,7 +50,6 @@ bob = Role(name="Bob", profile="Republican candidate", goal="Win the election", 
 env = Environment(desc="US election live broadcast")
 team = Team(investment=10.0, env=env, roles=[alex, bob])
 ```
-
 
 ```python
 async def main():

@@ -1,27 +1,28 @@
-# Stacking集成学习算法
+## Stacking 集成学习算法
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 Stacking集成学习思路
+#### 1.1 Stacking 集成学习思路
+
 1. 将数据按照一定比例划分为训练集和测试集
 2. 创建第一层的多个同质或异质模型
-3. 使用5折交叉验证对第一层模型进行训练，然后将在验证集得到训练结果$A$，在测试集得到的训练结果$B$
-4. 基于验证集的训练结果$A$，使用LR模型进行训练，建立LR模型
-5. 使用训练好的LR模型对测试集的训练结果$B$进行预测，得到最终的预测类别或概率，作为整个测试集的结果
+3. 使用 5 折交叉验证对第一层模型进行训练，然后将在验证集得到训练结果 $A$，在测试集得到的训练结果 $B$
+4. 基于验证集的训练结果 $A$，使用 LR 模型进行训练，建立 LR 模型
+5. 使用训练好的 LR 模型对测试集的训练结果 $B$ 进行预测，得到最终的预测类别或概率，作为整个测试集的结果
 
-![jupyter](images/ch13/01.png) 
+![jupyter](images/ch13/01.png)
 
-### 1.2 Stacking与Blending对比
+#### 1.2 Stacking 与 Blending 对比
+
 ||Blending|Stacking|
 |:--|:-:|:-:|
-|算法|方法简单|方法复杂，需要进行K折交叉验证|
-|稳定性|可能会过拟合|使用多次CV会比较稳健|
+|算法|方法简单|方法复杂，需要进行 K 折交叉验证|
+|稳定性|可能会过拟合|使用多次 CV 会比较稳健|
 |数据使用情况|使用一部分数据进行模型验证|使用全部的训练集数据|
 
-## 2 实战练习
+### 2 实战练习
 
-关于Stacking算法，本例中使用`mlxtend.StackingCVClassifier`
-
+关于 Stacking 算法，本例中使用 `mlxtend.StackingCVClassifier`
 
 ```python
 from sklearn import datasets
@@ -32,76 +33,61 @@ iris = datasets.load_iris()
 X, y = iris.data[:, 1:3], iris.target
 ```
 
-### 2.1 StackingCVClassifier参数
+#### 2.1 StackingCVClassifier 参数
 
-- classifiers ：array，shape=[n_classifiers]  
-  &emsp;&emsp;分类器列表。在StackingCVClassifer上使用`fit`方法将调用这些分类器的`fit`方法，这些分类器使用`clone`方法将存储在`class`属性中`self.clfs_`。
+- classifiers ：array，shape=[n_classifiers]
+  &emsp;&emsp; 分类器列表。在 StackingCVClassifer 上使用 `fit` 方法将调用这些分类器的 `fit` 方法，这些分类器使用 `clone` 方法将存储在 `class` 属性中 `self.clfs_`。
 
+- meta_classifier ：object
+  &emsp;&emsp; 设置元分类器，作为 Stacking 算法中的第二层模型。
 
-- meta_classifier ：object  
-  &emsp;&emsp;设置元分类器，作为Stacking算法中的第二层模型。
+- use_probas ：bool（默认：False）
+  &emsp;&emsp; 如果为 `True`，则使用预测的概率而不是类别标签训练元分类器。
 
+- drop_proba_col ：string（默认值：无）
+  &emsp;&emsp; 在特征列中删除多余的“概率”列，主要用于特征列具有多重共线性的元分类器，如果为 `last`，则删除最后一列。如果为 `first`，则删除第一列。仅在 `use_probas=True` 时可用。
 
-- use_probas ：bool（默认：False）  
-  &emsp;&emsp;如果为`True`，则使用预测的概率而不是类别标签训练元分类器。
-
-
-- drop_proba_col ：string（默认值：无）  
-  &emsp;&emsp;在特征列中删除多余的“概率”列，主要用于特征列具有多重共线性的元分类器，如果为`last`，则删除最后一列。如果为`first`，则删除第一列。仅在`use_probas=True`时可用。
-
-
-- cv ：int，cross-validation generator or an iterable（可选，默认值：2）  
-  &emsp;&emsp;确定交叉验证拆分策略。cv的可能输入是：
-    - `None`，使用默认的2折交叉验证
-    - `int`，指定折叠次数(Stratified)KFold
+- cv ：int，cross-validation generator or an iterable（可选，默认值：2）
+  &emsp;&emsp; 确定交叉验证拆分策略。cv 的可能输入是：
+    - `None`，使用默认的 2 折交叉验证
+    - `int`，指定折叠次数 (Stratified)KFold
     - 用作交叉验证生成器的可迭代对象
-    - 训练/测试集划分的迭代器  
-  对于`int`/`None`，根据`stratify`参数选择使用KFold或StratifiedKFold进行交叉验证。
+    - 训练/测试集划分的迭代器
+  对于 `int`/`None`，根据 `stratify` 参数选择使用 KFold 或 StratifiedKFold 进行交叉验证。
 
+- shuffle ：bool（默认：True）
+  &emsp;&emsp; 如果为 True，且 `cv` 参数为 `int`，则将在交叉验证之前的拟合阶段对训练数据进行混洗。如果 `cv` 参数是指定的交叉验证，则忽略此参数的配置。
 
-- shuffle ：bool（默认：True）  
-  &emsp;&emsp;如果为True，且`cv`参数为`int`，则将在交叉验证之前的拟合阶段对训练数据进行混洗。如果`cv`参数是指定的交叉验证，则忽略此参数的配置。
+- random_state ：int，RandomState 实例或 `None`，可选（默认值：`None`）
+  &emsp;&emsp; 控制交叉验证拆分的随机，仅在 `cv` 为整数且 `shuffle=True` 时可用
 
+- stratify ：bool（默认：True）
+  &emsp;&emsp; 如果为 `True`，且 `cv` 参数为整数，则将采用分层的 K 折交叉验证。如果 cv 参数是指定的交叉验证，则忽略此参数的配置。
 
-- random_state ：int，RandomState实例或`None`，可选（默认值：`None`）  
-  &emsp;&emsp;控制交叉验证拆分的随机，仅在`cv`为整数且`shuffle=True`时可用
-
-
-- stratify ：bool（默认：True）  
-  &emsp;&emsp;如果为`True`，且`cv`参数为整数，则将采用分层的K折交叉验证。如果cv参数是指定的交叉验证，则忽略此参数的配置。
-
-
-- verbose ：int，可选（默认=0）  
-  &emsp;&emsp;控制训练过程中的日志打印情况。
+- verbose ：int，可选（默认=0）
+  &emsp;&emsp; 控制训练过程中的日志打印情况。
   - verbose=0（默认）：不打印任何内容
-  - verbose=1：打印训练的回归模型编号和名称，以及当前正在训练的交叉验证`fold`方式
+  - verbose=1：打印训练的回归模型编号和名称，以及当前正在训练的交叉验证 `fold` 方式
   - verbose=2：打印训练的回归模型的参数信息
-  - verbose>2：修改基础回归模型的verbose参数为`self.verbose-2`
+  - verbose>2：修改基础回归模型的 verbose 参数为 `self.verbose-2`
+- use_features_in_secondary ：bool（默认：False）
+  &emsp;&emsp; 如果为 True，则将根据原分类器的预测值和原数据集，对元分类器进行训练。如果为 False，则仅根据原分类器的预测值来训练元分类器。
 
+- store_train_meta_features ：bool（默认：False）
+  &emsp;&emsp; 如果为 True，则将元分类器训练数据计算出的元特征存储在 `self.train_meta_features_` 数组中，可以在构建后，使用 `fit` 函数进行调用。
 
-- use_features_in_secondary ：bool（默认：False）  
-  &emsp;&emsp;如果为True，则将根据原分类器的预测值和原数据集，对元分类器进行训练。如果为False，则仅根据原分类器的预测值来训练元分类器。
+- use_clones ：bool（默认：True）
+  &emsp;&emsp; 如果为 True（默认），则对分类器使用 `clone` 方法，否则将使用原始的分类器，并在调用 `fit` 方法时将其重新在数据集上训练。因此，如果 `use_clones=True`，则在使用 `StackingCVClassifier` 的 `fit` 方法时，原始输入的分类器将保持不变。如果您正在使用支持 scikit-learn 拟合/预测 API 接口但与 scikit-learn 的 clone 功能不兼容的估算器，推荐配置 `use_clones=False`。
 
+- n_jobs ：int 或 None（可选）（默认为 None）
+  &emsp;&emsp; 用于设置计算时的 CPU 数量。`None` 表示 1，-1 表示使用所有 CPU。
 
-- store_train_meta_features ：bool（默认：False）  
-  &emsp;&emsp;如果为True，则将元分类器训练数据计算出的元特征存储在`self.train_meta_features_`数组中，可以在构建后，使用`fit`函数进行调用。
-
-
-- use_clones ：bool（默认：True）  
-  &emsp;&emsp;如果为True（默认），则对分类器使用`clone`方法，否则将使用原始的分类器，并在调用`fit`方法时将其重新在数据集上训练。因此，如果`use_clones=True`，则在使用`StackingCVClassifier`的`fit`方法时，原始输入的分类器将保持不变。如果您正在使用支持scikit-learn拟合/预测API接口但与scikit-learn的clone功能不兼容的估算器，推荐配置`use_clones=False`。
-
-
-- n_jobs ：int或None（可选）（默认为None）  
-  &emsp;&emsp;用于设置计算时的CPU数量。`None`表示1，-1表示使用所有CPU。
-
-
-- pre_dispatch ：int或字符串，可选  
-  &emsp;&emsp;控制在并行执行期间调度的作业数。当调度的作业数量超过CPU的处理能力时，减少此数量可能有助于避免内存消耗激增。此参数可以是：
+- pre_dispatch ：int 或字符串，可选
+  &emsp;&emsp; 控制在并行执行期间调度的作业数。当调度的作业数量超过 CPU 的处理能力时，减少此数量可能有助于避免内存消耗激增。此参数可以是：
   - None，在这种情况下，所有作业都将立即创建并产生。将其用于轻量级和快速运行的作业，以避免由于按需生成作业而导致的延迟
   - int，给出所产生的总作业的确切数量
 
-### 2.2 使用3折CV验证Stacking分类器与单分类器的效果对比
-
+#### 2.2 使用 3 折 CV 验证 Stacking 分类器与单分类器的效果对比
 
 ```python
 from sklearn.naive_bayes import GaussianNB
@@ -111,7 +97,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 ```
-
 
 ```python
 RANDOM_SEED = 42
@@ -129,7 +114,6 @@ stacking_clf = StackingCVClassifier(classifiers=[knn_clf, rf_clf, nb_clf],
                                     random_state=RANDOM_SEED)
 ```
 
-
 ```python
 print('3-fold cross validation:\n')
 
@@ -146,8 +130,6 @@ for clf, label in zip([knn_clf, rf_clf, nb_clf, stacking_clf], ['KNN', 'Random F
     Accuracy: 0.95 (+/- 0.01) [Random Forest]
     Accuracy: 0.91 (+/- 0.02) [Naive Bayes]
     Accuracy: 0.93 (+/- 0.02) [StackingClassifier]
-    
-
 
 ```python
 # 调用plot_decision_regions方法绘制决策边界
@@ -172,14 +154,9 @@ for clf, lab, grd in zip([knn_clf, rf_clf, nb_clf, stacking_clf],
 plt.show()
 ```
 
-
-    
 ![png](images/ch13/02.png)
-    
 
-
-### 2.3 使用概率作为元特征
-
+#### 2.3 使用概率作为元特征
 
 ```python
 # 第一层分类器
@@ -195,7 +172,6 @@ stacking_clf = StackingCVClassifier(classifiers=[knn_clf, rf_clf, nb_clf],
                                     meta_classifier=lr,
                                     random_state=42)
 ```
-
 
 ```python
 print('3-fold cross validation:\n')
@@ -221,8 +197,7 @@ for clf, label in zip([knn_clf, rf_clf, nb_clf, stacking_clf],
     Accuracy: 0.95 (+/- 0.02) [StackingClassifier]
     
 
-### 2.4 使用5折CV验证，并使用网格搜索进行调参优化
-
+#### 2.4 使用 5 折 CV 验证，并使用网格搜索进行调参优化
 
 ```python
 from sklearn.model_selection import GridSearchCV
@@ -239,7 +214,6 @@ stacking_clf = StackingCVClassifier(classifiers=[knn_clf, rf_clf, nb_clf],
                                     meta_classifier=lr,
                                     random_state=42)
 ```
-
 
 ```python
 # 各个分类器的参数
@@ -269,8 +243,6 @@ print('Accuracy: %.2f' % grid.best_score_)
 
     Best parameters: {'kneighborsclassifier__n_neighbors': 5, 'meta_classifier__C': 0.1, 'randomforestclassifier__n_estimators': 10}
     Accuracy: 0.95
-    
-
 
 ```python
 stacking_clf = StackingCVClassifier(classifiers=[knn_clf, knn_clf,  rf_clf, nb_clf],
@@ -305,8 +277,7 @@ print('Accuracy: %.2f' % grid.best_score_)
     Accuracy: 0.96
     
 
-### 2.5 通过选择不同的第1层分类器训练不同的特征列数据
-
+#### 2.5 通过选择不同的第 1 层分类器训练不同的特征列数据
 
 ```python
 from mlxtend.feature_selection import ColumnSelector
@@ -337,8 +308,7 @@ print("Accuracy: %0.2f (+/- %0.2f) [%s]"
     Accuracy: 0.96 (+/- 0.02) [StackingClassifier]
     
 
-### 2.6 绘制ROC曲线
-
+#### 2.6 绘制 ROC 曲线
 
 ```python
 from sklearn.preprocessing import label_binarize
@@ -358,13 +328,11 @@ n_classes = y.shape[1]
 RANDOM_SEED = 42
 ```
 
-
 ```python
 # 划分为训练集和测试集
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=RANDOM_SEED)
 ```
-
 
 ```python
 # 第一层分类器
@@ -382,7 +350,6 @@ stacking_clf = StackingCVClassifier(classifiers=[lr_clf, rf_clf, svc_clf],
 classifier = OneVsRestClassifier(stacking_clf)
 y_score = classifier.fit(X_train, y_train).decision_function(X_test)
 ```
-
 
 ```python
 fpr = dict()
@@ -413,8 +380,4 @@ plt.legend(loc="lower right")
 plt.show()
 ```
 
-
-    
 ![png](images/ch13/03.png)
-    
-

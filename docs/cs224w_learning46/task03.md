@@ -1,7 +1,6 @@
-# Task03 NetworkX工具包实战
+## Task03 NetworkX 工具包实战
 
-## 1 导入工具包
-
+### 1 导入工具包
 
 ```python
 import networkx as nx
@@ -17,9 +16,9 @@ plt.rcParams['font.sans-serif']=['SimHei']  # 用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False  # 用来正常显示负号
 ```
 
-## 2 创建图
+### 2 创建图
 
-### 2.1 使用API快速创建图
+#### 2.1 使用 API 快速创建图
 
 - 经典图结构：
     - 全连接图：complete_graph(7)
@@ -29,15 +28,13 @@ plt.rcParams['axes.unicode_minus']=False  # 用来正常显示负号
     - 星状图：star_graph(7)
     - 轮辐图：wheel_graph(8)
     - 二项树：binomial_tree(5)
-
 - 栅格图：
     - 二维矩形网格图：grid_2d_graph(3, 5)
     - 多维矩形网格图：grid_graph(dim=(2, 3, 4))
     - 二维三角形网格图：triangular_lattice_graph(2, 5)
     - 二维六边形蜂窝图：hexagonal_lattice_graph(2, 3)
-    - n维超立方体图：hypercube_graph(4)
-
-- NetworkX内置图：
+    - n 维超立方体图：hypercube_graph(4)
+- NetworkX 内置图：
     - diamond_graph()
     - bull_graph()
     - frucht_graph()
@@ -45,13 +42,11 @@ plt.rcParams['axes.unicode_minus']=False  # 用来正常显示负号
     - house_x_graph()
     - petersen_graph()
     - krackhardt_kite_graph()
-
 - 随机图：erdos_renyi_graph(10, 0.5)
 - 无标度有向图：scale_free_graph(100)
 - 社交网络：nx.karate_club_graph()
 - 社群聚类图：caveman_graph(4, 3)
 - 树：nx.random_tree(n=10, seed=0)、nx.forest_str(tree, sources=[0])
-
 
 ```python
 # 全连接无向图
@@ -59,12 +54,7 @@ G = nx.complete_graph(7)
 nx.draw(G)
 ```
 
-
-    
 ![png](images/task03/output_9_0.png)
-    
-
-
 
 ```python
 # 雨果《悲惨世界》人物关系
@@ -74,12 +64,7 @@ pos = nx.spring_layout(G, seed=10)
 nx.draw(G, pos, with_labels=True)
 ```
 
-
-    
 ![png](images/task03/output_10_0.png)
-    
-
-
 
 ```python
 # 树
@@ -99,14 +84,12 @@ print(nx.forest_str(tree, sources=[0]))
             └── 9
     
 
-### 2.2 使用连接表和邻接表创建图
-
+#### 2.2 使用连接表和邻接表创建图
 
 ```python
 # 导入 csv 文件定义的三元组连接表，构建有向图
 df = pd.read_csv('data/Three_Kingdoms/triples.csv')
 ```
-
 
 ```python
 # 通过连接表Edge List创建图
@@ -114,7 +97,6 @@ G = nx.DiGraph()
 edges = [edge for edge in zip(df['head'], df['tail'])]
 G.add_edges_from(edges)
 ```
-
 
 ```python
 # 节点排版布局-默认弹簧布局
@@ -125,26 +107,19 @@ plt.figure(figsize=(15,15))
 nx.draw(G, pos=pos, with_labels=True)
 ```
 
-
-    
 ![png](images/task03/output_15_0.png)
-    
-
-
 
 ```python
 # 将邻接表导出为本地文件 grid.edgelist
 nx.write_edgelist(G, path="data/Three_Kingdoms/grid.edgelist", delimiter=":")
 ```
 
-
 ```python
 # 从本地文件 grid.edgelist 读取邻接表
 H = nx.read_edgelist(path="data/Three_Kingdoms/grid.edgelist", delimiter=":")
 ```
 
-### 2.3 创建节点
-
+#### 2.3 创建节点
 
 ```python
 G = nx.Graph()
@@ -157,18 +132,12 @@ G.add_nodes_from([
 ])
 ```
 
-
 ```python
 # 可视化
 nx.draw(G)
 ```
 
-
-    
 ![png](images/task03/output_20_0.png)
-    
-
-
 
 ```python
 H = nx.path_graph(10)
@@ -177,14 +146,9 @@ G.add_nodes_from(H)
 nx.draw(G)
 ```
 
-
-    
 ![png](images/task03/output_21_0.png)
-    
 
-
-### 2.4 创建连接
-
+#### 2.4 创建连接
 
 ```python
 # 创建0号节点，并添加特征属性
@@ -196,30 +160,17 @@ G.add_nodes_from([
 ])
 ```
 
-
 ```python
 G.number_of_nodes()
 ```
 
-
-
-
     3
-
-
-
 
 ```python
 G.nodes(data=True)
 ```
 
-
-
-
     NodeDataView({0: {'feature': 5, 'label': 0, 'name': 'Relph'}, 1: {'feature': 1, 'label': 1, 'name': 'Tom'}, 2: {'feature': 2, 'label': 2, 'name': 'John'}})
-
-
-
 
 ```python
 # 创建连接
@@ -230,29 +181,17 @@ G.add_edges_from([
 ])
 ```
 
-
 ```python
 nx.draw(G, with_labels = True)
 ```
 
-
-    
 ![png](images/task03/output_27_0.png)
-    
-
-
 
 ```python
 G.edges(data=True)
 ```
 
-
-
-
     EdgeDataView([(0, 1, {'weight': 0.5, 'like': 3}), (0, 2, {'weight': 0.1, 'like': 8}), (1, 2, {'weight': 0.3, 'like': 5})])
-
-
-
 
 ```python
 # 指定节点
@@ -266,10 +205,9 @@ for neighbor in G.neighbors(node_id):
     Node 1 has neighbor 2
     
 
-## 3 可视化
+### 3 可视化
 
-### 3.1 nx.draw
-
+#### 3.1 nx.draw
 
 ```python
 G = nx.grid_2d_graph(4, 4)
@@ -288,12 +226,7 @@ nx.draw(
 )
 ```
 
-
-    
 ![png](images/task03/output_32_0.png)
-    
-
-
 
 ```python
 # 有向图
@@ -309,12 +242,7 @@ nx.draw(
 )
 ```
 
-
-    
 ![png](images/task03/output_33_0.png)
-    
-
-
 
 ```python
 G = nx.house_graph()
@@ -331,21 +259,15 @@ plt.axis("off") # 去掉坐标轴
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_34_0.png)
-    
 
-
-### 3.2 有向图可视化
-
+#### 3.2 有向图可视化
 
 ```python
 seed = 13648
 G = nx.random_k_out_graph(10, 3, 0.5, seed=seed)
 pos = nx.spring_layout(G, seed=seed)
 ```
-
 
 ```python
 # 设置节点大小
@@ -358,7 +280,6 @@ edge_alphas = [(5 + i) / (M + 4) for i in range(M)]
 # 设置配色方案
 cmap = plt.cm.plasma
 ```
-
 
 ```python
 plt.figure(figsize=(10,8))
@@ -393,14 +314,9 @@ ax.set_axis_off()
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_38_0.png)
-    
 
-
-### 3.3 自定义节点图标
-
+#### 3.3 自定义节点图标
 
 ```python
 import PIL
@@ -414,7 +330,6 @@ icons = {
 # 载入图像
 images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
 ```
-
 
 ```python
 # 创建空图
@@ -435,7 +350,6 @@ for u in range(1, 4):
     for v in range(1, 4):
         G.add_edge("switch_" + str(u), "PC_" + str(u) + "_" + str(v))
 ```
-
 
 ```python
 pos = nx.spring_layout(G, seed=1)
@@ -468,19 +382,13 @@ for n in G.nodes:
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_42_0.png)
-    
 
-
-### 3.4 自我中心图（Ego图）
-
+#### 3.4 自我中心图（Ego 图）
 
 ```python
 from operator import itemgetter
 ```
-
 
 ```python
 n = 1000
@@ -491,12 +399,10 @@ G = nx.barabasi_albert_graph(n, m, seed=seed)
 pos = nx.spring_layout(G, seed=seed)
 ```
 
-
 ```python
 # 找到degree最大的主节点
 largest_hub, degree = sorted(G.degree(), key=itemgetter(1))[-1]
 ```
-
 
 ```python
 hub_ego = nx.ego_graph(G, largest_hub, radius=1)
@@ -511,16 +417,11 @@ nx.draw_networkx_nodes(hub_ego, pos, nodelist=[largest_hub], **options)
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_47_0.png)
-    
 
+### 4 实战案例
 
-## 4 实战案例
-
-### 4.1 PageRank节点重要度
-
+#### 4.1 PageRank 节点重要度
 
 ```python
 G = nx.star_graph(7)
@@ -529,9 +430,6 @@ pagerank = nx.pagerank(G, alpha=0.8)
 
 pagerank
 ```
-
-
-
 
     {0: 0.4583348922684132,
      1: 0.07738072967594098,
@@ -542,10 +440,7 @@ pagerank
      6: 0.07738072967594098,
      7: 0.07738072967594098}
 
-
-
-### 4.2 节点连接数Node Degree度分析
-
+#### 4.2 节点连接数 Node Degree 度分析
 
 ```python
 # 创建binomial graph
@@ -555,12 +450,10 @@ pagerank
 G = nx.gnp_random_graph(100, 0.02, seed=10374196)
 ```
 
-
 ```python
 # 最大连通域子图
 Gcc = G.subgraph(sorted(nx.connected_components(G), key=len, reverse=True)[0])
 ```
-
 
 ```python
 plt.figure(figsize=(12,8))
@@ -583,12 +476,7 @@ plt.axis('off')
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_54_0.png)
-    
-
-
 
 ```python
 degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
@@ -596,7 +484,6 @@ degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
 X = np.unique(degree_sequence, return_counts=True)[0]
 Y = np.unique(degree_sequence, return_counts=True)[1]
 ```
-
 
 ```python
 # 绘制Degree Rank
@@ -611,13 +498,9 @@ plt.show()
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_56_0.png)
-    
 
-
-### 4.3 特征分析
+#### 4.3 特征分析
 
 - 半径：nx.radius(G)
 - 直径：nx.diameter(G)
@@ -628,7 +511,7 @@ plt.show()
 
 **密集度计算公式：**
 
-n为节点个数，m为连接个数
+n 为节点个数，m 为连接个数
 
 对于无向图：
 
@@ -642,24 +525,20 @@ $$
 density = \frac{m}{n(n-1)}
 $$
 
-无连接图的density为0，全连接图的density为1，Multigraph（多重连接图）和带self loop图的density可能大于1。
+无连接图的 density 为 0，全连接图的 density 为 1，Multigraph（多重连接图）和带 self loop 图的 density 可能大于 1。
 
 - 节点到图中其它节点的最短距离：nx.single_source_shortest_path_length(G, node_id)
 
-### 4.4 计算节点特征
+#### 4.4 计算节点特征
 
-- 节点重要度特征Centrality：
+- 节点重要度特征 Centrality：
     - 无向图：nx.degree_centrality(G)
     - 有向图：nx.in_degree_centrality(DiG)、nx.out_degree_centrality(DiG)
-
 - 特征向量重要度：
     - 无向图：nx.eigenvector_centrality(G)
     - 有向图：nx.eigenvector_centrality_numpy(DiG)
-
 - Betweenness Centrality（必经之地）：nx.betweenness_centrality(G)
-
 - Closeness Centrality（去哪儿都近）：nx.closeness_centrality(G)
-
 - PageRank：nx.pagerank(DiG, alpha=0.85)
 - Katz Centrality：nx.katz_centrality(G, alpha=0.1, beta=1.0)
 - Clustering（社群属性）：nx.triangles(G)
@@ -667,15 +546,12 @@ $$
 - Bridge：nx.bridges(G)
 - Common Neighbors：nx.common_neighbors(G, 0, 4)
 - Jaccard Coefficient（交并比）：nx.jaccard_coefficient(G, [(0, 1), (2, 3)])
-
-- Katz Index（节点$u$到节点$v$，路径为$k$的路径个数）
-
+- Katz Index（节点 $u$ 到节点 $v$，路径为 $k$ 的路径个数）
 
 ```python
 import numpy as np
 from numpy.linalg import inv
 ```
-
 
 ```python
 G = nx.karate_club_graph()
@@ -698,19 +574,16 @@ S = inv(I - nx.to_numpy_array(G)*beta) - I
     最大特征值 1.7146113474736282
     
 
-### 4.5 计算全图Graphlet个数
-
+#### 4.5 计算全图 Graphlet 个数
 
 ```python
 G = nx.karate_club_graph()
 ```
 
-
 ```python
 # 指定Graphlet
 target = nx.complete_graph(3)
 ```
-
 
 ```python
 import itertools
@@ -727,8 +600,7 @@ def compute_graphlet(G, target):
             return subg.edges()
 ```
 
-### 4.6 拉普拉斯矩阵特征值分解
-
+#### 4.6 拉普拉斯矩阵特征值分解
 
 ```python
 # 创建图
@@ -736,7 +608,6 @@ n = 1000  # 节点个数
 m = 5000  # 连接个数
 G = nx.gnm_random_graph(n, m, seed=5040)
 ```
-
 
 ```python
 A = nx.adjacency_matrix(G)
@@ -749,9 +620,8 @@ L = D - A
 $$
 
 - L：拉普拉斯矩阵（Laplacian Matrix）
-- D：节点degree对角矩阵
+- D：节点 degree 对角矩阵
 - A：为邻接矩阵（Adjacency Matrix）
-
 
 ```python
 L = nx.laplacian_matrix(G)
@@ -759,9 +629,6 @@ L = nx.laplacian_matrix(G)
 D = L + A
 D.todense()
 ```
-
-
-
 
     matrix([[12,  0,  0, ...,  0,  0,  0],
             [ 0,  6,  0, ...,  0,  0,  0],
@@ -771,14 +638,11 @@ D.todense()
             [ 0,  0,  0, ...,  0,  6,  0],
             [ 0,  0,  0, ...,  0,  0,  7]], dtype=int32)
 
-
-
 2. 归一化拉普拉斯矩阵（Normalized Laplacian Matrix）
 
 $$
 L_n = D^{-\frac{1}{2}}LD^{-\frac{1}{2}}
 $$
-
 
 ```python
 L_n = nx.normalized_laplacian_matrix(G)
@@ -787,18 +651,12 @@ plt.imshow(L_n.todense())
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_83_0.png)
-    
-
-
 
 ```python
 # 特征值分解
 e = np.linalg.eigvals(L_n.A)
 ```
-
 
 ```python
 # 特征值分布直方图
@@ -814,16 +672,12 @@ plt.tick_params(labelsize=20) # 设置坐标文字大小
 plt.show()
 ```
 
-
-    
 ![png](images/task03/output_85_0.png)
-    
 
+### 5 本章总结
 
-## 5 本章总结
+本次任务，主要讲解 NetworkX 工具包的使用，包括：
 
-本次任务，主要讲解NetworkX工具包的使用，包括：
-
-- 创建图：使用API快速创建图、使用连接表和邻接表创建图、创建节点、创建连接
-- 可视化：使用nx.draw()方法、有向图可视化、自定义节点图标、自我中心图（Ego图）
-- 实战案例：PageRank节点重要度、节点连接数Node Degree度分析、特征分析、计算节点特征、计算全图Graphlet个数、拉普拉斯矩阵特征值分解
+- 创建图：使用 API 快速创建图、使用连接表和邻接表创建图、创建节点、创建连接
+- 可视化：使用 nx.draw() 方法、有向图可视化、自定义节点图标、自我中心图（Ego 图）
+- 实战案例：PageRank 节点重要度、节点连接数 Node Degree 度分析、特征分析、计算节点特征、计算全图 Graphlet 个数、拉普拉斯矩阵特征值分解

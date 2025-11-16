@@ -1,35 +1,40 @@
-# Task10 时序数据
+## Task10 时序数据
 
-## 1 知识梳理（重点记忆）
+### 1 知识梳理（重点记忆）
 
-### 1.1 时序中的基本对象
-| 概念 | 单元素类型 | 数组类型 | pandas数据类型|
+#### 1.1 时序中的基本对象
+
+| 概念 | 单元素类型 | 数组类型 | pandas 数据类型|
 |:---------|:----------|:-----------|:------------|
 | Date times | `Timestamp` | `DatetimeIndex` | `datetime64[ns]` |
 | Time deltas | `Timedelta` | `TimedeltaIndex` | `timedelta64[ns]` |
 | Time spans | `Period` | `PeriodIndex` | `period[freq]` |
 | Date offsets | `DateOffset` | `None` | `None` |
 
-### 1.2 时间戳
-- 单个时间戳的生成：`pd.Timestampe()`，使用`year`，`month`，`day`，`hour`，`min`，`second`获取各时间戳分量
-- 时间戳对象转换：`pd.to_datatime()`，可使用`format`参数进行格式匹配
-- 时间序列生成：`pd.date_range()`，其中`freq`参数可使用特殊标识，例如`10D`表示间隔10天
-- `dt`对象有三类操作：  
+#### 1.2 时间戳
+
+- 单个时间戳的生成：`pd.Timestampe()`，使用 `year`，`month`，`day`，`hour`，`min`，`second` 获取各时间戳分量
+- 时间戳对象转换：`pd.to_datatime()`，可使用 `format` 参数进行格式匹配
+- 时间序列生成：`pd.date_range()`，其中 `freq` 参数可使用特殊标识，例如 `10D` 表示间隔 10 天
+- `dt` 对象有三类操作：
  1. 取出时间相关的属性，`date`, `time`, `year`, `month`, `day`, `hour`, `minute`, `second`, `microsecond`, `nanosecond`, `dayofweek`, `dayofyear`, `weekofyear`, `daysinmonth`, `quarter`
  2. 判断时间戳是否满足条件，主要用于测试是否为月/季/年的第一天或者最后一天
- 3. 取整操作，可使用`round`, `ceil`, `floor`等函数
-- 时间戳切片：可利用`dt`对象和布尔条件联合使用，或可使用切片获得连续时间戳
+ 3. 取整操作，可使用 `round`, `ceil`, `floor` 等函数
+- 时间戳切片：可利用 `dt` 对象和布尔条件联合使用，或可使用切片获得连续时间戳
 
-### 1.3 时间差
-- 时间差的生成：`pd.Timedelta()`，可使用`days`，`minutes`等参数
+#### 1.3 时间差
+
+- 时间差的生成：`pd.Timedelta()`，可使用 `days`，`minutes` 等参数
 - 时间差序列转换：`pd.to_timedelta()`
 - 时间差序列生成：`pd.timedelta_range()`
-- `dt`对象属性：`days`, `seconds`, `mircroseconds`, `nanoseconds`
-- Timedelta的运算：与标量的乘法运算、与时间戳的加减法运算、与时间差的加减法与除法运算
+- `dt` 对象属性：`days`, `seconds`, `mircroseconds`, `nanoseconds`
+- Timedelta 的运算：与标量的乘法运算、与时间戳的加减法运算、与时间差的加减法与除法运算
 
-### 1.4 日期偏置
-- offset对象：使用`pd.offsets`中的各类对象，例如`pd.offsets.WeekOfMonth(week=0, weekday=0)`
+#### 1.4 日期偏置
+
+- offset 对象：使用 `pd.offsets` 中的各类对象，例如 `pd.offsets.WeekOfMonth(week=0, weekday=0)`
 - 偏置字符串：
+
 |标识|描述|
 |:---:|:---:|
 | MS | 月初 |
@@ -38,14 +43,14 @@
 | W-MON | 周一 |
 | WOM-1MON | 每月第一个周一 |
 
-### 1.5 时序中的滑窗与分组
-- 滑动窗口：使用`series.rolling`函数，可指定`freq`时间窗口，例如`30D`表示30天
-- 重采样：  
- 1. 使用`series.resample`函数，该函数用法类似于分组对象`groupby`，后面可接`apply`函数
- 2. 可传入特殊标识：`M`, `A`, `Q`, `BM`, `BA`, `BQ`, `W`这七个是取对应区间的最后一个时间戳
+#### 1.5 时序中的滑窗与分组
 
-## 2 练一练
+- 滑动窗口：使用 `series.rolling` 函数，可指定 `freq` 时间窗口，例如 `30D` 表示 30 天
+- 重采样：
+ 1. 使用 `series.resample` 函数，该函数用法类似于分组对象 `groupby`，后面可接 `apply` 函数
+ 2. 可传入特殊标识：`M`, `A`, `Q`, `BM`, `BA`, `BQ`, `W` 这七个是取对应区间的最后一个时间戳
 
+### 2 练一练
 
 ```python
 import pandas as pd
@@ -53,36 +58,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-### 2.1 第1题
-`Timestamp`上定义了一个`value`属性，其返回的整数值代表了从1970年1月1日零点到给定时间戳相差的纳秒数，请利用这个属性构造一个随机生成给定日期区间内日期序列的函数。
+#### 2.1 第 1 题
+
+`Timestamp` 上定义了一个 `value` 属性，其返回的整数值代表了从 1970 年 1 月 1 日零点到给定时间戳相差的纳秒数，请利用这个属性构造一个随机生成给定日期区间内日期序列的函数。
 
 **解答：**
-
 
 ```python
 ts = pd.Timestamp('2020/1/10')
 ts.value
 ```
 
-
-
-
     1578614400000000000
-
-
-
 
 ```python
 pd.Timestamp(ts.value)
 ```
 
-
-
-
     Timestamp('2020-01-10 00:00:00')
-
-
-
 
 ```python
 import random
@@ -93,13 +86,9 @@ def generate_datetime_index(start, end, n):
     return pd.to_datetime([pd.Timestamp(i) for i in sorted(values)])
 ```
 
-
 ```python
 generate_datetime_index('2020-1-1', '2020-2-28', n=10)
 ```
-
-
-
 
     DatetimeIndex(['2020-01-02 18:21:18.229383398',
                    '2020-01-10 02:30:33.050379716',
@@ -113,19 +102,14 @@ generate_datetime_index('2020-1-1', '2020-2-28', n=10)
                    '2020-02-27 15:04:18.570228381'],
                   dtype='datetime64[ns]', freq=None)
 
+#### 2.2 第 2 题
 
-
-### 2.2 第2题
-前面提到了`datetime64[ns]`本质上可以理解为一个大整数，对于一个该类型的序列，可以使用`max, min, mean`，来取得最大时间戳、最小时间戳和“平均”时间戳。
-
+前面提到了 `datetime64[ns]` 本质上可以理解为一个大整数，对于一个该类型的序列，可以使用 `max, min, mean`，来取得最大时间戳、最小时间戳和“平均”时间戳。
 
 ```python
 res = generate_datetime_index('2020-1-1', '2020-2-28', n=10)
 res
 ```
-
-
-
 
     DatetimeIndex(['2020-01-01 19:23:11.610389290',
                    '2020-01-08 12:27:29.051635767',
@@ -139,58 +123,34 @@ res
                    '2020-02-19 14:10:04.633833107'],
                   dtype='datetime64[ns]', freq=None)
 
-
-
-
 ```python
 res.max()
 ```
 
-
-
-
     Timestamp('2020-02-19 14:10:04.633833107')
-
-
-
 
 ```python
 res.min()
 ```
 
-
-
-
     Timestamp('2020-01-01 19:23:11.610389290')
-
-
-
 
 ```python
 res.mean()
 ```
 
-
-
-
     Timestamp('2020-01-22 15:01:06.022597120')
 
+### 3 练习
 
-
-## 3 练习
-
-### 3.1 Ex1：太阳辐射数据集
+#### 3.1 Ex1：太阳辐射数据集
 
 现有一份关于太阳辐射的数据集：
-
 
 ```python
 df = pd.read_csv('../data/solar.csv', usecols=['Data','Time','Radiation','Temperature'])
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -242,30 +202,24 @@ df.head(3)
 </table>
 </div>
 
-
-
-1. 将`Datetime, Time`合并为一个时间列`Datetime`，同时把它作为索引后排序。
+1. 将 `Datetime, Time` 合并为一个时间列 `Datetime`，同时把它作为索引后排序。
 2. 每条记录时间的间隔显然并不一致，请解决如下问题：
-* 找出间隔时间的前三个最大值所对应的三组时间戳。
-* 是否存在一个大致的范围，使得绝大多数的间隔时间都落在这个区间中？如果存在，请对此范围内的样本间隔秒数画出柱状图，设置`bins=50`。
-3. 求如下指标对应的`Series`：
-* 温度与辐射量的6小时滑动相关系数
-* 以三点、九点、十五点、二十一点为分割，该观测所在时间区间的温度均值序列
-* 每个观测6小时前的辐射量（一般而言不会恰好取到，此时取最近时间戳对应的辐射量）
+- 找出间隔时间的前三个最大值所对应的三组时间戳。
+- 是否存在一个大致的范围，使得绝大多数的间隔时间都落在这个区间中？如果存在，请对此范围内的样本间隔秒数画出柱状图，设置 `bins=50`。
+3. 求如下指标对应的 `Series`：
+- 温度与辐射量的 6 小时滑动相关系数
+- 以三点、九点、十五点、二十一点为分割，该观测所在时间区间的温度均值序列
+- 每个观测 6 小时前的辐射量（一般而言不会恰好取到，此时取最近时间戳对应的辐射量）
 
 **我的解答：**
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 # 将9/29/2016 12:00:00 AM进行抽取
 date_series = df.Data.str.extract('([/|\w]+\s).+')[0]
 date_series.head()
 ```
-
-
-
 
     0    9/29/2016 
     1    9/29/2016 
@@ -274,26 +228,18 @@ date_series.head()
     4    9/29/2016 
     Name: 0, dtype: object
 
-
-
-
 ```python
 df['Datetime'] = pd.to_datetime(date_series + df.Time)
 ```
-
 
 ```python
 # 删除Time列，设置Datetime为索引，并排序
 df = df.drop(columns=['Time', 'Data']).set_index('Datetime').sort_index()
 ```
 
-
 ```python
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -342,10 +288,7 @@ df.head(3)
 </table>
 </div>
 
-
-
-**第2问：**
-
+**第 2 问：**
 
 ```python
 # 计算间隔时间
@@ -354,9 +297,6 @@ timedelta_series = df.index.to_series().reset_index(drop=True) \
 timedelta_series.head()
 ```
 
-
-
-
     0      NaN
     1    302.0
     2    896.0
@@ -364,30 +304,20 @@ timedelta_series.head()
     4    304.0
     Name: Datetime, dtype: float64
 
-
-
-
 ```python
 # 取前三个最大值的索引
 index_largest3 = timedelta_series.nlargest(3).index
 ```
-
 
 ```python
 # 得到对应的时间戳
 df.index[index_largest3.union(index_largest3 - 1)]
 ```
 
-
-
-
     DatetimeIndex(['2016-09-29 23:55:26', '2016-10-01 00:00:19',
                    '2016-11-29 19:05:02', '2016-12-01 00:00:02',
                    '2016-12-05 20:45:53', '2016-12-08 11:10:42'],
                   dtype='datetime64[ns]', name='Datetime', freq=None)
-
-
-
 
 ```python
 # 获取绝大多数的间隔时间，在0.01到0.99之间都算绝大多数
@@ -396,25 +326,20 @@ res = timedelta_series.where(
     & (timedelta_series >timedelta_series.quantile(0.01)))
 ```
 
-
 ```python
 %matplotlib inline
 _ = plt.hist(res, bins=50)
 ```
 
-<img src="./pandas20/images/ch10_ex1.png" width="40%">    
+<img src="./pandas20/images/ch10_ex1.png" width="40%">
 
-**第3问：**
-
+**第 3 问：**
 
 ```python
 # 温度与辐射量的6小时滑动相关系数
 res = df.Radiation.rolling('6H').corr(df.Temperature)
 res.tail()
 ```
-
-
-
 
     Datetime
     2016-12-31 23:35:02    0.416187
@@ -424,18 +349,12 @@ res.tail()
     2016-12-31 23:55:01    0.262406
     dtype: float64
 
-
-
-
 ```python
 # 以三点、九点、十五点、二十一点为分割，该观测所在时间区间的温度均值序列
 # 即从3点开始，每个6小时
 res = df.Temperature.resample('6H', origin='03:00:00').mean()
 res.head()
 ```
-
-
-
 
     Datetime
     2016-08-31 21:00:00    51.218750
@@ -445,18 +364,12 @@ res.head()
     2016-09-01 21:00:00    51.393939
     Freq: 6H, Name: Temperature, dtype: float64
 
-
-
-
 ```python
 # 每个观测6小时前的辐射量(取最近时间戳对应的辐射量)
 # 获取6小时前的时间
 datatime_before6H = df.index.shift(freq = '-6H')
 datatime_before6H
 ```
-
-
-
 
     DatetimeIndex(['2016-08-31 18:00:08', '2016-08-31 18:05:10',
                    '2016-08-31 18:20:06', '2016-08-31 18:25:05',
@@ -471,22 +384,15 @@ datatime_before6H
                    '2016-12-31 17:50:03', '2016-12-31 17:55:01'],
                   dtype='datetime64[ns]', name='Datetime', length=32686, freq=None)
 
-
-
-
 ```python
 # 得到最近时间戳的索引号
 index_int = [df.index.get_loc(i, method='nearest') for i in datatime_before6H]
 ```
 
-
 ```python
 # 通过索引号获取辐射量
 df.Radiation[index_int]
 ```
-
-
-
 
     Datetime
     2016-09-01 00:00:08     2.58
@@ -502,20 +408,14 @@ df.Radiation[index_int]
     2016-12-31 17:55:02     5.84
     Name: Radiation, Length: 32686, dtype: float64
 
+#### 3.2 Ex2：水果销量数据集
 
-
-### 3.2 Ex2：水果销量数据集
-
-现有一份2019年每日水果销量记录表：
-
+现有一份 2019 年每日水果销量记录表：
 
 ```python
 df = pd.read_csv('../data/fruit.csv')
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -563,45 +463,33 @@ df.head(3)
 </table>
 </div>
 
-
-
 1. 统计如下指标：
-* 每月上半月（15号及之前）与下半月葡萄销量的比值
-* 每月最后一天的生梨销量总和
-* 每月最后一天工作日的生梨销量总和
-* 每月最后五天的苹果销量均值
+- 每月上半月（15 号及之前）与下半月葡萄销量的比值
+- 每月最后一天的生梨销量总和
+- 每月最后一天工作日的生梨销量总和
+- 每月最后五天的苹果销量均值
 2. 按月计算周一至周日各品种水果的平均记录条数，行索引外层为水果名称，内层为月份，列索引为星期。
-3. 按天计算向前10个工作日窗口的苹果销量均值序列，非工作日的值用上一个工作日的结果填充。
-
+3. 按天计算向前 10 个工作日窗口的苹果销量均值序列，非工作日的值用上一个工作日的结果填充。
 
 **我的解答：**
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 df.Date = pd.to_datetime(df.Date)
 ```
-
 
 ```python
 # 所有的水果类型
 df.Fruit.unique()
 ```
 
-
-
-
     array(['Peach', 'Pear', 'Grape', 'Banana', 'Apple'], dtype=object)
-
-
-
 
 ```python
 # 获得葡萄的数据
 df_grape = df[df.Fruit == 'Grape']
 ```
-
 
 ```python
 # 得到上半月葡萄的销量均值
@@ -610,15 +498,11 @@ res_first = df_grape[df_grape.Date.dt.day<=15].groupby(df_grape.Date.dt.month)['
 res_latter = df_grape[df_grape.Date.dt.day>15].groupby(df_grape.Date.dt.month)['Sale'].sum()
 ```
 
-
 ```python
 # 计算每月上半月（15号及之前）与下半月葡萄销量的比值
 res = (res_first/res_latter).rename_axis('Month')
 res
 ```
-
-
-
 
     Month
     1     1.174998
@@ -635,16 +519,10 @@ res
     12    0.989662
     Name: Sale, dtype: float64
 
-
-
-
 ```python
 # 每月最后一天的生梨销量总和
 df[df.Date.dt.is_month_end].query("Fruit=='Pear'").groupby('Date')['Sale'].sum().rename_axis('Month')
 ```
-
-
-
 
     Month
     2019-01-31    847
@@ -660,33 +538,21 @@ df[df.Date.dt.is_month_end].query("Fruit=='Pear'").groupby('Date')['Sale'].sum()
     2019-11-30    859
     Name: Sale, dtype: int64
 
-
-
-
 ```python
 # 每月最后一天工作日
 date_time_bm = pd.date_range('20190101','20191231', freq='BM')
 date_time_bm
 ```
 
-
-
-
     DatetimeIndex(['2019-01-31', '2019-02-28', '2019-03-29', '2019-04-30',
                    '2019-05-31', '2019-06-28', '2019-07-31', '2019-08-30',
                    '2019-09-30', '2019-10-31', '2019-11-29', '2019-12-31'],
                   dtype='datetime64[ns]', freq='BM')
 
-
-
-
 ```python
 # 每月最后一天工作日的生梨销量总和
 df[df.Date.isin(date_time_bm)].query("Fruit=='Pear'").groupby('Date')['Sale'].sum()
 ```
-
-
-
 
     Date
     2019-01-31     847
@@ -702,9 +568,6 @@ df[df.Date.isin(date_time_bm)].query("Fruit=='Pear'").groupby('Date')['Sale'].su
     2019-11-29    1193
     Name: Sale, dtype: int64
 
-
-
-
 ```python
 # 每月最后五天
 df_last_5days = df.groupby(df.Date.drop_duplicates().dt.month)['Date']
@@ -712,19 +575,14 @@ last_5days_datetime = df_last_5days.nlargest(5).reset_index(drop=True)
 last_5days_datetime = pd.DatetimeIndex(last_5days_datetime)
 ```
 
-
 ```python
 # 苹果销量均值
 res = df[df.Date.isin(last_5days_datetime)].query("Fruit=='Apple'")
 ```
 
-
 ```python
 res.groupby(res.Date.dt.month)['Sale'].mean().rename_axis('Month')
 ```
-
-
-
 
     Month
     1     65.313725
@@ -741,10 +599,7 @@ res.groupby(res.Date.dt.month)['Sale'].mean().rename_axis('Month')
     12    66.020000
     Name: Sale, dtype: float64
 
-
-
-**第2问：**
-
+**第 2 问：**
 
 ```python
 # 得到索引为水果名称，月份，星期的分类
@@ -756,9 +611,6 @@ month_category = df.Date.dt.month_name().astype('category') \
 month_category.head()
 ```
 
-
-
-
     0       April
     1    December
     2        June
@@ -767,22 +619,13 @@ month_category.head()
     Name: Date, dtype: category
     Categories (12, object): ['January' < 'February' < 'March' < 'April' ... 'September' < 'October' < 'November' < 'December']
 
-
-
-
 ```python
 week_order = ['Mon','Tue','Wed','Thu','Fri','Sat','Sum']
 week_dict = dict(zip(range(7), week_order))
 week_dict
 ```
 
-
-
-
     {0: 'Mon', 1: 'Tue', 2: 'Wed', 3: 'Thu', 4: 'Fri', 5: 'Sat', 6: 'Sum'}
-
-
-
 
 ```python
 week_category = df.Date.dt.dayofweek.astype('category') \
@@ -790,14 +633,10 @@ week_category = df.Date.dt.dayofweek.astype('category') \
     .cat.reorder_categories(week_order, ordered=True)
 ```
 
-
 ```python
 res = df.groupby([month_category, df.Fruit, week_category])['Sale'].count().to_frame()
 res.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -855,22 +694,15 @@ res.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 调整索引：行索引外层为水果名称，内层为月份，列索引为星期
 res = res.unstack(2).droplevel(0,axis=1)
 res = res.swaplevel(0,1).rename_axis(index={'Date':'Month'})
 ```
 
-
 ```python
 res.sort_index()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1521,10 +1353,7 @@ res.sort_index()
 </table>
 </div>
 
-
-
-**第3问：**按天计算向前10个工作日窗口的苹果销量均值序列，非工作日的值用上一个工作日的结果填充。
-
+**第 3 问：**按天计算向前 10 个工作日窗口的苹果销量均值序列，非工作日的值用上一个工作日的结果填充。
 
 ```python
 # 获取工作日的苹果销量数据
@@ -1532,15 +1361,11 @@ df_apple = df[(df.Fruit=='Apple')&(~df.Date.dt.dayofweek.isin([5,6]))]
 s = df_apple.groupby('Date')['Sale'].sum()
 ```
 
-
 ```python
 # 得到2019年所有的日期
 date_range_2019 = pd.date_range('20190101','20191231')
 date_range_2019
 ```
-
-
-
 
     DatetimeIndex(['2019-01-01', '2019-01-02', '2019-01-03', '2019-01-04',
                    '2019-01-05', '2019-01-06', '2019-01-07', '2019-01-08',
@@ -1551,16 +1376,10 @@ date_range_2019
                    '2019-12-30', '2019-12-31'],
                   dtype='datetime64[ns]', length=365, freq='D')
 
-
-
-
 ```python
 # 按天计算向前10个工作日的均值，使用fillna进行填充
 s.rolling('10D').mean().reindex(date_range_2019).fillna(method='ffill')
 ```
-
-
-
 
     2019-01-01    189.000000
     2019-01-02    335.500000
@@ -1574,5 +1393,3 @@ s.rolling('10D').mean().reindex(date_range_2019).fillna(method='ffill')
     2019-12-30    710.166667
     2019-12-31    710.166667
     Freq: D, Name: Sale, Length: 365, dtype: float64
-
-

@@ -1,20 +1,16 @@
-# Task02 Pandas基础
+## Task02 Pandas 基础
 
-## 1 知识梳理（重点记忆）
+### 1 知识梳理（重点记忆）
 
-### 1.1 文件的读取与写入
+#### 1.1 文件的读取与写入
 
-通过使用`parse_datas`参数，将日期进行格式化
-
+通过使用 `parse_datas` 参数，将日期进行格式化
 
 ```python
 import pandas as pd
 
 pd.read_csv('../data/my_csv.csv', parse_dates=['col5'])
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -78,27 +74,18 @@ pd.read_csv('../data/my_csv.csv', parse_dates=['col5'])
 </table>
 </div>
 
+#### 1.2 常用基本函数
 
-
-### 1.2 常用基本函数
-
-#### 1.2.1 `info`和`describe`函数
-
+##### 1.2.1 `info` 和 `describe` 函数
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
 df.columns
 ```
 
-
-
-
     Index(['School', 'Grade', 'Name', 'Gender', 'Height', 'Weight', 'Transfer',
            'Test_Number', 'Test_Date', 'Time_Record'],
           dtype='object')
-
-
-
 
 ```python
 df.info()
@@ -125,13 +112,9 @@ df.info()
 
 主要展示数据集里面的列名、非空个数、对应的数据类型，统计列类型的个数和数据集占用的内存
 
-
 ```python
 df.describe()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -209,22 +192,17 @@ df.describe()
 </table>
 </div>
 
+&emsp;&emsp; 主要展示数据集中类型为 `float` 和 `int` 的统计值，包括个数、均值、标准差、最小值、25% 分位数、50% 分位数（中位数）、75% 分位数和最大值
 
+##### 1.2.2 `drop_duplicates` 函数
 
-&emsp;&emsp;主要展示数据集中类型为`float`和`int`的统计值，包括个数、均值、标准差、最小值、25%分位数、50%分位数（中位数）、75%分位数和最大值
-
-#### 1.2.2 `drop_duplicates`函数
-&emsp;&emsp;`drop_duplicates`用途是对重复数据进行数据清理。   
-&emsp;&emsp;如果想要观察多个列组合的唯一值，可以使用`drop_duplicates`。其中的关键参数是`keep`，默认值`first`表示每个组合保留第一次出现的所在行，`last`表示保留最后一次出现的所在行，`False`表示把所有重复组合所在的行剔除。
-
+&emsp;&emsp;`drop_duplicates` 用途是对重复数据进行数据清理。
+&emsp;&emsp; 如果想要观察多个列组合的唯一值，可以使用 `drop_duplicates`。其中的关键参数是 `keep`，默认值 `first` 表示每个组合保留第一次出现的所在行，`last` 表示保留最后一次出现的所在行，`False` 表示把所有重复组合所在的行剔除。
 
 ```python
 df_demo = df[['Gender','Transfer','Name']]
 df_demo.drop_duplicates(['Gender', 'Transfer'])
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -290,19 +268,14 @@ df_demo.drop_duplicates(['Gender', 'Transfer'])
 </table>
 </div>
 
+##### 1.2.3 `replace` 函数
 
-
-#### 1.2.3 `replace`函数
-`replace`函数可以进行方向替换，指定`method`参数为`ffill`则为用前面一个最近的未被替换的值进行替换，`bfill`则使用后面最近的未被替换的值进行替换。
-
+`replace` 函数可以进行方向替换，指定 `method` 参数为 `ffill` 则为用前面一个最近的未被替换的值进行替换，`bfill` 则使用后面最近的未被替换的值进行替换。
 
 ```python
 s = pd.Series(['a', 1, 'b', 2, 1, 1, 'a'])
 s.replace([1, 2], method='ffill')
 ```
-
-
-
 
     0    a
     1    a
@@ -313,19 +286,14 @@ s.replace([1, 2], method='ffill')
     6    a
     dtype: object
 
+##### 1.2.4 `where` 和 `mask` 函数
 
-
-#### 1.2.4 `where`和`mask`函数  
-`where`函数是根据条件进行反向过滤，`mask`函数是根据条件进行正向过滤。
-
+`where` 函数是根据条件进行反向过滤，`mask` 函数是根据条件进行正向过滤。
 
 ```python
 s = pd.Series([-1, 1.2345, 100, -50])
 s.where(s<0, 100)
 ```
-
-
-
 
     0     -1.0
     1    100.0
@@ -333,15 +301,9 @@ s.where(s<0, 100)
     3    -50.0
     dtype: float64
 
-
-
-
 ```python
 s.mask(s<0, -100)
 ```
-
-
-
 
     0   -100.0000
     1      1.2345
@@ -349,20 +311,15 @@ s.mask(s<0, -100)
     3   -100.0000
     dtype: float64
 
+##### 1.2.5 窗口对象
 
-
-#### 1.2.5 窗口对象
-1. 滑窗对象：`rolling`函数，可使用`window`参数设置滑动窗口
-
+1. 滑窗对象：`rolling` 函数，可使用 `window` 参数设置滑动窗口
 
 ```python
 s = pd.Series([1,2,3,4,5])
 roller = s.rolling(window = 3)
 roller.mean()
 ```
-
-
-
 
     0    NaN
     1    NaN
@@ -371,17 +328,11 @@ roller.mean()
     4    4.0
     dtype: float64
 
-
-
-2. 扩张窗口：又称为累计窗口，`expanding`函数
-
+2. 扩张窗口：又称为累计窗口，`expanding` 函数
 
 ```python
 s.expanding().sum()
 ```
-
-
-
 
     0     1.0
     1     3.0
@@ -390,35 +341,28 @@ s.expanding().sum()
     4    15.0
     dtype: float64
 
+### 2 练一练
 
+#### 2.1 第 1 题
 
-## 2 练一练
-
-### 2.1 第1题
-在`clip`中，超过边界的只能截断为边界值，如果要把超出边界的替换为自定义的值，应当如何做？
-
+在 `clip` 中，超过边界的只能截断为边界值，如果要把超出边界的替换为自定义的值，应当如何做？
 
 ```python
 import pandas as pd
 s = pd.Series([-1, 1.2345, 100, -50])
 ```
 
-**我的解答：**  
-根据题意理解，假设要替换的值为(-2, 30)，其中下边界为-2、上边界为30，故得到的序列应该为`[-2, 1.2345, 30, -2]`
-
+**我的解答：**
+根据题意理解，假设要替换的值为 (-2, 30)，其中下边界为 -2、上边界为 30，故得到的序列应该为 `[-2, 1.2345, 30, -2]`
 
 ```python
 def replace_clip(s, lower, upper, define_lower_value, define_upper_value):
     return s.mask(s<lower, define_lower_value).mask(s>upper, define_upper_value)
 ```
 
-
 ```python
 replace_clip(s, lower=0, upper=2, define_lower_value=-2, define_upper_value=30)
 ```
-
-
-
 
     0    -2.0000
     1     1.2345
@@ -426,22 +370,17 @@ replace_clip(s, lower=0, upper=2, define_lower_value=-2, define_upper_value=30)
     3    -2.0000
     dtype: float64
 
+#### 2.2 第 2 题
 
+`rolling` 对象的默认窗口方向都是向前的，某些情况下用户需要向后的窗口，例如对 1,2,3 设定向后窗口为 2 的 `sum` 操作，结果为 3,5,NaN，此时应该如何实现向后的滑窗操作？（提示：使用 `shift`）
 
-### 2.2 第2题
-`rolling`对象的默认窗口方向都是向前的，某些情况下用户需要向后的窗口，例如对1,2,3设定向后窗口为2的`sum`操作，结果为3,5,NaN，此时应该如何实现向后的滑窗操作？（提示：使用`shift`）
-
-**我的解答：**  
-例如对`[1,2,3,4,5]`设定向后窗口为3的`sum`操作，结果应为`[6,9,12,NaN,NaN]`
-
+**我的解答：**
+例如对 `[1,2,3,4,5]` 设定向后窗口为 3 的 `sum` 操作，结果应为 `[6,9,12,NaN,NaN]`
 
 ```python
 s = pd.Series([1, 2, 3, 4, 5])
 s.rolling(3).sum().shift(-2)
 ```
-
-
-
 
     0     6.0
     1     9.0
@@ -450,13 +389,11 @@ s.rolling(3).sum().shift(-2)
     4     NaN
     dtype: float64
 
+#### 2.3 第 3 题
 
-
-### 2.3 第3题
-`cummax`, `cumsum`, `cumprod`函数是典型的类扩张窗口函数，请使用`expanding`对象依次实现它们。
+`cummax`, `cumsum`, `cumprod` 函数是典型的类扩张窗口函数，请使用 `expanding` 对象依次实现它们。
 
 **我的解答：**
-
 
 ```python
 s = pd.Series([5,4,3,2,1])
@@ -464,15 +401,11 @@ s = pd.Series([5,4,3,2,1])
 
 1. **累计求最大值**
 
-函数`cummax`的执行结果：
-
+函数 `cummax` 的执行结果：
 
 ```python
 s.cummax()
 ```
-
-
-
 
     0    5
     1    5
@@ -481,17 +414,11 @@ s.cummax()
     4    5
     dtype: int64
 
-
-
-使用`expanding`实现的`cummax`：
-
+使用 `expanding` 实现的 `cummax`：
 
 ```python
 s.expanding().max()
 ```
-
-
-
 
     0    5.0
     1    5.0
@@ -500,19 +427,13 @@ s.expanding().max()
     4    5.0
     dtype: float64
 
-
-
 2. **累计求和**
 
-函数`cumsum`的执行结果：
-
+函数 `cumsum` 的执行结果：
 
 ```python
 s.cumsum()
 ```
-
-
-
 
     0     5
     1     9
@@ -521,17 +442,11 @@ s.cumsum()
     4    15
     dtype: int64
 
-
-
-使用`expanding`实现的`cumsum`：
-
+使用 `expanding` 实现的 `cumsum`：
 
 ```python
 s.expanding().sum()
 ```
-
-
-
 
     0     5.0
     1     9.0
@@ -540,19 +455,13 @@ s.expanding().sum()
     4    15.0
     dtype: float64
 
-
-
 3. **累计求积**
 
-函数`cumprod`的执行结果：
-
+函数 `cumprod` 的执行结果：
 
 ```python
 s.cumprod()
 ```
-
-
-
 
     0      5
     1     20
@@ -561,18 +470,12 @@ s.cumprod()
     4    120
     dtype: int64
 
-
-
-使用`expanding`实现的`cumprod`：
-
+使用 `expanding` 实现的 `cumprod`：
 
 ```python
 import numpy as np
 s.expanding().apply(lambda x: np.array(x).prod())
 ```
-
-
-
 
     0      5.0
     1     20.0
@@ -581,26 +484,20 @@ s.expanding().apply(lambda x: np.array(x).prod())
     4    120.0
     dtype: float64
 
+### 3 练习
 
+#### 3.1 Ex1：口袋妖怪数据集
 
-## 3 练习
-
-### 3.1 Ex1：口袋妖怪数据集
 现有一份口袋妖怪的数据集，下面进行一些背景说明：
 
-* `#`代表全国图鉴编号，不同行存在相同数字则表示为该妖怪的不同状态
-
-* 妖怪具有单属性和双属性两种，对于单属性的妖怪，`Type 2`为缺失值
-* `Total, HP, Attack, Defense, Sp.Atk, Sp.Def, Speed`分别代表种族值、体力、物攻、防御、特攻、特防、速度，其中种族值为后6项之和
-
+- `#` 代表全国图鉴编号，不同行存在相同数字则表示为该妖怪的不同状态
+- 妖怪具有单属性和双属性两种，对于单属性的妖怪，`Type 2` 为缺失值
+- `Total, HP, Attack, Defense, Sp.Atk, Sp.Def, Speed` 分别代表种族值、体力、物攻、防御、特攻、特防、速度，其中种族值为后 6 项之和
 
 ```python
 df = pd.read_csv('../data/pokemon.csv')
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -680,33 +577,26 @@ df.head(3)
 </table>
 </div>
 
+1. 对 `HP, Attack, Defense, Sp. Atk, Sp. Def, Speed` 进行加总，验证是否为 `Total` 值。
+2. 对于 `#` 重复的妖怪只保留第一条记录，解决以下问题：
 
+- 求第一属性的种类数量和前三多数量对应的种类
+- 求第一属性和第二属性的组合种类
+- 求尚未出现过的属性组合
 
-1. 对`HP, Attack, Defense, Sp. Atk, Sp. Def, Speed`进行加总，验证是否为`Total`值。
+3. 按照下述要求，构造 `Series`：
 
-2. 对于`#`重复的妖怪只保留第一条记录，解决以下问题：
+- 取出物攻，超过 120 的替换为 `high`，不足 50 的替换为 `low`，否则设为 `mid`
+- 取出第一属性，分别用 `replace` 和 `apply` 替换所有字母为大写
+- 求每个妖怪六项能力的离差，即所有能力中偏离中位数最大的值，添加到 `df` 并从大到小排序
 
-* 求第一属性的种类数量和前三多数量对应的种类
-* 求第一属性和第二属性的组合种类
-* 求尚未出现过的属性组合
-
-3. 按照下述要求，构造`Series`：
-
-* 取出物攻，超过120的替换为`high`，不足50的替换为`low`，否则设为`mid`
-* 取出第一属性，分别用`replace`和`apply`替换所有字母为大写
-* 求每个妖怪六项能力的离差，即所有能力中偏离中位数最大的值，添加到`df`并从大到小排序
-
-**我的解答：**  
-**第1问：**
-
+**我的解答：**
+**第 1 问：**
 
 ```python
 df = pd.read_csv('../data/pokemon.csv')
 df[df['Total'] != df[['HP','Attack','Defense','Sp. Atk','Sp. Def','Speed']].sum(1)]
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -744,12 +634,9 @@ df[df['Total'] != df[['HP','Attack','Defense','Sp. Atk','Sp. Def','Speed']].sum(
 </table>
 </div>
 
+通过观察，可知所有数据都是的 6 个属性的加总与 `Total` 值是一致的。
 
-
-通过观察，可知所有数据都是的6个属性的加总与`Total`值是一致的。
-
-**第2问：**
-
+**第 2 问：**
 
 ```python
 # 对'#'重复的妖怪只保留第一条记录
@@ -757,51 +644,30 @@ df_dropdup = df.drop_duplicates('#', keep='first')
 df_dropdup.shape
 ```
 
-
-
-
     (721, 11)
-
-
-
 
 ```python
 # 第一属性的种类数量
 df_dropdup['Type 1'].nunique()
 ```
 
-
-
-
     18
-
-
-
 
 ```python
 # 前三多数量对应的种类
 df_dropdup['Type 1'].value_counts().head(3)
 ```
 
-
-
-
     Water     105
     Normal     93
     Grass      66
     Name: Type 1, dtype: int64
-
-
-
 
 ```python
 # 第一属性和第二属性的组合种类
 df_type1_type2 = df_dropdup.drop_duplicates(['Type 1', 'Type 2'])
 df_type1_type2[['Type 1', 'Type 2']]
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -852,9 +718,9 @@ df_type1_type2[['Type 1', 'Type 2']]
       <td>NaN</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
+      <th>…</th>
+      <td>…</td>
+      <td>…</td>
     </tr>
     <tr>
       <th>773</th>
@@ -886,14 +752,10 @@ df_type1_type2[['Type 1', 'Type 2']]
 <p>143 rows × 2 columns</p>
 </div>
 
-
-
-
 ```python
 # 求尚未出现过的属性组合
 type1_list = df_dropdup['Type 1'].unique()
 ```
-
 
 ```python
 type2_list = df_dropdup['Type 2'].unique()
@@ -901,48 +763,29 @@ type2_list = df_dropdup['Type 2'].unique()
 type2_list = type2_list[~pd.isnull(type2_list)]
 ```
 
-
 ```python
 import numpy as np
 set_full = set([(i,j) if i!=j else None for i in type1_list for j in type2_list])
 len(set_full)
 ```
 
-
-
-
     307
-
-
-
 
 ```python
 set_used = set((i, j) if type(j) == str else None for i,j in zip(df_type1_type2['Type 1'], df_type1_type2['Type 2']))
 len(set_used)
 ```
 
-
-
-
     126
-
-
-
 
 ```python
 res = set_full.difference(set_used)
 len(res)
 ```
 
-
-
-
     181
 
-
-
-**第3问：**
-
+**第 3 问：**
 
 ```python
 # 取出物攻，超过120的替换为high，不足50的替换为low，否则设为mid
@@ -958,18 +801,12 @@ res = df_attack.apply(cond_replace)
 res.head()
 ```
 
-
-
-
     0    low
     1    mid
     2    mid
     3    mid
     4    mid
     Name: Attack, dtype: object
-
-
-
 
 ```python
 # 取出第一属性，分别用replace和apply替换所有字母为大写
@@ -978,27 +815,18 @@ df_type1 = df['Type 1'].copy()
 df_type1.replace(df_type1.unique(), [str.upper(s) for s in df_type1.unique()]).head()
 ```
 
-
-
-
     0    GRASS
     1    GRASS
     2    GRASS
     3    GRASS
     4     FIRE
     Name: Type 1, dtype: object
-
-
-
 
 ```python
 # 使用apply实现
 df_type1.apply(lambda x: str.upper(x)).head()
 ```
 
-
-
-
     0    GRASS
     1    GRASS
     2    GRASS
@@ -1006,17 +834,11 @@ df_type1.apply(lambda x: str.upper(x)).head()
     4     FIRE
     Name: Type 1, dtype: object
 
-
-
-
 ```python
 # 求每个妖怪六项能力的离差，即所有能力中偏离中位数最大的值，添加到df并从大到小排序
 df['Capacity'] = df[['HP','Attack','Defense','Sp. Atk','Sp. Def','Speed']].apply(lambda x: np.max((x-x.mean()).abs()), 1)
 df.sort_values('Capacity',ascending=False)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1127,19 +949,19 @@ df.sort_values('Capacity',ascending=False)
       <td>125.000000</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
+      <th>…</th>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
     </tr>
     <tr>
       <th>255</th>
@@ -1221,16 +1043,15 @@ df.sort_values('Capacity',ascending=False)
 <p>800 rows × 12 columns</p>
 </div>
 
+#### 3.2 Ex2：指数加权窗口
 
-
-### 3.2 Ex2：指数加权窗口
-1. 作为扩张窗口的`ewm`窗口
+1. 作为扩张窗口的 `ewm` 窗口
 
 在扩张窗口中，用户可以使用各类函数进行历史的累计指标统计，但这些内置的统计函数往往把窗口中的所有元素赋予了同样的权重。事实上，可以给出不同的权重来赋给窗口中的元素，指数加权窗口就是这样一种特殊的扩张窗口。
 
-其中，最重要的参数是`alpha`，它决定了默认情况下的窗口权重为$w_i=(1−\alpha)^i,i\in\{0,1,...,t\}$，其中$i=t$表示当前元素，$i=0$表示序列的第一个元素。
+其中，最重要的参数是 `alpha`，它决定了默认情况下的窗口权重为 $w_i=(1−\alpha)^i,i\in\{0,1,…,t\}$，其中 $i=t$ 表示当前元素，$i=0$ 表示序列的第一个元素。
 
-从权重公式可以看出，离开当前值越远则权重越小，若记原序列为$x$，更新后的当前元素为$y_t$，此时通过加权公式归一化后可知：
+从权重公式可以看出，离开当前值越远则权重越小，若记原序列为 $x$，更新后的当前元素为 $y_t$，此时通过加权公式归一化后可知：
 
 $$
 \begin{aligned}
@@ -1241,17 +1062,13 @@ y_t &=\frac{\sum_{i=0}^{t} w_i x_{t-i}}{\sum_{i=0}^{t} w_i} \\
 \end{aligned}
 $$
 
-对于`Series`而言，可以用`ewm`对象如下计算指数平滑后的序列：
-
+对于 `Series` 而言，可以用 `ewm` 对象如下计算指数平滑后的序列：
 
 ```python
 np.random.seed(0)
 s = pd.Series(np.random.randint(-1,2,30).cumsum())
 s.head()
 ```
-
-
-
 
     0   -1
     1   -1
@@ -1260,15 +1077,9 @@ s.head()
     4   -2
     dtype: int32
 
-
-
-
 ```python
 s.ewm(alpha=0.2).mean().head()
 ```
-
-
-
 
     0   -1.000000
     1   -1.000000
@@ -1277,20 +1088,17 @@ s.ewm(alpha=0.2).mean().head()
     4   -1.725845
     dtype: float64
 
+请用 `expanding` 窗口实现。
 
+2. 作为滑动窗口的 `ewm` 窗口
 
-请用`expanding`窗口实现。
+从第 1 问中可以看到，`ewm` 作为一种扩张窗口的特例，只能从序列的第一个元素开始加权。现在希望给定一个限制窗口 `n`，只对包含自身最近的 `n` 个窗口进行滑动加权平滑。请根据滑窗函数，给出新的 `wi` 与 `yt` 的更新公式，并通过 `rolling` 窗口实现这一功能。
 
-2. 作为滑动窗口的`ewm`窗口
+**我的解答：**
 
-从第1问中可以看到，`ewm`作为一种扩张窗口的特例，只能从序列的第一个元素开始加权。现在希望给定一个限制窗口`n`，只对包含自身最近的`n`个窗口进行滑动加权平滑。请根据滑窗函数，给出新的`wi`与`yt`的更新公式，并通过`rolling`窗口实现这一功能。
-
-**我的解答：**  
-
-**第1问：**  
-看到$\displaystyle \sum_{i=0}^{t} w_i x_{t-i}$，可想到用`numpy`的乘法，需要构造$w$和$x$矩阵：  
-易知$x$矩阵只需要逆转即可，而$w$矩阵只需使用`(1 - alpha) ** np.arange(t)`，其中$t$表示$x$矩阵的长度
-
+**第 1 问：**
+看到 $\sum_{i=0}^{t} w_i x_{t-i}$，可想到用 `numpy` 的乘法，需要构造 $w$ 和 $x$ 矩阵：
+易知 $x$ 矩阵只需要逆转即可，而 $w$ 矩阵只需使用 `(1 - alpha) ** np.arange(t)`，其中 $t$ 表示 $x$ 矩阵的长度
 
 ```python
 def my_ewm(x, alpha):
@@ -1304,9 +1112,6 @@ alpha = 0.2
 s.expanding().apply(lambda x: my_ewm(x, alpha)).head()
 ```
 
-
-
-
     0   -1.000000
     1   -1.000000
     2   -1.409836
@@ -1314,12 +1119,11 @@ s.expanding().apply(lambda x: my_ewm(x, alpha)).head()
     4   -1.725845
     dtype: float64
 
+**第 2 问：**
+根据题意，限制窗口为 `n`
+$w_i$ 的更新公式：$w_i=(1−\alpha)^i,i\in\{0,1,…,n-1\}$
+$y_t$ 的更新公式：
 
-
-**第2问：**  
-根据题意，限制窗口为`n`  
-$w_i$的更新公式：$w_i=(1−\alpha)^i,i\in\{0,1,...,n-1\}$  
-$y_t$的更新公式：
 $$
 \begin{aligned}
 y_t &=\frac{\sum_{i=0}^{n-1} w_i x_{t-i}}{\sum_{i=0}^{n-1} w_i} \\
@@ -1329,7 +1133,6 @@ y_t &=\frac{\sum_{i=0}^{n-1} w_i x_{t-i}}{\sum_{i=0}^{n-1} w_i} \\
 + (1 - \alpha)^{n-1}} 
 \end{aligned}
 $$
-
 
 ```python
 def my_ewm(x, alpha):
@@ -1341,14 +1144,9 @@ alpha = 0.2
 s.rolling(window=3).apply(lambda x: my_ewm(x, alpha)).head()
 ```
 
-
-
-
     0         NaN
     1         NaN
     2   -1.409836
     3   -1.737705
     4   -2.000000
     dtype: float64
-
-

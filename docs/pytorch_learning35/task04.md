@@ -1,5 +1,4 @@
-# Task04 PyTorch模型定义
-
+## Task04 PyTorch 模型定义
 
 ```python
 import os
@@ -9,10 +8,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 ```
 
-## 1 模型定义的方式
+### 1 模型定义的方式
 
-- Sequential：`nn.Sequential`，可接收一个子模块的有序字典(OrderedDict)或者一系列子模块作为参数来逐一添加Module的实例
-
+- Sequential：`nn.Sequential`，可接收一个子模块的有序字典 (OrderedDict) 或者一系列子模块作为参数来逐一添加 Module 的实例
 
 ```python
 # 采用直接排列方式
@@ -29,8 +27,6 @@ print(net)
       (1): ReLU()
       (2): Linear(in_features=256, out_features=10, bias=True)
     )
-    
-
 
 ```python
 # 采用OrderedDict方式
@@ -49,8 +45,7 @@ print(net2)
     )
     
 
-- ModuleList：`nn.MoudleList`，接收一个子模块（或层，需属于nn.Module类）的列表
-
+- ModuleList：`nn.MoudleList`，接收一个子模块（或层，需属于 nn.Module 类）的列表
 
 ```python
 net = nn.ModuleList([
@@ -74,8 +69,7 @@ print("整个网络层:\n", net)
     )
     
 
-- ModuleDict：`nn.ModuleDict`，和ModuleList类似
-
+- ModuleDict：`nn.ModuleDict`，和 ModuleList 类似
 
 ```python
 net = nn.ModuleDict({
@@ -103,30 +97,30 @@ print("整个模型网络层:\n", net)
     
 
 - 比较与适用场景
-  1. Sequential适合快速验证结果, 不需要同时写\_\_init\_\_和forward
-  2. ModuleList和ModuleDict适用于复用
+  1. Sequential 适合快速验证结果, 不需要同时写\_\_init\_\_ 和 forward
+  2. ModuleList 和 ModuleDict 适用于复用
 
-## 2 搭建模型
+### 2 搭建模型
 
 模型搭建基本方法：
+
 1. 模型块分析
 2. 模型块实现
 3. 利用模型块组装模型
 
-以U-Net模型为例，该模型为分割模型，通过残差连接结构解决了模型学习中的退化问题，使得神经网络的深度能够不断扩展。
+以 U-Net 模型为例，该模型为分割模型，通过残差连接结构解决了模型学习中的退化问题，使得神经网络的深度能够不断扩展。
 
 ![U-Net](images/ch04/01.png)
 
-### 2.1 模型块分析
+#### 2.1 模型块分析
 
-1. 每个子块内部的两次卷积`DoubleConv`
-2. 左侧模型块之间的下采样连接`Down`，通过Max pooling来实现
-3. 右侧模型块之间的上采样连接`Up`
-4. 输出层的处理`OutConv`
-5. 模型块之间的横向连接，输入和U-Net底部的连接等计算，这些单独的操作可以通过forward函数来实现
+1. 每个子块内部的两次卷积 `DoubleConv`
+2. 左侧模型块之间的下采样连接 `Down`，通过 Max pooling 来实现
+3. 右侧模型块之间的上采样连接 `Up`
+4. 输出层的处理 `OutConv`
+5. 模型块之间的横向连接，输入和 U-Net 底部的连接等计算，这些单独的操作可以通过 forward 函数来实现
 
-### 2.2 U-Net模型块实现
-
+#### 2.2 U-Net 模型块实现
 
 ```python
 # 两次卷积 conv 3x3, ReLU
@@ -150,7 +144,6 @@ class DoubleConv(nn.Module):
         return self.double_conv(x)
 ```
 
-
 ```python
 # 下采样 max pool 2x2
 class Down(nn.Module):
@@ -166,7 +159,6 @@ class Down(nn.Module):
     def forward(self, x):
         return self.maxpool_conv(x)
 ```
-
 
 ```python
 # 上采样 up-conv 2x2
@@ -196,7 +188,6 @@ class Up(nn.Module):
         return self.conv(x)
 ```
 
-
 ```python
 # 输出 conv 1x1
 class OutConv(nn.Module):
@@ -208,8 +199,7 @@ class OutConv(nn.Module):
         return self.conv(x)
 ```
 
-### 2.3 利用模型快组装U-Net
-
+#### 2.3 利用模型快组装 U-Net
 
 ```python
 class UNet(nn.Module):
@@ -245,8 +235,7 @@ class UNet(nn.Module):
         return logits
 ```
 
-## 3 修改模型
-
+### 3 修改模型
 
 ```python
 import torchvision.models as models
@@ -254,7 +243,6 @@ net = models.resnet50()
 ```
 
 - 修改模型层：观察模型层，根据需求定义模型层，然后在对应的模型层上赋值
-
 
 ```python
 from collections import OrderedDict
@@ -273,13 +261,9 @@ classifier = nn.Sequential(
 net.fc = classifier
 ```
 
-
 ```python
 net.fc
 ```
-
-
-
 
     Sequential(
       (fc1): Linear(in_features=2048, out_features=128, bias=True)
@@ -289,10 +273,7 @@ net.fc
       (output): Softmax(dim=1)
     )
 
-
-
-- 添加外部输入：将原模型添加外部输入位置前的部分作为一个整体，同时在`forward`中定义好原模型不变的部分、添加的输入和后续层之间的连接关系
-
+- 添加外部输入：将原模型添加外部输入位置前的部分作为一个整体，同时在 `forward` 中定义好原模型不变的部分、添加的输入和后续层之间的连接关系
 
 ```python
 class Model(nn.Module):
@@ -313,8 +294,7 @@ class Model(nn.Module):
         return x
 ```
 
-- 添加额外输出：修改模型定义中的`forward`函数的`return`返回
-
+- 添加额外输出：修改模型定义中的 `forward` 函数的 `return` 返回
 
 ```python
 class Model(nn.Module):
@@ -335,20 +315,18 @@ class Model(nn.Module):
         return x10, x1000
 ```
 
-## 4 模型保存与读取
+### 4 模型保存与读取
 
 - 模型存储格式：pkl、pt、pth
-- 模型存储内容：存储整个模型（模型结构和权重）`model`、只存储模型权重`model.state_dict`
+- 模型存储内容：存储整个模型（模型结构和权重）`model`、只存储模型权重 `model.state_dict`
 - 多卡模型存储：`torch.nn.DataParallel(model).cuda()`
 
-以resnet50模型的单卡保存和单卡加载为例
-
+以 resnet50 模型的单卡保存和单卡加载为例
 
 ```python
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 model = models.resnet50(pretrained=True)
 ```
-
 
 ```python
 save_dir = './models/resnet50.pkl'
@@ -358,7 +336,6 @@ torch.save(model, save_dir)
 # 读取整个模型
 loaded_model = torch.load(save_dir)
 ```
-
 
 ```python
 save_dir = './models/resnet50_state_dict.pkl'
@@ -375,10 +352,11 @@ loaded_model.state_dict = loaded_dict
 
 注：多卡模式下建议适用权重的方式存储和读取模型
 
-## 5 总结
+### 5 总结
 
-&emsp;&emsp;本次任务，主要介绍了PyTorch模型定义方式、利用模型块快速搭建复杂模型、修改模型、保存和读取模型。
-1. PyTorch模型主要有三种定义方式，分别是`Sequential`、`ModuleList`和`ModuleDict`。
-2. 对于大型复杂的网络，通过构建模型块，利用`forward`连接模型，从而可以快速搭建。
+&emsp;&emsp; 本次任务，主要介绍了 PyTorch 模型定义方式、利用模型块快速搭建复杂模型、修改模型、保存和读取模型。
+
+1. PyTorch 模型主要有三种定义方式，分别是 `Sequential`、`ModuleList` 和 `ModuleDict`。
+2. 对于大型复杂的网络，通过构建模型块，利用 `forward` 连接模型，从而可以快速搭建。
 3. 根据自身需求对已有模型的修改，可有三种方式：修改模型层、添加额外输入、添加额外输出。
 4. 利用模型保存和读取函数，可以在单卡和多卡的环境上，存储整个模型，或只存储模型权重。

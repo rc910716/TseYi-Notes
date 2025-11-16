@@ -1,13 +1,15 @@
-# Task03 Neo4j图数据库导入数据
+## Task03 Neo4j 图数据库导入数据
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 引言
+#### 1.1 引言
+
 - 图计算：$G=(V,E)$，$V=vertex$(节点)，$E=edge$(边)
-- 图数据库：是`NoSQL`（非关系型数据库）的一种，应用图形数据结构的特点（节点、属性和边）存储数据实体和相互之间的关系信息。
-- Neo4j数据库：支持ACID、集群、备份和故障转移，通过图形化的界面表示节点和关系，通过 REST 接口或者面向对象的 JAVA API进行访问。
+- 图数据库：是 `NoSQL`（非关系型数据库）的一种，应用图形数据结构的特点（节点、属性和边）存储数据实体和相互之间的关系信息。
+- Neo4j 数据库：支持 ACID、集群、备份和故障转移，通过图形化的界面表示节点和关系，通过 REST 接口或者面向对象的 JAVA API 进行访问。
 
-### 1.2 Neo4j简介
+#### 1.2 Neo4j 简介
+
 - 数据的构成：节点、关系、属性
 - 索引：根据索引进行遍历操作，通过创建索引，控制节点或关系，主要用于查找操作和删除操作
 - 优势：查询的高性能、设计的灵活性、开发的便捷性、原生图计算引擎、开源的数据库
@@ -16,18 +18,18 @@
 |:---|:---|
 | 性能 | 读/写速度快 |
 | 数据库设计灵活 | 非结构化数据存储方式 |
-| 适应需求变化 | 适合敏捷开发方法 | 
+| 适应需求变化 | 适合敏捷开发方法 |
 | 易用性 | 用嵌入式、服务器模式、分布式模式等方式使用数据库 |
 | 建模便捷 | 使用简单框图设计数据模型 |
-| 事务管理 | 支持ACID完整的事务管理特性 |
+| 事务管理 | 支持 ACID 完整的事务管理特性 |
 | 数据增长 | 提供分布式高可用模式，支持大规模的数据增长 |
 | 安全性 | 实时备份，恢复数据方便 |
 | 表现直观 | 采用图的数据结构直观表现现实世界的应用场景 |
 
-## 2 代码详解
-数据源：39健康网。包括15项信息，其中7类实体，约3.7万实体，21万实体关系。  
-`build_graph.py`主要是用于数据导入到`Neo4j`数据库中，以下对该代码进行详解。
+### 2 代码详解
 
+数据源：39 健康网。包括 15 项信息，其中 7 类实体，约 3.7 万实体，21 万实体关系。
+`build_graph.py` 主要是用于数据导入到 `Neo4j` 数据库中，以下对该代码进行详解。
 
 ```python
 class MedicalGraph:
@@ -59,7 +61,6 @@ class MedicalGraph:
         pass
 ```
 
-
 ```python
     def __init__(self):
         # 读取文件路径
@@ -75,7 +76,6 @@ class MedicalGraph:
         self._rel_complication, self._rel_drug, self._diseases_infos \
         = self.read_file()
 ```
-
 
 ```python
     def read_file(self):
@@ -172,7 +172,6 @@ class MedicalGraph:
                disease_to_complication, disease_to_drug, diseases_infos
 ```
 
-
 ```python
     def create_node(self, label, nodes):
         """
@@ -219,7 +218,6 @@ class MedicalGraph:
         return
 ```
 
-
 ```python
     def create_graphNodes(self):
         """
@@ -236,7 +234,6 @@ class MedicalGraph:
 
         return
 ```
-
 
 ```python
     def create_graphRels(self):
@@ -279,7 +276,6 @@ class MedicalGraph:
         return
 ```
 
-
 ```python
 # 调用类的函数，进行数据导入
 handler = MedicalGraph()
@@ -287,11 +283,11 @@ handler.create_graphNodes()
 handler.create_graphRels()
 ```
 
-数据导入完成之后，访问`Neo4j`的可视化界面，可以看到如下的数据关系图
+数据导入完成之后，访问 `Neo4j` 的可视化界面，可以看到如下的数据关系图
 
 ![](images/task02/02.png)
 
-## 3 思考与讨论
+### 3 思考与讨论
 
 - 可使用事务方式进行节点创建，比迭代创建之后再提交的执行速度要快很多
-- 不能使用多线程，由于`py2neo`包里面的提交事务导致不能使用多线程方式进行数据导入，只能采用单一线程处理
+- 不能使用多线程，由于 `py2neo` 包里面的提交事务导致不能使用多线程方式进行数据导入，只能采用单一线程处理

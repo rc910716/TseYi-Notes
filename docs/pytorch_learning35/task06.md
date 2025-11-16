@@ -1,16 +1,14 @@
-# Task06 PyTorch可视化
+## Task06 PyTorch 可视化
 
-## 1 可视化网络结构
+### 1 可视化网络结构
 
-- 打印模型基础信息：使用`print()`函数，只能打印出基础构件的信息，不能显示每一层的shape和对应参数量的大小
-
+- 打印模型基础信息：使用 `print()` 函数，只能打印出基础构件的信息，不能显示每一层的 shape 和对应参数量的大小
 
 ```python
 import torchvision.models as models
 
 model = models.resnet18()
 ```
-
 
 ```python
 print(model)
@@ -102,8 +100,7 @@ print(model)
     )
     
 
-- 可视化网络结构：使用`torchinfo`库进行模型网络的结构输出，可以得到更加详细的信息，包括模块信息（每一层的类型、输出shape和参数量）、模型整体的参数量、模型大小、一次前向或者反向传播需要的内存大小等
-
+- 可视化网络结构：使用 `torchinfo` 库进行模型网络的结构输出，可以得到更加详细的信息，包括模块信息（每一层的类型、输出 shape 和参数量）、模型整体的参数量、模型大小、一次前向或者反向传播需要的内存大小等
 
 ```python
 import torchvision.models as models
@@ -114,7 +111,6 @@ resnet18 = models.resnet18() # 实例化模型
 summary(model, (1, 3, 224, 224))
 ```
 
-    
     ==========================================================================================
     Layer (type:depth-idx)                   Output Shape              Param #
     ==========================================================================================
@@ -200,20 +196,14 @@ summary(model, (1, 3, 224, 224))
     Estimated Total Size (MB): 87.11
     ==========================================================================================
 
+### 2 CNN 可视化
 
-
-## 2 CNN可视化
-
-- CNN卷积核可视化
-
+- CNN 卷积核可视化
 
 ```python
 model = models.vgg11(pretrained=True)
 dict(model.features.named_children())
 ```
-
-
-
 
     {'0': Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
      '1': ReLU(inplace=True),
@@ -236,9 +226,6 @@ dict(model.features.named_children())
      '18': Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
      '19': ReLU(inplace=True),
      '20': MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)}
-
-
-
 
 ```python
 import matplotlib.pyplot as plt
@@ -264,22 +251,17 @@ for i in range(0, 1):
 
 
     
+
 ![png](images/ch06/output_10_1.png)
-    
 
+- CNN 特征图可视化：使用 PyTorch 提供的 hook 结构，得到网络在前向传播过程中的特征图。
+- CNN class activation map 可视化：用于在 CNN 可视化场景下，判断图像中哪些像素点对预测结果是重要的，可使用 `grad-cam` 库进行操作
+- 使用 FlashTorch 快速实现 CNDD 可视化：可以使用 `flashtorch` 库，可视化梯度和卷积核
 
-- CNN特征图可视化：使用PyTorch提供的hook结构，得到网络在前向传播过程中的特征图。
+### 3 使用 TensorBoard 可视化训练过程
 
-- CNN class activation map可视化：用于在CNN可视化场景下，判断图像中哪些像素点对预测结果是重要的，可使用`grad-cam`库进行操作
-
-- 使用FlashTorch快速实现CNDD可视化：可以使用`flashtorch`库，可视化梯度和卷积核
-
-## 3 使用TensorBoard可视化训练过程
-
-- 可视化基本逻辑：TensorBoard记录模型每一层的feature map、权重和训练loss等，并保存在用户指定的文件夹中，通过网页形式进行可视化展示
-
-- 模型结构可视化：使用`add_graph`方法，在TensorBoard下展示模型结构
-
+- 可视化基本逻辑：TensorBoard 记录模型每一层的 feature map、权重和训练 loss 等，并保存在用户指定的文件夹中，通过网页形式进行可视化展示
+- 模型结构可视化：使用 `add_graph` 方法，在 TensorBoard 下展示模型结构
 
 ```python
 import torch.nn as nn
@@ -311,7 +293,6 @@ class Net(nn.Module):
         return y
 ```
 
-
 ```python
 model = Net()
 print(model)
@@ -328,8 +309,6 @@ print(model)
       (linear2): Linear(in_features=32, out_features=1, bias=True)
       (sigmoid): Sigmoid()
     )
-    
-
 
 ```python
 from torch.utils.tensorboard import SummaryWriter
@@ -339,17 +318,15 @@ writer.add_graph(model, input_to_model = torch.rand(1, 3, 224, 224))
 writer.close()
 ```
 
-在当前目录下，执行`tensorboard --logdir=./runs`命令，打开TensorBoard可视化页面，看到模型网络结构。
+在当前目录下，执行 `tensorboard --logdir=./runs` 命令，打开 TensorBoard 可视化页面，看到模型网络结构。
 
 ![tensorboard可视化](images/ch06/01.png)
 
 - 图像可视化：
-  - 对于单张图片的显示使用`add_image`
-  - 对于多张图片的显示使用`add_images`
-  - 有时需要使用`torchvision.utils.make_grid`将多张图片拼成一张图片后，用`writer.add_image`显示
-
-- 连续变量可视化：使用`add_scalar`方法，对连续变量（或时序变量）的变化过程进行可视化展示
-
+  - 对于单张图片的显示使用 `add_image`
+  - 对于多张图片的显示使用 `add_images`
+  - 有时需要使用 `torchvision.utils.make_grid` 将多张图片拼成一张图片后，用 `writer.add_image` 显示
+- 连续变量可视化：使用 `add_scalar` 方法，对连续变量（或时序变量）的变化过程进行可视化展示
 
 ```python
 for i in range(500):
@@ -360,8 +337,7 @@ for i in range(500):
 writer.close()
 ```
 
-- 参数分布可视化：使用`add_histogram`方法，对参数（或变量）的分布进行可视化展示
-
+- 参数分布可视化：使用 `add_histogram` 方法，对参数（或变量）的分布进行可视化展示
 
 ```python
 import numpy as np
@@ -378,9 +354,10 @@ for step, mean in enumerate(range(-10, 10, 1)):
 writer.close()
 ```
 
-## 4 总结
+### 4 总结
 
-&emsp;&emsp;本次任务，主要介绍了PyTorch可视化，包括可视化网络结构、CNN卷积层可视化和使用TensorBoard可视化训练过程。
-1. 使用`torchinfo`库，可视化模型网络结构，展示模块信息（每一层的类型、输出shape和参数量）、模型整体的参数量、模型大小、一次前向或者反向传播需要的内存大小等。
-2. 使用`grad-cam`库，可视化重要像素点，能够快速确定重要区域，进行可解释性分析或模型优化改进。
-3. 通过`TensorBoard`工具，调用相关方法创建训练记录，可视化模型结构、图像、连续变量和参数分布等。
+&emsp;&emsp; 本次任务，主要介绍了 PyTorch 可视化，包括可视化网络结构、CNN 卷积层可视化和使用 TensorBoard 可视化训练过程。
+
+1. 使用 `torchinfo` 库，可视化模型网络结构，展示模块信息（每一层的类型、输出 shape 和参数量）、模型整体的参数量、模型大小、一次前向或者反向传播需要的内存大小等。
+2. 使用 `grad-cam` 库，可视化重要像素点，能够快速确定重要区域，进行可解释性分析或模型优化改进。
+3. 通过 `TensorBoard` 工具，调用相关方法创建训练记录，可视化模型结构、图像、连续变量和参数分布等。

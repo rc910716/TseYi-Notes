@@ -1,47 +1,49 @@
-# Task03 基于图神经网络的节点表征学习
+## Task03 基于图神经网络的节点表征学习
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 卷积图神经网络（GCN）
-- 向量定义：$\displaystyle \mathbf{X}^{\prime} = \mathbf{\hat{D}}^{-1/2} \mathbf{\hat{A}}
+#### 1.1 卷积图神经网络（GCN）
+
+- 向量定义：$\mathbf{X}^{\prime} = \mathbf{\hat{D}}^{-1/2} \mathbf{\hat{A}}
 \mathbf{\hat{D}}^{-1/2} \mathbf{X} \mathbf{\Theta}$
-- 公式定义：$\displaystyle \mathbf{x}^{\prime}_i = \mathbf{\Theta} \sum_{j \in \mathcal{N}(v) \cup
+- 公式定义：$\mathbf{x}^{\prime}_i = \mathbf{\Theta} \sum_{j \in \mathcal{N}(v) \cup
 \{ i \}} \frac{e_{j,i}}{\sqrt{\hat{d}_j \hat{d}_i}} \mathbf{x}_j$
 
-### 1.2 图注意力神经网络（GAT）
-- 公式定义：$\displaystyle \mathbf{x}^{\prime}_i = \alpha_{i,i}\mathbf{\Theta}\mathbf{x}_{i} +
-\sum_{j \in \mathcal{N}(i)} \alpha_{i,j}\mathbf{\Theta}\mathbf{x}_{j}$  
-  其中$\displaystyle \alpha_{i,j} =
+#### 1.2 图注意力神经网络（GAT）
+
+- 公式定义：$\mathbf{x}^{\prime}_i = \alpha_{i,i}\mathbf{\Theta}\mathbf{x}_{i} +
+\sum_{j \in \mathcal{N}(i)} \alpha_{i,j}\mathbf{\Theta}\mathbf{x}_{j}$
+  其中 $\alpha_{i,j} =
 \frac{
 \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{T}
 [\mathbf{\Theta}\mathbf{x}_i \, \Vert \, \mathbf{\Theta}\mathbf{x}_j]
 \right)\right)}
-{\displaystyle \sum_{k \in \mathcal{N}(i) \cup \{ i \}}
+{\sum_{k \in \mathcal{N}(i) \cup \{ i \}}
 \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{T}
 [\mathbf{\Theta}\mathbf{x}_i \, \Vert \, \mathbf{\Theta}\mathbf{x}_k]
 \right)\right)}$
 
-### 1.3 MLP、GCN和GAT训练的比较
-- 训练效果比较：  
-（1）MLP效果最差，由于只考虑了节点自身属性，忽略了节点之间的连接关系  
-（2）GCN和GAT效果比较好，同时考虑了节点自身信息与邻接节点的信息
-- GCN与GAT的共同点：  
-（1）遵循消息传递范式  
-（2）邻接节点变换时，对邻接节点做归一化和线性变换  
-（3）邻接节点聚合时，对变换后的邻接节点做`sum`聚合  
-（4）中心节点变换时，返回邻接节点聚合阶段的聚合结果  
-- GCN与GAT的区别（归一化方法）：  
-（1）GCN根据中心节点与邻接节点的度计算归一化系数，GAT根据中心节点与邻接节点的相似度计算归一化系数  
-（2）GCN归一化依赖图的拓扑结构，GAT归一化依赖中心节点与邻接节点的相似度
+#### 1.3 MLP、GCN 和 GAT 训练的比较
 
-## 2 实战练习
+- 训练效果比较：
+（1）MLP 效果最差，由于只考虑了节点自身属性，忽略了节点之间的连接关系
+（2）GCN 和 GAT 效果比较好，同时考虑了节点自身信息与邻接节点的信息
+- GCN 与 GAT 的共同点：
+（1）遵循消息传递范式
+（2）邻接节点变换时，对邻接节点做归一化和线性变换
+（3）邻接节点聚合时，对变换后的邻接节点做 `sum` 聚合
+（4）中心节点变换时，返回邻接节点聚合阶段的聚合结果
+- GCN 与 GAT 的区别（归一化方法）：
+（1）GCN 根据中心节点与邻接节点的度计算归一化系数，GAT 根据中心节点与邻接节点的相似度计算归一化系数
+（2）GCN 归一化依赖图的拓扑结构，GAT 归一化依赖中心节点与邻接节点的相似度
 
-### 2.1 MLP、GCN、GAT在节点分类任务的比较
+### 2 实战练习
 
-#### 2.1.1 获取并分析数据集Cora
+#### 2.1 MLP、GCN、GAT 在节点分类任务的比较
 
-该Cora是一个论文引用网络，节点代表论文，各节点的属性都是一个1433维的词包特征向量，预测目标是各篇论文的类别（共7类）。
+##### 2.1.1 获取并分析数据集 Cora
 
+该 Cora 是一个论文引用网络，节点代表论文，各节点的属性都是一个 1433 维的词包特征向量，预测目标是各篇论文的类别（共 7 类）。
 
 ```python
 from torch_geometric.datasets import Planetoid
@@ -92,8 +94,7 @@ print(f'Is undirected: {data.is_undirected()}')
     Is undirected: True
     
 
-#### 2.1.2 节点表征的分布可视化展示
-
+##### 2.1.2 节点表征的分布可视化展示
 
 ```python
 import matplotlib.pyplot as plt
@@ -111,8 +112,7 @@ def visualize(h, color):
     plt.show()
 ```
 
-#### 2.1.3 使用MLP（多层感知机）神经网络进行节点分类
-
+##### 2.1.3 使用 MLP（多层感知机）神经网络进行节点分类
 
 ```python
 import torch
@@ -143,8 +143,6 @@ print(model)
       (lin1): Linear(in_features=1433, out_features=16, bias=True)
       (lin2): Linear(in_features=16, out_features=7, bias=True)
     )
-    
-
 
 ```python
 model = MLP(hidden_channels=16)
@@ -195,8 +193,6 @@ for epoch in range(1, 201):
     Epoch: 180, Loss: 0.4808
     Epoch: 190, Loss: 0.4602
     Epoch: 200, Loss: 0.4827
-    
-
 
 ```python
 def test():
@@ -218,8 +214,7 @@ print(f'Test Accuracy: {test_acc:.4f}')
     Test Accuracy: 0.5740
     
 
-#### 2.1.4 使用GCN图神经网络进行分类
-
+##### 2.1.4 使用 GCN 图神经网络进行分类
 
 ```python
 from torch_geometric.nn import GCNConv
@@ -248,8 +243,6 @@ print(model)
       (conv1): GCNConv(1433, 16)
       (conv2): GCNConv(16, 7)
     )
-    
-
 
 ```python
 # 用于在测试时添加
@@ -259,10 +252,7 @@ out = model(data.x, data.edge_index)
 visualize(out, color=data.y)
 ```
 
-
 ![png](./images/ch03/01.png)
-
-
 
 ```python
 # GCN图神经网络的训练
@@ -307,8 +297,6 @@ for epoch in range(1, 201):
     Epoch: 180, Loss: 1.7295
     Epoch: 190, Loss: 1.7086
     Epoch: 200, Loss: 1.6866
-    
-
 
 ```python
 # GCN图神经网络的测试
@@ -325,8 +313,6 @@ print(f'Test Accuracy: {test_acc:.4f}')
 ```
 
     Test Accuracy: 0.7510
-    
-
 
 ```python
 # 展示训练之后的GCN图神经网络生成的节点表征
@@ -336,12 +322,9 @@ out = model(data.x, data.edge_index)
 visualize(out, color=data.y)
 ```
 
-
 ![png](./images/ch03/02.png)
 
-
-#### 2.1.5 使用GAT图神经网络进行分类
-
+##### 2.1.5 使用 GAT 图神经网络进行分类
 
 ```python
 import torch
@@ -365,7 +348,6 @@ class GAT(torch.nn.Module):
         x = self.conv2(x, edge_index)
         return x
 ```
-
 
 ```python
 # GAT图神经网络的训练
@@ -410,8 +392,6 @@ for epoch in range(1, 201):
     Epoch: 180, Loss: 1.7629
     Epoch: 190, Loss: 1.7486
     Epoch: 200, Loss: 1.7181
-    
-
 
 ```python
 # GAT图神经网络的测试
@@ -430,5 +410,6 @@ print(f'Test Accuracy: {test_acc:.4f}')
     Test Accuracy: 0.7660
     
 
-### 2.2 习题
-使用PyG中不同的图卷积模块在不同的内置数据集上实现节点分类或回归任务。
+#### 2.2 习题
+
+使用 PyG 中不同的图卷积模块在不同的内置数据集上实现节点分类或回归任务。

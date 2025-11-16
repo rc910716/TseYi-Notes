@@ -1,23 +1,23 @@
-# Task Special 综合练习
-
+## Task Special 综合练习
 
 ```python
 import pandas as pd
 import numpy as np
 ```
 
-## 任务一 企业收入的多样性
+### 任务一 企业收入的多样性
 
-【题目描述】  
+【题目描述】
+
 一个企业的产业收入多样性可以仿照信息熵的概念来定义收入熵指标：$$I=-\sum_{i}p(x_i)\log(p(x_i))$$
-其中$p(x_i)$是企业该年某产业收入额占该年所有产业总收入的比重。在`company.csv`中存有需要计算的企业和年份，在`company_data.csv`中存有企业、各类收入额和收入年份的信息。现请利用后一张表中的数据，在前一张表中增加一列表示该公司该年份的收入熵指标$I$。
 
-【数据下载】  
-链接：https://pan.baidu.com/s/1leZZctxMUSW55kZY5WwgIw   
+其中 $p(x_i)$ 是企业该年某产业收入额占该年所有产业总收入的比重。在 `company.csv` 中存有需要计算的企业和年份，在 `company_data.csv` 中存有企业、各类收入额和收入年份的信息。现请利用后一张表中的数据，在前一张表中增加一列表示该公司该年份的收入熵指标 $I$。
+
+【数据下载】
+链接：<https://pan.baidu.com/s/1leZZctxMUSW55kZY5WwgIw>
 密码：u6fd
 
 **解答：**
-
 
 ```python
 # 读取Company.csv数据
@@ -25,9 +25,6 @@ company = pd.read_csv('../data/task_special/task01/Company.csv')
 company.columns = ['Code', 'Date']
 company.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -81,9 +78,6 @@ company.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 读取Company_data.csv数据
 company_data = pd.read_csv('../data/task_special/task01/Company_data.csv')
@@ -91,9 +85,6 @@ company_data.columns = ['Code', 'Date', 'Type', 'Amount']
 company_data['Date'] = pd.to_datetime(company_data['Date'])
 company_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -158,9 +149,6 @@ company_data.head()
   </tbody>
 </table>
 </div>
-
-
-
 
 ```python
 # 数据清洗
@@ -172,13 +160,9 @@ company_data = company_data.dropna(how='any', subset=['Amount'])
 company_data['Date'] = company_data['Date'].dt.year
 ```
 
-
 ```python
 company_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -244,20 +228,15 @@ company_data.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 得到比重值
 company_data['Px'] = company_data.groupby(['Code', 'Date'])['Amount'].apply(lambda x: x/x.sum())
 ```
 
-
 ```python
 # 根据公式计算I值
 company_data_tmp = company_data.groupby(['Code', 'Date'])['Px'].agg(lambda x: -sum([p * np.log(p)  for p in x.tolist()])).to_frame()
 ```
-    
 
 ```python
 # 去掉索引，将Code格式化
@@ -265,9 +244,6 @@ company_data_tmp = company_data_tmp.reset_index()
 company_data_tmp['Code'] = company_data_tmp['Code'].apply(lambda x: '#{0:0>6}'.format(x))
 company_data_tmp.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -327,9 +303,6 @@ company_data_tmp.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 进行连接
 res = company.merge(company_data_tmp, on=['Code', 'Date'], how='left')
@@ -337,9 +310,6 @@ res = company.merge(company_data_tmp, on=['Code', 'Date'], how='left')
 res = res.rename(columns={'Code':'证券代码', 'Date':'日期', 'Px':'收入熵指标'})
 res.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -399,32 +369,27 @@ res.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 保存数据
 res.to_csv('../data/task_special/task01/task01_result.csv', index=False)
 ```
 
-## 任务二 组队学习信息表的变换
+### 任务二 组队学习信息表的变换
 
-【题目描述】  
-请把组队学习的队伍信息表变换为如下形态，其中“是否队长”一列取1表示队长，否则为0
+【题目描述】
+请把组队学习的队伍信息表变换为如下形态，其中“是否队长”一列取 1 表示队长，否则为 0
 
 <img src="./pandas20/images/ch_special.png" width="40%">
 
-【数据下载】   
-链接：https://pan.baidu.com/s/1ses24cTwUCbMx3rvYXaz-Q  
+【数据下载】
+链接：<https://pan.baidu.com/s/1ses24cTwUCbMx3rvYXaz-Q>
 密码：iz57
 
 **解答：**
 
-
 ```python
 team_data = pd.read_excel('../data/task_special/task02/组队信息汇总表（Pandas）.xlsx', engine='openpyxl')
 ```
-
 
 ```python
 # 通过列索引变换，得到能使用wide_to_long方法的列索引格式
@@ -449,22 +414,15 @@ def columns_reverse(x):
 team_data.columns = team_data.columns.map(columns_convert).map(columns_reverse)
 ```
 
-
 ```python
 team_data.columns
 ```
-
-
-
 
     Index(['所在群', '队伍名称', '编号_队长', '群昵称_队长', '编号_队员1', '群昵称_队员1', '编号_队员2',
            '群昵称_队员2', '编号_队员3', '群昵称_队员3', '编号_队员4', '群昵称_队员4', '编号_队员5',
            '群昵称_队员5', '编号_队员6', '群昵称_队员6', '编号_队员7', '群昵称_队员7', '编号_队员8',
            '群昵称_队员8', '编号_队员9', '群昵称_队员9', '编号_队员10', '群昵称_队员10'],
           dtype='object')
-
-
-
 
 ```python
 # 使用wide_to_long方法
@@ -478,12 +436,10 @@ res = pd.wide_to_long(team_data,
 res.dropna(inplace=True)
 ```
 
-
 ```python
 # 删除"所在群”列
 res = res.droplevel(level=1).reset_index()
 ```
-
 
 ```python
 # 调整“是否队长”列的数据
@@ -492,13 +448,9 @@ res['是否队长'] = res['是否队长'].mask(res['是否队长']=='队长', 1)
 res['编号'] = res['编号'].astype(np.int64)
 ```
 
-
 ```python
 res
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -561,11 +513,11 @@ res
       <td>20</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
+      <th>…</th>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
     </tr>
     <tr>
       <th>141</th>
@@ -607,12 +559,11 @@ res
 <p>146 rows × 4 columns</p>
 </div>
 
+### 任务三 美国大选投票情况
 
-
-## 任务三 美国大选投票情况
-
-【题目描述】  
+【题目描述】
 两张数据表中分别给出了美国各县（county）的人口数以及大选的投票情况，请解决以下问题：
+
 - 有多少县满足总投票数超过县人口数的一半
 - 把州（state）作为行索引，把投票候选人作为列名，列名的顺序按照候选人在全美的总票数由高到低排序，行列对应的元素为该候选人在该州获得的总票数
 
@@ -623,16 +574,15 @@ res
 |威斯康星州|2|1|
 |德克萨斯州|3|4|
 
-- 每一个州下设若干县，定义拜登在该县的得票率减去川普在该县的得票率为该县的BT指标，若某个州所有县BT指标的中位数大于0，则称该州为Biden State，请找出所有的Biden State
+- 每一个州下设若干县，定义拜登在该县的得票率减去川普在该县的得票率为该县的 BT 指标，若某个州所有县 BT 指标的中位数大于 0，则称该州为 Biden State，请找出所有的 Biden State
 
-【数据下载】  
-链接：https://pan.baidu.com/s/182rr3CpstVux2CFdFd_Pcg  
+【数据下载】
+链接：<https://pan.baidu.com/s/182rr3CpstVux2CFdFd_Pcg>
 提取码：q674
 
 **解答：**
 
-**第1问：有多少县满足总投票数超过县人口数的一半？**
-
+**第 1 问：有多少县满足总投票数超过县人口数的一半？**
 
 ```python
 # 读取county_population.csv
@@ -644,7 +594,6 @@ county_population['county'] = county_population['county'].str[1:]
 county_population = county_population.drop(columns='US County')
 county_population.head()
 ```
-
 
 <div>
 <style scoped>
@@ -704,18 +653,12 @@ county_population.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 读取president_county_candidate.csv
 president_county_candidate = pd.read_csv('../data/task_special/task03/president_county_candidate.csv', 
                                          usecols=['state', 'county', 'candidate', 'total_votes'])
 president_county_candidate.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -781,23 +724,16 @@ president_county_candidate.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 求出每州县的投票数
 president_county_total_votes = president_county_candidate.groupby(['state', 'county'])['total_votes'].sum().to_frame()
 ```
-
 
 ```python
 # 将投票数与人口数连接
 county = county_population.merge(president_county_total_votes, on=['state', 'county'], how='left')
 county.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -863,25 +799,16 @@ county.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 求满足总投票数超过县人口数的一半的县个数
 county[county['total_votes'] * 2 > county['Population']].shape[0]
 ```
 
-
-
-
     1434
 
+有 1434 个县满足总投票数超过县人口数的一半
 
-
-有1434个县满足总投票数超过县人口数的一半
-
-**第2问：计算候选人在各州的总票数**
-
+**第 2 问：计算候选人在各州的总票数**
 
 ```python
 # 计算候选人在各州的总票数
@@ -889,24 +816,20 @@ candidate_votes = president_county_candidate.pivot_table(index = 'state', column
                                                          aggfunc = 'sum', margins=True)
 ```
 
-
 ```python
 # 候选人在全美的总票数排序
 candidate_votes = candidate_votes.sort_values('All', ascending=False, axis=1)
 ```
-
 
 ```python
 # 删除边际索引
 candidate_votes.drop(index='All', columns='All', inplace=True)
 ```
 
-
 ```python
 # nan填充0
 candidate_votes.fillna(value=0, inplace=True)
 ```
-
 
 ```python
 # 删除多余的索引名和列名
@@ -914,13 +837,9 @@ candidate_votes.index.name = ""
 candidate_votes.columns.name = ""
 ```
 
-
 ```python
 candidate_votes
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -950,7 +869,7 @@ candidate_votes
       <th>Kanye West</th>
       <th>Don Blankenship</th>
       <th>Brock Pierce</th>
-      <th>...</th>
+      <th>…</th>
       <th>Tom Hoefling</th>
       <th>Ricki Sue King</th>
       <th>Princess Jacob-Fambro</th>
@@ -1000,7 +919,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1024,7 +943,7 @@ candidate_votes
       <td>0.0</td>
       <td>1127.0</td>
       <td>825.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1048,7 +967,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1072,7 +991,7 @@ candidate_votes
       <td>4099.0</td>
       <td>2108.0</td>
       <td>2141.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1096,7 +1015,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1120,7 +1039,7 @@ candidate_votes
       <td>8089.0</td>
       <td>5061.0</td>
       <td>572.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>495.0</td>
@@ -1144,7 +1063,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1168,7 +1087,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1192,7 +1111,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>693.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1216,7 +1135,7 @@ candidate_votes
       <td>0.0</td>
       <td>3902.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1240,7 +1159,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1264,7 +1183,7 @@ candidate_votes
       <td>0.0</td>
       <td>931.0</td>
       <td>1183.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1288,7 +1207,7 @@ candidate_votes
       <td>3632.0</td>
       <td>1886.0</td>
       <td>2808.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1312,7 +1231,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1336,7 +1255,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1360,7 +1279,7 @@ candidate_votes
       <td>3210.0</td>
       <td>1707.0</td>
       <td>544.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>546.0</td>
       <td>0.0</td>
@@ -1384,7 +1303,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1408,7 +1327,7 @@ candidate_votes
       <td>6483.0</td>
       <td>0.0</td>
       <td>3599.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1432,7 +1351,7 @@ candidate_votes
       <td>4897.0</td>
       <td>860.0</td>
       <td>749.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>668.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1456,7 +1375,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1480,7 +1399,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1504,7 +1423,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1528,7 +1447,7 @@ candidate_votes
       <td>0.0</td>
       <td>7235.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1552,7 +1471,7 @@ candidate_votes
       <td>7940.0</td>
       <td>0.0</td>
       <td>5651.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1576,7 +1495,7 @@ candidate_votes
       <td>3657.0</td>
       <td>1279.0</td>
       <td>659.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1600,7 +1519,7 @@ candidate_votes
       <td>0.0</td>
       <td>3919.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1624,7 +1543,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1648,7 +1567,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1672,7 +1591,7 @@ candidate_votes
       <td>0.0</td>
       <td>3138.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1696,7 +1615,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1720,7 +1639,7 @@ candidate_votes
       <td>0.0</td>
       <td>2954.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1744,7 +1663,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1768,7 +1687,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>22650.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1792,7 +1711,7 @@ candidate_votes
       <td>0.0</td>
       <td>7549.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1816,7 +1735,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1840,7 +1759,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1864,7 +1783,7 @@ candidate_votes
       <td>5597.0</td>
       <td>0.0</td>
       <td>2547.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1888,7 +1807,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1912,7 +1831,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1936,7 +1855,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1960,7 +1879,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1984,7 +1903,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2008,7 +1927,7 @@ candidate_votes
       <td>10281.0</td>
       <td>5365.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2032,7 +1951,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2056,7 +1975,7 @@ candidate_votes
       <td>7213.0</td>
       <td>5551.0</td>
       <td>2623.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2080,7 +1999,7 @@ candidate_votes
       <td>1269.0</td>
       <td>208.0</td>
       <td>100.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2104,7 +2023,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2128,7 +2047,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2152,7 +2071,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2176,7 +2095,7 @@ candidate_votes
       <td>0.0</td>
       <td>5144.0</td>
       <td>0.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2200,7 +2119,7 @@ candidate_votes
       <td>0.0</td>
       <td>0.0</td>
       <td>2208.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -2217,10 +2136,7 @@ candidate_votes
 <p>51 rows × 38 columns</p>
 </div>
 
-
-
-**第3问：找出所有的Biden State**
-
+**第 3 问：找出所有的 Biden State**
 
 ```python
 # 找到Joe Biden和Donald Trump的得票数据
@@ -2228,9 +2144,6 @@ biden_trump_state = president_county_candidate.loc[(president_county_candidate.c
                                (president_county_candidate.candidate == 'Donald Trump')]
 biden_trump_state.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -2296,9 +2209,6 @@ biden_trump_state.head()
 </table>
 </div>
 
-
-
-
 ```python
 # 进行宽表变形
 biden_trump_state = biden_trump_state.pivot(index=['state', 'county'], columns='candidate', values='total_votes')
@@ -2306,22 +2216,17 @@ biden_trump_state = biden_trump_state.pivot(index=['state', 'county'], columns='
 biden_trump_state = biden_trump_state.join(president_county_total_votes, how='left')
 ```
 
-
 ```python
 # 计算BT值
 biden_trump_state['BT'] = (biden_trump_state['Joe Biden'] - biden_trump_state['Donald Trump'])/biden_trump_state['total_votes']
 biden_trump_state.reset_index(inplace=True)
 ```
 
-
 ```python
 # 得到Biden State
 biden_state_series = biden_trump_state.groupby(['state'])['BT'].median()
 biden_state_series[biden_state_series > 0].index.tolist()
 ```
-
-
-
 
     ['California',
      'Connecticut',
@@ -2332,5 +2237,3 @@ biden_state_series[biden_state_series > 0].index.tolist()
      'New Jersey',
      'Rhode Island',
      'Vermont']
-
-

@@ -143,7 +143,7 @@ $$
 > 1: for each $v_i \in \mathcal{W}_{v_i}$ do（遍历当前随机游走序列的每个字节）  
 2: &emsp;for each $u_k \in \mathcal{W}_{v_i}[j-w, j+w]$ do（遍历该节点周围窗口里的每个点）   
 3: &emsp;&emsp;$J(\Phi)=-\log \text{Pr}(u_k | \Phi(v_j))$（计算损失函数）    
-4: &emsp;&emsp;$\displaystyle \Phi = \Phi - \alpha * \frac{\partial J}{\partial \Phi}$（梯度下降更新Embedding矩阵）  
+4: &emsp;&emsp;$\Phi = \Phi - \alpha * \frac{\partial J}{\partial \Phi}$（梯度下降更新Embedding矩阵）  
 5: &emsp;end for  
 6: end for
 

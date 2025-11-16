@@ -1,7 +1,6 @@
-# Task03 基础实战（FashionMNIST时装分类）
+## Task03 基础实战（FashionMNIST 时装分类）
 
-## 1 导入包
-
+### 1 导入包
 
 ```python
 import os
@@ -13,14 +12,12 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 ```
 
-## 2 配置训练环境和超参数
-
+### 2 配置训练环境和超参数
 
 ```python
 # 使用GPU环境
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 ```
-
 
 ```python
 # 配置其他超参数
@@ -31,8 +28,7 @@ lr = 1e-4
 epochs = 20
 ```
 
-## 3 数据读取和加载
-
+### 3 数据读取和加载
 
 ```python
 from torchvision import transforms
@@ -45,7 +41,6 @@ data_transform = transforms.Compose([
     transforms.ToTensor()
 ])
 ```
-
 
 ```python
 # 自定义数据集
@@ -71,25 +66,21 @@ class FMDataset(Dataset):
         return image, label
 ```
 
-
 ```python
 train_df = pd.read_csv("./FashionMNIST/fashion-mnist_train.csv")
 test_df = pd.read_csv("./FashionMNIST/fashion-mnist_test.csv")
 ```
-
 
 ```python
 train_data = FMDataset(train_df, data_transform)
 test_data = FMDataset(test_df, data_transform)
 ```
 
-
 ```python
 # 使用DataLoader类加载数据
 train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
 test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 ```
-
 
 ```python
 import matplotlib.pyplot as plt
@@ -102,12 +93,10 @@ plt.imshow(image[0][0], cmap="gray")
     <matplotlib.image.AxesImage at 0x1b39b49fcc8>
 
     
+
 ![png](images/ch03/01.png)
-    
 
-
-## 4 模型设计
-
+### 4 模型设计
 
 ```python
 # 使用CNN
@@ -138,28 +127,24 @@ class Net(nn.Module):
         return x
 ```
 
-
 ```python
 model = Net()
 model = model.cuda()
 ```
 
-## 5 设置损失函数和优化器
-
+### 5 设置损失函数和优化器
 
 ```python
 # 使用交叉熵损失函数
 criterion = nn.CrossEntropyLoss()
 ```
 
-
 ```python
 # 使用Adam优化器
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 ```
 
-## 6 训练和验证
-
+### 6 训练和验证
 
 ```python
 def train(epoch):
@@ -186,7 +171,6 @@ def train(epoch):
     print('Epoch: {} \tTraining Loss: {:.6f}'.format(epoch, train_loss))
 ```
 
-
 ```python
 def val(epoch): 
     # 设置验证状态
@@ -211,7 +195,6 @@ def val(epoch):
     acc = np.sum(gt_labels==pred_labels)/len(pred_labels)
     print('Epoch: {} \tValidation Loss: {:.6f}, Accuracy: {:6f}'.format(epoch, val_loss, acc))
 ```
-
 
 ```python
 for epoch in range(1, epochs+1):
@@ -261,8 +244,7 @@ for epoch in range(1, epochs+1):
     Epoch: 20 	Validation Loss: 0.200177, Accuracy: 0.927100
     
 
-## 7 模型保存
-
+### 7 模型保存
 
 ```python
 save_path = "./FahionModel.pkl"

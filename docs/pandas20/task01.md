@@ -1,37 +1,33 @@
-# Task01 预备知识
+## Task01 预备知识
 
-## 1 知识梳理（重点记忆）
+### 1 知识梳理（重点记忆）
 
-### 1.1 np数组构造
+#### 1.1 np 数组构造
 
 特殊数组的生成方式
-
 
 ```python
 import numpy as np
 ```
-
 
 ```python
 target = np.arange(1,13).reshape(2,6)
 target
 ```
 
-
 ```python
 # 按行填充
 target.reshape((6,2), order='C')
 ```
-
 
 ```python
 # 按列填充
 target.reshape((3,4), order='F')
 ```
 
-### 1.2 向量与矩阵的计算
-向量内积
+#### 1.2 向量与矩阵的计算
 
+向量内积
 
 ```python
 a = np.array([1,2,4])
@@ -41,11 +37,9 @@ a.dot(b)
 
 矩阵外积
 
-
 ```python
 np.outer(a, b)
 ```
-
 
 ```python
 np.outer(b, a)
@@ -53,28 +47,25 @@ np.outer(b, a)
 
 矩阵乘法
 
-
 ```python
 a = np.arange(4).reshape(-1, 2)
 a
 ```
-
 
 ```python
 b = np.arange(4).reshape(2, -1)
 b
 ```
 
-
 ```python
 a@b
 ```
 
-## 2 练习
+### 2 练习
 
-### 2.1 Ex1：利用列表推导式写矩阵乘法
+#### 2.1 Ex1：利用列表推导式写矩阵乘法
+
 一般的矩阵乘法根据公式，可以由三重循环写出，请将其改写为列表推导式的形式。
-
 
 ```python
 M1 = np.random.rand(2,3)
@@ -89,32 +80,34 @@ for i in range(M1.shape[0]):
 (abs(M1@M2 - res) < 1e-15).all() # 排除数值误差
 ```
 
-**我的解答：**  
-思路分析：  
-1. 先将最内层(k层)`for`循环改成列表推导形式
+**我的解答：**
+思路分析：
+1. 先将最内层 (k 层)`for` 循环改成列表推导形式
+
 ```python
 sum([M1[i][k]* M2[k][j] for k in range(M1.shape[1])])
 ```
 
-2. 再将第二层(j层)`for`循环进行整合
+2. 再将第二层 (j 层)`for` 循环进行整合
+
 ```python
 [sum([M1[i][k]* M2[k][j] for k in range(M1.shape[1])]) for j in range(M2.shape[1])]
 ```
 
-3. 最后再整合第一层`for`循环进行整合
-
+3. 最后再整合第一层 `for` 循环进行整合
 
 ```python
 res = [[sum([M1[i][k]* M2[k][j] for k in range(M1.shape[1])]) for j in range(M2.shape[1])] for i in range(M1.shape[0])]
 ```
 
-
 ```python
 (abs(M1@M2 - res) < 1e-15).all()
 ```
 
-### 2.2 Ex2：更新矩阵
+#### 2.2 Ex2：更新矩阵
+
 设矩阵 $A_{m×n}$ ，现在对 $A$ 中的每一个元素进行更新生成矩阵 $B$ ，更新方法是 $B_{ij}=A_{ij}\sum_{k=1}^n\frac{1}{A_{ik}}$ ，例如下面的矩阵为 $A$ ，则 $B_{2,2}=5\times(\frac{1}{4}+\frac{1}{5}+\frac{1}{6})=\frac{37}{12}$ ，请利用 `Numpy` 高效实现。
+
 $$A=\left[ \begin{array}{ccc} 
 1 & 2 & 3 \\
 4 & 5 & 6 \\
@@ -130,7 +123,7 @@ A = np.array([[1,2,3],
              [7,8,9]])
 ```
 
-1. 首先计算$\displaystyle \sum_{k=1}^n\frac{1}{A_{ik}}$
+1. 首先计算$\sum_{k=1}^n\frac{1}{A_{ik}}$
 
 
 ```python
@@ -161,7 +154,7 @@ assert B[1,1] == 37/12
 
 ### 2.3 Ex3：卡方统计量
 
-设矩阵$A_{m\times n}$，记$\displaystyle B_{ij} = \frac{(\sum_{i=1}^mA_{ij})\times (\sum_{j=1}^nA_{ij})}{\sum_{i=1}^m\sum_{j=1}^nA_{ij}}$，定义卡方值如下：
+设矩阵$A_{m\times n}$，记$B_{ij} = \frac{(\sum_{i=1}^mA_{ij})\times (\sum_{j=1}^nA_{ij})}{\sum_{i=1}^m\sum_{j=1}^nA_{ij}}$，定义卡方值如下：
 $$\chi^2 = \sum_{i=1}^m\sum_{j=1}^n\frac{(A_{ij}-B_{ij})^2}{B_{ij}}$$
 请利用`Numpy`对给定的矩阵$A$计算$\chi^2$ 
 
@@ -201,7 +194,7 @@ res
 我的解答根据公式计算，可理解为外连接构造矩阵`B`，但是参考答案解题思路更加直观，便于理解。
 
 ### 2.4 Ex4：改进矩阵计算的性能
-设$Z$为$m×n$的矩阵，$B$和$U$分别是$m×p$和$p×n$的矩阵，$B_i$为$B$的第$i$行，$U_j$为$U$的第$j$列，下面定义$\displaystyle R=\sum_{i=1}^m\sum_{j=1}^n\|B_i-U_j\|_2^2Z_{ij}$，其中$\|\mathbf{a}\|_2^2$表示向量$a$的分量平方和$\sum_i a_i^2$。
+设$Z$为$m×n$的矩阵，$B$和$U$分别是$m×p$和$p×n$的矩阵，$B_i$为$B$的第$i$行，$U_j$为$U$的第$j$列，下面定义$R=\sum_{i=1}^m\sum_{j=1}^n\|B_i-U_j\|_2^2Z_{ij}$，其中$\|\mathbf{a}\|_2^2$表示向量$a$的分量平方和$\sum_i a_i^2$。
 
 现有某人根据如下给定的样例数据计算$R$的值，请充分利用`Numpy`中的函数，基于此问题改进这段代码的性能。
 

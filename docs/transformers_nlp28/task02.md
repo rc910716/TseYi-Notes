@@ -1,136 +1,138 @@
-# Task02 学习Attention和Transformer
+## Task02 学习 Attention 和 Transformer
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 seq2seq模型
+#### 1.1 seq2seq 模型
 
-- 定义：  
-&emsp;&emsp;一个序列到一个序列（seq2seq）模型，接收的输入是一个（单词、字母、图像特征）序列，输出的是另一个序列；在神经机器翻译中，一个序列是指一连串的单词。
-
+- 定义：
+&emsp;&emsp; 一个序列到一个序列（seq2seq）模型，接收的输入是一个（单词、字母、图像特征）序列，输出的是另一个序列；在神经机器翻译中，一个序列是指一连串的单词。
 
 - 模型结构：由编码器和解码器组成
   1. 编码器：用于处理输入序列中的每个元素，把这些信息转换为一个上下文向量，处理完成后，输出到解码器；
   2. 解码器：用于逐项生成输出序列中的元素。
-  
-  
+
 - 原始模型：
   1. 编码器和解码器使用循环神经网络（RNN）；
-  2. 上下文向量的长度基于编码器RNN的隐藏层神经元的数量；
-  3. RNN在每个时间步接受2个输入：输入序列中的一个元素、一个隐藏层状态(hidden state)。
-  
-  
-- 处理过程：  
-&emsp;&emsp;编解码器处理过程：编码器和解码器在每个时间步处理输入得到输出，RNN根据当前时间步的输入和前一个时间步的隐藏层状态，更新当前时间步的隐藏层状态。
+  2. 上下文向量的长度基于编码器 RNN 的隐藏层神经元的数量；
+  3. RNN 在每个时间步接受 2 个输入：输入序列中的一个元素、一个隐藏层状态 (hidden state)。
 
-### 1.2 Attention
-- 效果：  
-&emsp;&emsp;在机器翻译场景，产生英语翻译之前，提供从输入序列放大相关信号的能力，使得模型产生更好的结果。
+- 处理过程：
+&emsp;&emsp; 编解码器处理过程：编码器和解码器在每个时间步处理输入得到输出，RNN 根据当前时间步的输入和前一个时间步的隐藏层状态，更新当前时间步的隐藏层状态。
 
+#### 1.2 Attention
 
-- Attention与seq2seq模型的区别：
-  1. Attention中，编码器把所有时间步的隐藏层状态传递给解码器；而seq2seq中，只将最后一个隐藏层传递给解码器；
-  2. Attention的解码器在产生输出序列之前，做了一些处理：
-      - 查看所有接收到编码器的hidden state
-      - 给每个hidden state一个分数
-      - 将每个hidden state乘以经过softmax的对应分数，高分对应的hidden state被放大，低分的则被缩小
-  
-  
-- Attention处理过程：
-  1. 解码器RNN的输入：一个embedding向量、一个初始化的解码器hidden state
-  2. 处理上述输入，产生一个输出和一个新的hidden state（h4向量）
-  3. 使用编码器的hidden state和上述产生的hidden state（h4向量）计算当前时间步的上下文向量（C4向量）
-  4. 将h4和C4进行拼接，得到一个向量
+- 效果：
+&emsp;&emsp; 在机器翻译场景，产生英语翻译之前，提供从输入序列放大相关信号的能力，使得模型产生更好的结果。
+
+- Attention 与 seq2seq 模型的区别：
+  1. Attention 中，编码器把所有时间步的隐藏层状态传递给解码器；而 seq2seq 中，只将最后一个隐藏层传递给解码器；
+  2. Attention 的解码器在产生输出序列之前，做了一些处理：
+      - 查看所有接收到编码器的 hidden state
+      - 给每个 hidden state 一个分数
+      - 将每个 hidden state 乘以经过 softmax 的对应分数，高分对应的 hidden state 被放大，低分的则被缩小
+- Attention 处理过程：
+  1. 解码器 RNN 的输入：一个 embedding 向量、一个初始化的解码器 hidden state
+  2. 处理上述输入，产生一个输出和一个新的 hidden state（h4 向量）
+  3. 使用编码器的 hidden state 和上述产生的 hidden state（h4 向量）计算当前时间步的上下文向量（C4 向量）
+  4. 将 h4 和 C4 进行拼接，得到一个向量
   5. 将上述向量输入到一个前馈神经网络
   6. 前馈神经网络的输出表示这个时间步输出的单词
-  7. 下一个时间步重复上述步骤（从第1步到第6步）
+  7. 下一个时间步重复上述步骤（从第 1 步到第 6 步）
 
-### 1.3 Transformer
+#### 1.3 Transformer
+
 - 主要组成部分：
   1. 由编码部分和解码部分组成
-  2. 编码部分由多层编码器组成（6层），解码部分由多层解码器组成（6层）
-  3. 编码器由Self-Attention Layer 和 Feed Forward Neural Network（前馈神经网络，FFNN）组成
-  4. 解码器由Self-Attention Layer、Encoder-Decoder Attention、FFNN组成，其中Encoder-Decoder Attention用于帮助解码器聚焦于输入句子的相关部分
+  2. 编码部分由多层编码器组成（6 层），解码部分由多层解码器组成（6 层）
+  3. 编码器由 Self-Attention Layer 和 Feed Forward Neural Network（前馈神经网络，FFNN）组成
+  4. 解码器由 Self-Attention Layer、Encoder-Decoder Attention、FFNN 组成，其中 Encoder-Decoder Attention 用于帮助解码器聚焦于输入句子的相关部分
 
-- Transformer输入  
-&emsp;&emsp;使用词嵌入算法，将每个词转换为一个词向量，向量列表的长度为训练集中的句子最大长度。
+- Transformer 输入
+&emsp;&emsp; 使用词嵌入算法，将每个词转换为一个词向量，向量列表的长度为训练集中的句子最大长度。
 
-- Encoder（编码器）  
-输入：一个向量列表，上一个编码器的输出  
-输出：同样大小的向量列表，连接到下一个编码器  
+- Encoder（编码器）
+输入：一个向量列表，上一个编码器的输出
+输出：同样大小的向量列表，连接到下一个编码器
 数据流：
-  1. 每个单词转换成一个向量后，输入到self-attention层
-  2. 每个位置的单词得到新向量，输入到FFNN
+  1. 每个单词转换成一个向量后，输入到 self-attention 层
+  2. 每个位置的单词得到新向量，输入到 FFNN
 
-- Self-Attention  
-&emsp;&emsp;直观理解，Self-Attention机制使模型不仅能够关注这个位置的词，而且能够关注句子中其他位置的词，作为辅助线索，更好地编码当前位置的词。
+- Self-Attention
+&emsp;&emsp; 直观理解，Self-Attention 机制使模型不仅能够关注这个位置的词，而且能够关注句子中其他位置的词，作为辅助线索，更好地编码当前位置的词。
 
-- 残差连接：  
-&emsp;&emsp;在编解码器的每个子层，都有一个残差连接、一个层标准化（layer-normalization）
+- 残差连接：
+&emsp;&emsp; 在编解码器的每个子层，都有一个残差连接、一个层标准化（layer-normalization）
 
-- Decoder（解码器）  
+- Decoder（解码器）
   1. 解码阶段的每一个时间步都输出一个翻译后的单词
   2. 将解码器的输入向量，加上位置编码向量，用于指示每个词的位置
-  3. Self-Attention层：只允许关注到输出序列中早于当前位置之前的单词，在Self-Attention分数经过Softmax层之前，屏蔽当前位置之后的位置
-  4. Encoder-Decoder Attention层：和多头注意力机制类似，但是使用前一层的输出构造Query矩阵，而Key矩阵和Value矩阵来自于解码器最终的输出。
+  3. Self-Attention 层：只允许关注到输出序列中早于当前位置之前的单词，在 Self-Attention 分数经过 Softmax 层之前，屏蔽当前位置之后的位置
+  4. Encoder-Decoder Attention 层：和多头注意力机制类似，但是使用前一层的输出构造 Query 矩阵，而 Key 矩阵和 Value 矩阵来自于解码器最终的输出。
 
-- 最后的线性层和Softmax层
-  1. 线性层：把解码器输出的向量，映射到一个更长的向量(logist向量)，和模型的输出词汇表长度一致
-  2. Softmax层：把logist向量中的数，转换为概率，取概率最高的那个数字对应的词，就是输出的单词
+- 最后的线性层和 Softmax 层
+  1. 线性层：把解码器输出的向量，映射到一个更长的向量 (logist 向量)，和模型的输出词汇表长度一致
+  2. Softmax 层：把 logist 向量中的数，转换为概率，取概率最高的那个数字对应的词，就是输出的单词
 
-### 1.4 Self-Attention
+#### 1.4 Self-Attention
 
-- Self-Attention输出的计算步骤：
-  1. 对输入编码器的每个词向量，通过乘以三个参数矩阵，创建3个向量（Query向量、Key向量、Value向量）
-  2. 计算Attention Score分数：计算某个词的对句子中其他位置的词放置的注意力程度，通过该词对应的Query向量与每个词的Key向量点积计算得到。
-  3. 将每个分数除以$\sqrt{d_{key}}$，$d_{key}$是Key向量的长度
-  4. 这些分数经过一个Softmax，进行归一化
-  5. 将归一化的分数乘以每个Value向量
-  6. 对上步的值进行相加，得到该词在Self-Attention层的输出
+- Self-Attention 输出的计算步骤：
+  1. 对输入编码器的每个词向量，通过乘以三个参数矩阵，创建 3 个向量（Query 向量、Key 向量、Value 向量）
+  2. 计算 Attention Score 分数：计算某个词的对句子中其他位置的词放置的注意力程度，通过该词对应的 Query 向量与每个词的 Key 向量点积计算得到。
+  3. 将每个分数除以 $\sqrt{d_{key}}$，$d_{key}$ 是 Key 向量的长度
+  4. 这些分数经过一个 Softmax，进行归一化
+  5. 将归一化的分数乘以每个 Value 向量
+  6. 对上步的值进行相加，得到该词在 Self-Attention 层的输出
 
-- Self-Attention的矩阵形式计算  
-假设所有词向量组成矩阵$X$，权重矩阵$W^Q,W^K,W^V$
-  1. 根据第1步，可得
+- Self-Attention 的矩阵形式计算
+假设所有词向量组成矩阵 $X$，权重矩阵 $W^Q,W^K,W^V$
+  1. 根据第 1 步，可得
+
 $$
 Q = X \cdot W^Q \\
 K = X \cdot W^K \\
 V = X \cdot W^V
 $$
-  2. 根据第2~6步，可得Self-Attention的输出
+
+  2. 根据第 2~6 步，可得 Self-Attention 的输出
+
 $$
 Z = \text{softmax}\left( \frac{Q \cdot K^T}{\sqrt{d_{K}}} \right) \cdot V
 $$
 
-### 1.5 多头注意力机制（multi-head attention）
-- 作用：增强Attention层
-  1. 扩展了模型关注不同位置的能力
-  2. 赋予Attention层多个“子表示空间”
+#### 1.5 多头注意力机制（multi-head attention）
 
+- 作用：增强 Attention 层
+  1. 扩展了模型关注不同位置的能力
+  2. 赋予 Attention 层多个“子表示空间”
 
 - 处理过程：
-  1. 随机初始化8组$W^Q,W^K,W^V$
-  2. 根据矩阵计算的第1步，词向量矩阵$X$和每组$W^Q,W^K,W^V$相乘，得到8组$Q,K,V$矩阵
-  3. 根据矩阵计算的第2步，得到8个$Z$矩阵
-  4. 将8个$Z$矩阵横向拼接，并乘以另一个权重矩阵$W^O$，得到一个矩阵$Z$
+  1. 随机初始化 8 组 $W^Q,W^K,W^V$
+  2. 根据矩阵计算的第 1 步，词向量矩阵 $X$ 和每组 $W^Q,W^K,W^V$ 相乘，得到 8 组 $Q,K,V$ 矩阵
+  3. 根据矩阵计算的第 2 步，得到 8 个 $Z$ 矩阵
+  4. 将 8 个 $Z$ 矩阵横向拼接，并乘以另一个权重矩阵 $W^O$，得到一个矩阵 $Z$
 
-### 1.6 使用位置编码表示序列中单词的顺序
-- 目的：通过对每个输入的向量，添加一个遵循特定模式向量，用于确定每个单词的我i之，或者句子中不同单词之间的距离。
-- 特定模式向量：向量的左半部分值由sine函数产生，右半部分的值由cosine函数产生，然后拼接，得到每个位置编码向量。
+#### 1.6 使用位置编码表示序列中单词的顺序
+
+- 目的：通过对每个输入的向量，添加一个遵循特定模式向量，用于确定每个单词的我 i 之，或者句子中不同单词之间的距离。
+- 特定模式向量：向量的左半部分值由 sine 函数产生，右半部分的值由 cosine 函数产生，然后拼接，得到每个位置编码向量。
 - 优点：扩展到需要翻译句子的序列长度
 
-### 1.7 损失函数
+#### 1.7 损失函数
+
 - 目的：由于模型的参数是随机初始化的，每个词输出的概率分布与正确的输出概率分布比较，使用反向传播调整模型权重
 - 贪婪解码：由于模型每个时间步只产生一个输出，模型是从概率分布中选择概率最大的词，并丢弃其他词
-- 集束搜索：每个时间步保留beam_size个概率最高的输出词，然后在下一个时间步，根据第1个词计算第2个位置的词的概率分布，对于后续位置，重复上述过程。
+- 集束搜索：每个时间步保留 beam_size 个概率最高的输出词，然后在下一个时间步，根据第 1 个词计算第 2 个位置的词的概率分布，对于后续位置，重复上述过程。
   - beam_size：用于在所有时间步保留最高频率的词的个数
   - top_beams：用于表示最终返回翻译结果的个数
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 使用PyTorch的MultiheadAttention来实现Attention的计算
+#### 2.1 使用 PyTorch 的 MultiheadAttention 来实现 Attention 的计算
 
 torch.nn.MultiheadAttention(embed_dim, num_heads, dropout=0.0, bias=True, add_bias_kv=False, add_zero_attn=False, kdim=None, vdim=None)
 
 参数说明如下：
+
   - embed_dim：最终输出的 K、Q、V 矩阵的维度，这个维度需要和词向量的维度一样
   - num_heads：设置多头注意力的数量。如果设置为 1，那么只使用一组注意力。如果设置为其他数值，那么 num_heads 的值需要能够被 embed_dim 整除
   - dropout：这个 dropout 加在 attention score 后面
@@ -138,16 +140,16 @@ torch.nn.MultiheadAttention(embed_dim, num_heads, dropout=0.0, bias=True, add_bi
 forward(query, key, value, key_padding_mask=None, need_weights=True, attn_mask=None)
 
 参数说明如下：
+
   - query：对应于 Key 矩阵，形状是 (L,N,E) 。其中 L 是输出序列长度，N 是 batch size，E 是词向量的维度
   - key：对应于 Key 矩阵，形状是 (S,N,E) 。其中 S 是输入序列长度，N 是 batch size，E 是词向量的维度
   - value：对应于 Value 矩阵，形状是 (S,N,E) 。其中 S 是输入序列长度，N 是 batch size，E 是词向量的维度
   - key_padding_mask：如果提供了这个参数，那么计算 attention score 时，忽略 Key 矩阵中某些 padding 元素，不参与计算 attention。形状是 (N,S)。其中 N 是 batch size，S 是输入序列长度。
     - 如果 key_padding_mask 是 ByteTensor，那么非 0 元素对应的位置会被忽略
-    - 如果 key_padding_mask 是 BoolTensor，那么  True 对应的位置会被忽略
-  - attn_mask：计算输出时，忽略某些位置。形状可以是 2D  (L,S)，或者 3D (N∗numheads,L,S)。其中 L 是输出序列长度，S 是输入序列长度，N 是 batch size。
+    - 如果 key_padding_mask 是 BoolTensor，那么 True 对应的位置会被忽略
+  - attn_mask：计算输出时，忽略某些位置。形状可以是 2D (L,S)，或者 3D (N∗numheads,L,S)。其中 L 是输出序列长度，S 是输入序列长度，N 是 batch size。
     - 如果 attn_mask 是 ByteTensor，那么非 0 元素对应的位置会被忽略
-    - 如果 attn_mask 是 BoolTensor，那么  True 对应的位置会被忽略 
-
+    - 如果 attn_mask 是 BoolTensor，那么 True 对应的位置会被忽略
 
 ```python
 import torch
@@ -174,8 +176,7 @@ print(attn_output.shape)
     torch.Size([12, 64, 300])
     
 
-### 2.2 使用自编程实现Attention的计算
-
+#### 2.2 使用自编程实现 Attention 的计算
 
 ```python
 import torch
@@ -256,7 +257,6 @@ class MultiheadAttention(nn.Module):
         return Z
 ```
 
-
 ```python
 # batch_size 为 64，有 12 个词，每个词的 Query 向量是 300 维
 query = torch.rand(64, 12, 300)
@@ -273,15 +273,14 @@ print(output.shape)
     torch.Size([64, 12, 300])
     
 
-### 2.3 Transformer代码详解
+#### 2.3 Transformer 代码详解
 
 ![transformer-arc](images/task02/transformer-arc.png)
 
-#### 2.3.1 词嵌入
+##### 2.3.1 词嵌入
 
-1. 序列预处理：进行词切分成列表，再进行索引转换，最后将文本转换成数组，batch_size个句子，每个句子长度是seq_length
-2. 词嵌入处理：将每一个词用预先训练好的向量进行映射，使用torch.nn.Embedding实现
-
+1. 序列预处理：进行词切分成列表，再进行索引转换，最后将文本转换成数组，batch_size 个句子，每个句子长度是 seq_length
+2. 词嵌入处理：将每一个词用预先训练好的向量进行映射，使用 torch.nn.Embedding 实现
 
 ```python
 import torch
@@ -297,7 +296,6 @@ import math
 import warnings
 ```
 
-
 ```python
 # 文本中有2个句子，每个句子4个词
 X = torch.zeros((2,4),dtype=torch.long)
@@ -310,16 +308,16 @@ print(embed(X).shape)
     torch.Size([2, 4, 8])
     
 
-#### 2.3.2 位置编码
+##### 2.3.2 位置编码
 
-作用：用于区分不同词，以及同词不同特征之间的关系  
+作用：用于区分不同词，以及同词不同特征之间的关系
 代码思路：
-1. 设置Dropout层
-2. 初始化矩阵P、X_
-3. 构造特定模式的矩阵P，将sine函数生成和cosine函数生成的向量交织在一起
-4. 将输入矩阵X进行位置编码
-5. 对输入矩阵X进行Dropout
 
+1. 设置 Dropout 层
+2. 初始化矩阵 P、X_
+3. 构造特定模式的矩阵 P，将 sine 函数生成和 cosine 函数生成的向量交织在一起
+4. 将输入矩阵 X 进行位置编码
+5. 对输入矩阵 X 进行 Dropout
 
 ```python
 Tensor = torch.Tensor
@@ -349,7 +347,6 @@ def positional_encoding(X, num_features, dropout_p=0.1, max_len=512) -> Tensor:
     return dropout(X)
 ```
 
-
 ```python
 # 位置编码例子
 X = torch.randn((2,4,10))
@@ -360,15 +357,15 @@ print(X.shape)
     torch.Size([2, 4, 10])
     
 
-#### 2.3.3 多头注意力机制
+##### 2.3.3 多头注意力机制
 
 代码思路：
+
 1. 参数初始化
 2. multi_head_attention_forward
-    - query, key, value通过_in_projection_packed变换得到q,k,v
-    - mask机制
-    - 点积attention
-
+    - query, key, value 通过 _in_projection_packed 变换得到 q,k,v
+    - mask 机制
+    - 点积 attention
 
 ```python
 def _in_projection_packed(
@@ -423,7 +420,6 @@ def _in_projection_packed(
         return F.linear(q, w_q, b_q), F.linear(k, w_k, b_k), F.linear(v, w_v, b_v)
 ```
 
-
 ```python
 def _scaled_dot_product_attention(
         q: Tensor,
@@ -457,7 +453,6 @@ def _scaled_dot_product_attention(
     output = torch.bmm(attn, v)
     return output, attn
 ```
-
 
 ```python
 def multi_head_attention_forward(
@@ -558,7 +553,6 @@ def multi_head_attention_forward(
         return attn_output, None
 ```
 
-
 ```python
 class MultiheadAttention(nn.Module):
     """
@@ -651,7 +645,6 @@ class MultiheadAttention(nn.Module):
             return attn_output, attn_output_weights
 ```
 
-
 ```python
 src = torch.randn((2,4,100))
 src = positional_encoding(src,100,0.1)
@@ -665,8 +658,7 @@ print(attn_output.shape, attn_output_weights.shape)
     torch.Size([2, 4, 100]) torch.Size([4, 2, 2])
     
 
-#### 2.3.4 TransformerEncoderLayer
-
+##### 2.3.4 TransformerEncoderLayer
 
 ```python
 class TransformerEncoderLayer(nn.Module):
@@ -709,7 +701,6 @@ class TransformerEncoderLayer(nn.Module):
         return src
 ```
 
-
 ```python
 encoder_layer = TransformerEncoderLayer(d_model=512, n_head=8)
 src = torch.randn((32, 10, 512))
@@ -720,8 +711,7 @@ print(out.shape)
     torch.Size([32, 10, 512])
     
 
-#### 2.3.5 Transformer Layer组成Encoder
-
+##### 2.3.5 Transformer Layer 组成 Encoder
 
 ```python
 class TransformerEncoder(nn.Module):
@@ -750,7 +740,6 @@ class TransformerEncoder(nn.Module):
         return output
 ```
 
-
 ```python
 encoder_layer = TransformerEncoderLayer(d_model=512, n_head=8)
 transformer_encoder = TransformerEncoder(encoder_layer, num_layers=6)
@@ -762,8 +751,7 @@ print(out.shape)
     torch.Size([10, 32, 512])
     
 
-#### 2.3.6 Decoder Layer
-
+##### 2.3.6 Decoder Layer
 
 ```python
 class TransformerDecoderLayer(nn.Module):
@@ -824,7 +812,6 @@ class TransformerDecoderLayer(nn.Module):
         return tgt
 ```
 
-
 ```python
 decoder_layer = TransformerDecoderLayer(d_model=512, n_head=8)
 memory = torch.randn((10, 32, 512))
@@ -836,8 +823,7 @@ print(out.shape)
     torch.Size([20, 32, 512])
     
 
-#### 2.3.7 Decoder
-
+##### 2.3.7 Decoder
 
 ```python
 class TransformerDecoder(nn.Module):
@@ -868,7 +854,6 @@ class TransformerDecoder(nn.Module):
         return output
 ```
 
-
 ```python
 decoder_layer =TransformerDecoderLayer(d_model=512, n_head=8)
 transformer_decoder = TransformerDecoder(decoder_layer, num_layers=6)
@@ -881,8 +866,7 @@ print(out.shape)
     torch.Size([20, 32, 512])
     
 
-#### 2.3.8 Transformer
-
+##### 2.3.8 Transformer
 
 ```python
 class Transformer(nn.Module):
@@ -986,7 +970,6 @@ class Transformer(nn.Module):
                 xavier_uniform_(p)
 ```
 
-
 ```python
 transformer_model = Transformer(n_head=16, num_encoder_layers=12)
 src = torch.rand((10, 32, 512))
@@ -998,6 +981,6 @@ print(out.shape)
     torch.Size([20, 32, 512])
     
 
-## 3 总结
+### 3 总结
 
-&emsp;&emsp;本次任务，主要从seq2seq模型，到Attention模型，再到Transformer模型，并详细介绍了Transformer的各个组成部分，包括Transformer输入、Encoder编码器、Self-Attention、残差连接、Decoder解码器、最后的线性层和softmax层。根据Transformer原理，详细讲解了Transformer代码。
+&emsp;&emsp; 本次任务，主要从 seq2seq 模型，到 Attention 模型，再到 Transformer 模型，并详细介绍了 Transformer 的各个组成部分，包括 Transformer 输入、Encoder 编码器、Self-Attention、残差连接、Decoder 解码器、最后的线性层和 softmax 层。根据 Transformer 原理，详细讲解了 Transformer 代码。

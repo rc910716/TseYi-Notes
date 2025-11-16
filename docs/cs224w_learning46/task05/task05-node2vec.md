@@ -16,9 +16,9 @@
 ### 1.3 Node2Vec
 
 - Node2Vec是有偏的随机游走：
-    - 当$\displaystyle \alpha=\frac{1}{p}$时，当前节点返回上一个节点
+    - 当$\alpha=\frac{1}{p}$时，当前节点返回上一个节点
     - 当$\alpha = 1$时，当前节点徘徊
-    - 当$\displaystyle \alpha = \frac{1}{q}$时，当前节点远行
+    - 当$\alpha = \frac{1}{q}$时，当前节点远行
 
 - 当$p$值很小时，属于广度优先搜索，反映微观的邻域
 - 当$q$值很小时，属于深度优先搜索，反映宏观的视角
@@ -142,7 +142,7 @@ $$
 其中，$d_{tx}$为从$t$到$x$的最短路径长度。
 
 - 空间复杂度：$O(a^2 |V|)$
-- 时间复杂度：$\displaystyle O \left( \frac{l}{k(l-k)} \right)$
+- 时间复杂度：$O \left( \frac{l}{k(l-k)} \right)$
 
 #### 2.4.3 Node2Vec算法
 

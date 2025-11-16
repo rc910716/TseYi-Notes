@@ -1,10 +1,9 @@
-# Task08 Transformers解决抽取式问答任务
+## Task08 Transformers 解决抽取式问答任务
 
-## 1 抽取式问答任务简介
+### 1 抽取式问答任务简介
 
 - 抽取式问答任务：给定一个问题和一段文本，从这段文本中找出能回答该问题的文本片段（span）
-- 本次示例可用于解决任何与SQUAD 1和SQUAD 2类似的抽取式问答任务
-
+- 本次示例可用于解决任何与 SQUAD 1 和 SQUAD 2 类似的抽取式问答任务
 
 ```python
 # squad_v2等于True或者False分别代表使用SQUAD v2 或者 SQUAD v1。
@@ -16,13 +15,11 @@ model_checkpoint = "distilbert-base-uncased"
 batch_size = 16
 ```
 
-## 2 加载数据集
-
+### 2 加载数据集
 
 ```python
 from datasets import load_dataset, load_metric
 ```
-
 
 ```python
 # 加载SQUAD数据集
@@ -30,15 +27,10 @@ datasets = load_dataset("squad_v2" if squad_v2 else "squad")
 ```
 
     Reusing dataset squad (C:\Users\hurui\.cache\huggingface\datasets\squad\plain_text\1.0.0\d6ec3ceb99ca480ce37cdd35555d6cb2511d223b9150cce08a837ef62ffea453)
-    
-
 
 ```python
 datasets
 ```
-
-
-
 
     DatasetDict({
         train: Dataset({
@@ -51,25 +43,16 @@ datasets
         })
     })
 
-
-
-
 ```python
 # 查看训练集第一条数据
 datasets["train"][0]
 ```
-
-
-
 
     {'id': '5733be284776f41900661182',
      'title': 'University_of_Notre_Dame',
      'context': 'Architecturally, the school has a Catholic character. Atop the Main Building\'s gold dome is a golden statue of the Virgin Mary. Immediately in front of the Main Building and facing it, is a copper statue of Christ with arms upraised with the legend "Venite Ad Me Omnes". Next to the Main Building is the Basilica of the Sacred Heart. Immediately behind the basilica is the Grotto, a Marian place of prayer and reflection. It is a replica of the grotto at Lourdes, France where the Virgin Mary reputedly appeared to Saint Bernadette Soubirous in 1858. At the end of the main drive (and in a direct line that connects through 3 statues and the Gold Dome), is a simple, modern stone statue of Mary.',
      'question': 'To whom did the Virgin Mary allegedly appear in 1858 in Lourdes France?',
      'answers': {'text': ['Saint Bernadette Soubirous'], 'answer_start': [515]}}
-
-
-
 
 ```python
 from datasets import ClassLabel, Sequence
@@ -96,11 +79,9 @@ def show_random_elements(dataset, num_examples=10):
     display(HTML(df.to_html()))
 ```
 
-
 ```python
 show_random_elements(datasets["train"], num_examples=2)
 ```
-
 
 <table border="0" class="dataframe">
   <thead>
@@ -133,9 +114,7 @@ show_random_elements(datasets["train"], num_examples=2)
   </tbody>
 </table>
 
-
-## 3 预处理数据
-
+### 3 预处理数据
 
 ```python
 import numpy as np
@@ -148,22 +127,21 @@ import collections
 from tqdm.auto import tqdm
 ```
 
-### 3.1 数据预处理流程
+#### 3.1 数据预处理流程
+
 - 使用工具：Tokenizer
 - 流程：
-  1. 对输入数据进行tokenize，得到tokens
-  2. 将tokens转化为预训练模型中需要对应的token ID
-  3. 将token ID转化为模型需要的输入格式
+  1. 对输入数据进行 tokenize，得到 tokens
+  2. 将 tokens 转化为预训练模型中需要对应的 token ID
+  3. 将 token ID 转化为模型需要的输入格式
 
-### 3.2 构建模型对应的tokenizer
-
+#### 3.2 构建模型对应的 tokenizer
 
 ```python
 from transformers import AutoTokenizer
     
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 ```
-
 
 ```python
 import transformers
@@ -172,9 +150,8 @@ import transformers
 assert isinstance(tokenizer, transformers.PreTrainedTokenizerFast)
 ```
 
-- 使用tokenizer的tokenize方法，查看tokenizer预处理之后的文本格式
-- add_special_tokens参数，表示增加预训练模型所要求的特殊token
-
+- 使用 tokenizer 的 tokenize 方法，查看 tokenizer 预处理之后的文本格式
+- add_special_tokens 参数，表示增加预训练模型所要求的特殊 token
 
 ```python
 print("单个文本tokenize: {}".format(tokenizer.tokenize(
@@ -185,45 +162,32 @@ print("2个文本tokenize: {}".format(tokenizer.tokenize(
 
     单个文本tokenize: ['what', 'is', 'your', 'name', '?']
     2个文本tokenize: ['[CLS]', 'my', 'name', 'is', 'sy', '##lva', '##in', '.', '[SEP]']
-    
-
 
 ```python
 # 对单个文本进行预处理
 tokenizer("What is your name?")
 ```
 
-
-
-
     {'input_ids': [101, 2054, 2003, 2115, 2171, 1029, 102], 'attention_mask': [1, 1, 1, 1, 1, 1, 1]}
-
-
-
 
 ```python
 # 对2个文本进行预处理
 tokenizer("What is your name?", "My name is Sylvain.")
 ```
 
-
-
-
     {'input_ids': [101, 2054, 2003, 2115, 2171, 1029, 102, 2026, 2171, 2003, 25353, 22144, 2378, 1012, 102], 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
 
-
-
-### 3.3 处理长文本
+#### 3.3 处理长文本
 
 处理长文本流程：
-1. 使用truncation和padding对超长文本进行切片，允许相邻切片之间有交集
-2. 使用overflow_to_sample_mapping和offset_mapping，映射切片前的原始位置，用于找到答案的起始和结束位置
-3. 对于所有切片进行遍历  
-  （1）对于无答案的context，使用CLS所在的位置标注答案位置  
-  （2）对于有答案的context，找到切片前的起始和结束位置，找到切片后token的起始和结束位置  
-  （3）检测答案是否超出文本长度，超出则用CLS位置标注，没有超出，找到答案token的start和end位置
-4. 返回tokenizer预处理之后的数据，满足预训练模型输入格式
 
+1. 使用 truncation 和 padding 对超长文本进行切片，允许相邻切片之间有交集
+2. 使用 overflow_to_sample_mapping 和 offset_mapping，映射切片前的原始位置，用于找到答案的起始和结束位置
+3. 对于所有切片进行遍历
+  （1）对于无答案的 context，使用 CLS 所在的位置标注答案位置
+  （2）对于有答案的 context，找到切片前的起始和结束位置，找到切片后 token 的起始和结束位置
+  （3）检测答案是否超出文本长度，超出则用 CLS 位置标注，没有超出，找到答案 token 的 start 和 end 位置
+4. 返回 tokenizer 预处理之后的数据，满足预训练模型输入格式
 
 ```python
 # 输入feature的最大长度，question和context拼接之后
@@ -232,12 +196,10 @@ max_length = 384
 doc_stride = 128 
 ```
 
-
 ```python
 # question拼接context，即context在右边
 pad_on_right = tokenizer.padding_side == "right"
 ```
-
 
 ```python
 def prepare_train_features(examples):
@@ -316,14 +278,12 @@ def prepare_train_features(examples):
     return tokenized_examples
 ```
 
-
 ```python
 # 处理5个样本
 features = prepare_train_features(datasets['train'][:5])
 ```
 
-### 3.4 对数据集datasets所有样本进行预处理
-
+#### 3.4 对数据集 datasets 所有样本进行预处理
 
 ```python
 tokenized_datasets = datasets.map(
@@ -334,10 +294,9 @@ tokenized_datasets = datasets.map(
     Loading cached processed dataset at C:\Users\hurui\.cache\huggingface\datasets\squad\plain_text\1.0.0\d6ec3ceb99ca480ce37cdd35555d6cb2511d223b9150cce08a837ef62ffea453\cache-c29fbdb11009bad4.arrow
     
 
-## 4 微调预训练模型
+### 4 微调预训练模型
 
-### 4.1 加载预训练模型
-
+#### 4.1 加载预训练模型
 
 ```python
 from transformers import AutoModelForQuestionAnswering, TrainingArguments, Trainer
@@ -352,8 +311,7 @@ model = AutoModelForQuestionAnswering.from_pretrained(model_checkpoint)
     You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
     
 
-### 4.2 设定训练参数
-
+#### 4.2 设定训练参数
 
 ```python
 args = TrainingArguments(
@@ -370,7 +328,6 @@ args = TrainingArguments(
 )
 ```
 
-
 ```python
 from transformers import default_data_collator
 
@@ -378,8 +335,7 @@ from transformers import default_data_collator
 data_collator = default_data_collator
 ```
 
-### 4.3 训练模型
-
+#### 4.3 训练模型
 
 ```python
 trainer = Trainer(
@@ -392,17 +348,16 @@ trainer = Trainer(
 )
 ```
 
-
 ```python
 trainer.train()
 ```
 
-
-
 <div>
 
   <progress value='16599' max='16599' style='width:300px; height:20px; vertical-align: middle;'></progress>
+
   [16599/16599 1&#58;03&#58;17, Epoch 3/3]
+
 </div>
 <table border="0" class="dataframe">
   <thead>
@@ -431,31 +386,25 @@ trainer.train()
   </tbody>
 </table><p>
 
-
-
-
-
     TrainOutput(global_step=16599, training_loss=1.0829564516311223, metrics={'train_runtime': 3798.7824, 'train_samples_per_second': 69.91, 'train_steps_per_second': 4.37, 'total_flos': 2.602335381127373e+16, 'train_loss': 1.0829564516311223, 'epoch': 3.0})
 
-
-
-## 5 模型评估
+### 5 模型评估
 
 模型评估流程：
-1. 得到模型预测的输出结果（answer所在start/end位置的logits）
-2. 将answer的start和end的logits相加打分，在n_best_size个(start,end)对，得到相应的答案
-3. 检查答案是否有效，检查start和end位置对应的文本是否在content里，而不在question里
-4. 根据score值，对valid_answers进行排序，选择得分最高的作为答案
-5. 将features和example进行map映射，用于计算评测指标
-6. 解决无答案的情况：  
-（1）将无答案的预测得分进行收集  
-（2）检测在多个features里是否都无答案  
-（3）选择所有features的无答案里得分最小的作为答案
+
+1. 得到模型预测的输出结果（answer 所在 start/end 位置的 logits）
+2. 将 answer 的 start 和 end 的 logits 相加打分，在 n_best_size 个 (start,end) 对，得到相应的答案
+3. 检查答案是否有效，检查 start 和 end 位置对应的文本是否在 content 里，而不在 question 里
+4. 根据 score 值，对 valid_answers 进行排序，选择得分最高的作为答案
+5. 将 features 和 example 进行 map 映射，用于计算评测指标
+6. 解决无答案的情况：
+（1）将无答案的预测得分进行收集
+（2）检测在多个 features 里是否都无答案
+（3）选择所有 features 的无答案里得分最小的作为答案
 7. 在原始预测上使用后处理函数
-8. 使用squad评测方法，基于预测和标注对评测指标进行计算
+8. 使用 squad 评测方法，基于预测和标注对评测指标进行计算
 
-### 5.1 得到模型预测输出结果
-
+#### 5.1 得到模型预测输出结果
 
 ```python
 # 得到模型预测输出结果
@@ -467,13 +416,7 @@ with torch.no_grad():
 output.keys()
 ```
 
-
-
-
     odict_keys(['loss', 'start_logits', 'end_logits'])
-
-
-
 
 ```python
 n_best_size = 20
@@ -495,8 +438,7 @@ for start_index in start_indexes:
             )
 ```
 
-### 5.2 对验证集进行处理
-
+#### 5.2 对验证集进行处理
 
 ```python
 def prepare_validation_features(examples):
@@ -540,7 +482,6 @@ def prepare_validation_features(examples):
     return tokenized_examples
 ```
 
-
 ```python
 # 对验证集进行处理
 validation_features = datasets["validation"].map(
@@ -550,7 +491,6 @@ validation_features = datasets["validation"].map(
 )
 ```
 
-
 ```python
 # 对验证集进行预测
 raw_predictions = trainer.predict(validation_features)
@@ -559,23 +499,19 @@ validation_features.set_format(type=validation_features.format["type"],
                                columns=list(validation_features.features.keys()))
 ```
 
-
-
 <div>
 
   <progress value='674' max='674' style='width:300px; height:20px; vertical-align: middle;'></progress>
+
   [674/674 00:49]
+
 </div>
 
-
-
-### 5.3 得到验证结果
-
+#### 5.3 得到验证结果
 
 ```python
 max_answer_length = 30
 ```
-
 
 ```python
 start_logits = output.start_logits[0].cpu().numpy()
@@ -585,7 +521,6 @@ offset_mapping = validation_features[0]["offset_mapping"]
 # an example index
 context = datasets["validation"][0]["context"]
 ```
-
 
 ```python
 # Gather the indices the best start/end logits:
@@ -617,7 +552,6 @@ for start_index in start_indexes:
             )
 ```
 
-
 ```python
 valid_answers = sorted(valid_answers, key=lambda x: x["score"], reverse=True)[:n_best_size]
 print(valid_answers)
@@ -626,8 +560,7 @@ print(valid_answers)
     [{'score': 17.878677, 'text': 'Denver Broncos'}, {'score': 15.834391, 'text': 'Denver Broncos defeated the National Football Conference (NFC) champion Carolina Panthers'}, {'score': 14.081308, 'text': 'Broncos'}, {'score': 13.745024, 'text': 'Carolina Panthers'}, {'score': 12.03702, 'text': 'Broncos defeated the National Football Conference (NFC) champion Carolina Panthers'}, {'score': 11.468799, 'text': 'Denver'}, {'score': 10.857439, 'text': 'The American Football Conference (AFC) champion Denver Broncos'}, {'score': 9.668666, 'text': 'American Football Conference (AFC) champion Denver Broncos'}, {'score': 8.859463, 'text': 'Panthers'}, {'score': 8.81315, 'text': 'The American Football Conference (AFC) champion Denver Broncos defeated the National Football Conference (NFC) champion Carolina Panthers'}, {'score': 8.652461, 'text': 'Denver Broncos defeated the National Football Conference (NFC) champion Carolina'}, {'score': 8.415495, 'text': 'Denver Broncos defeated the National Football Conference (NFC)'}, {'score': 8.272964, 'text': 'Denver Broncos defeated the National Football Conference (NFC) champion Carolina Panthers 24–10'}, {'score': 7.7231836, 'text': 'Denver Broncos defeated the National Football Conference'}, {'score': 7.6243773, 'text': 'American Football Conference (AFC) champion Denver Broncos defeated the National Football Conference (NFC) champion Carolina Panthers'}, {'score': 7.359405, 'text': 'Denver Broncos defeated the National Football Conference (NFC'}, {'score': 6.8753233, 'text': 'Denver Broncos defeated the National Football Conference (NFC) champion'}, {'score': 6.569023, 'text': 'AFC) champion Denver Broncos'}, {'score': 6.5630946, 'text': 'Carolina'}, {'score': 6.3930545, 'text': 'Denver Broncos defeated the National Football'}]
     
 
-### 5.4 评测指标的计算
-
+#### 5.4 评测指标的计算
 
 ```python
 def postprocess_qa_predictions(examples, features, raw_predictions, n_best_size=20, max_answer_length=30):
@@ -719,7 +652,6 @@ def postprocess_qa_predictions(examples, features, raw_predictions, n_best_size=
     return predictions
 ```
 
-
 ```python
 final_predictions = postprocess_qa_predictions(
     datasets["validation"], validation_features, raw_predictions.predictions)
@@ -727,12 +659,10 @@ final_predictions = postprocess_qa_predictions(
 
     Post-processing 10570 example predictions split into 10784 features.
 
-
 ```python
 # 加载评测指标
 metric = load_metric("squad_v2" if squad_v2 else "squad")
 ```
-
 
 ```python
 if squad_v2:
@@ -747,19 +677,14 @@ metric_score = metric.compute(
     predictions=formatted_predictions, references=references)
 ```
 
-
 ```python
 metric_score
 ```
 
-
-
-
     {'exact_match': 76.91579943235573, 'f1': 85.23761154962662}
 
+### 6 总结
 
+&emsp;&emsp; 本次任务，主要介绍了用 BERT 模型解决抽取式问答任务的方法及步骤，步骤主要分为加载数据、数据预处理、微调预训练模型和模型评估。在加载数据阶段中，使用 SQUAD 数据集；在数据预处理阶段中，对 tokenizer 分词器的建模，处理长文本，并完成数据集中所有样本的预处理；在微调预训练模型阶段，通过对模型训练参数进行设置，训练并保存模型；在模型评估阶段，通过对模型预测的输出结果进行处理，解决无答案情况，最后使用 squad 评测方法，基于预测和标注对评测指标进行计算。
 
-## 6 总结
-
-&emsp;&emsp;本次任务，主要介绍了用BERT模型解决抽取式问答任务的方法及步骤，步骤主要分为加载数据、数据预处理、微调预训练模型和模型评估。在加载数据阶段中，使用SQUAD数据集；在数据预处理阶段中，对tokenizer分词器的建模，处理长文本，并完成数据集中所有样本的预处理；在微调预训练模型阶段，通过对模型训练参数进行设置，训练并保存模型；在模型评估阶段，通过对模型预测的输出结果进行处理，解决无答案情况，最后使用squad评测方法，基于预测和标注对评测指标进行计算。  
-&emsp;&emsp;其中在数据集下载时，需要使用外网方式建立代理；本次任务中的模型训练，笔者使用的是3070  GPU显卡，需要训练模型长达1小时。
+&emsp;&emsp; 其中在数据集下载时，需要使用外网方式建立代理；本次任务中的模型训练，笔者使用的是 3070 GPU 显卡，需要训练模型长达 1 小时。

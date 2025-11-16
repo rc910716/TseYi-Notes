@@ -1,39 +1,40 @@
-# Task06 基于图神经网络的图表征学习方法
+## Task06 基于图神经网络的图表征学习方法
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 基于图同构网络(GIN)的图表征网络的实现
+#### 1.1 基于图同构网络 (GIN) 的图表征网络的实现
+
 - 基本思路：计算节点表征，对图上各个节点的表征做图池化，得到图的表征
-- 图表征模块(GINGraphReprModule)：
+- 图表征模块 (GINGraphReprModule)：
   1. 对图上每一个节点进行节点嵌入，得到节点表征
   2. 对节点表征做图池化，得到图表征
   3. 用一层线性变换对图表征转换为对图的预测
-- 节点嵌入模块(GINNodeEmbeddingModule)：
-  1. 用AtomEcoder进行嵌入，得到第0层节点表征
+- 节点嵌入模块 (GINNodeEmbeddingModule)：
+  1. 用 AtomEcoder 进行嵌入，得到第 0 层节点表征
   2. 逐层计算节点表征
-  3. 感受野越大，节点i的表征最后能捕获到节点i的距离为num_layers的邻接节点的信息
-- 图同构卷积层(GINConv)：
-  1. 数学定义：$ \displaystyle \mathbf{x}^{\prime}_i = h_{\mathbf{\Theta}} \left( (1 + \epsilon) \cdot \mathbf{x}_i + \sum_{j \in \mathcal{N}(i)} \mathbf{x}_j \right)$
+  3. 感受野越大，节点 i 的表征最后能捕获到节点 i 的距离为 num_layers 的邻接节点的信息
+- 图同构卷积层 (GINConv)：
+  1. 数学定义：$\mathbf{x}^{\prime}_i = h_{\mathbf{\Theta}} \left( (1 + \epsilon) \cdot \mathbf{x}_i + \sum_{j \in \mathcal{N}(i)} \mathbf{x}_j \right)$
   2. 将类别型边属性转换为边表征
   3. 消息传递、消息聚合、消息更新
-- AtomEncoder和BondEncoder：将节点属性和边属性分布映射到一个新空间，再对节点和边进行信息融合。
+- AtomEncoder 和 BondEncoder：将节点属性和边属性分布映射到一个新空间，再对节点和边进行信息融合。
 
-### 1.2 WL Test
+#### 1.2 WL Test
+
 - 图同构性测试：
   1. 迭代聚合节点及其邻接节点的标签
-  2. 将聚合标签散列成新的标签，数学公式：$\displaystyle L^{h}_{u} \leftarrow \operatorname{hash}\left(L^{h-1}_{u} + \sum_{v \in \mathcal{N}(U)} L^{h-1}_{v}\right)$
-- WL子树核衡量图之间相似性：使用不同迭代中的节点标签计数作为图的表征向量
+  2. 将聚合标签散列成新的标签，数学公式：$L^{h}_{u} \leftarrow \operatorname{hash}\left(L^{h-1}_{u} + \sum_{v \in \mathcal{N}(U)} L^{h-1}_{v}\right)$
+- WL 子树核衡量图之间相似性：使用不同迭代中的节点标签计数作为图的表征向量
 - 详细步骤：
   1. 聚合自身与邻接节点的标签，得到一串字符串
   2. 标签散列，将较长的字符串映射到一个简短的标签
   3. 给节点重新打上标签
 - 图相似性评估：
-  1. WL Subtree Kernel方法：用WL Test算法得到节点多层标签，统计图中各类标签出现的次数，使用向量表示，作为图的表征
+  1. WL Subtree Kernel 方法：用 WL Test 算法得到节点多层标签，统计图中各类标签出现的次数，使用向量表示，作为图的表征
   2. 两个图的表征向量内积，作为两个图的相似性估计
 - 判断图同构性的必要条件：两个节点自身标签一样且它们的邻接节点一样，将两个节点映射到相同的表征
 
-## 2 实战练习
-
+### 2 实战练习
 
 ```python
 import torch
@@ -45,8 +46,7 @@ from ogb.graphproppred.mol_encoder import BondEncoder
 from ogb.utils.features import get_atom_feature_dims, get_bond_feature_dims
 ```
 
-### 2.1 GIN的图表征模块
-
+#### 2.1 GIN 的图表征模块
 
 ```python
 class GINGraphPooling(nn.Module):
@@ -117,8 +117,7 @@ class GINGraphPooling(nn.Module):
             return torch.clamp(output, min=0, max=50)
 ```
 
-### 2.2 节点嵌入模块
-
+#### 2.2 节点嵌入模块
 
 ```python
 class GINNodeEmbedding(torch.nn.Module):
@@ -185,8 +184,7 @@ class GINNodeEmbedding(torch.nn.Module):
         return node_representation
 ```
 
-### 2.3 图同构卷积层
-
+#### 2.3 图同构卷积层
 
 ```python
 class GINConv(MessagePassing):
@@ -215,8 +213,7 @@ class GINConv(MessagePassing):
         return aggr_out
 ```
 
-### 2.4 AtomEncoder与BondEncoder
-
+#### 2.4 AtomEncoder 与 BondEncoder
 
 ```python
 full_atom_feature_dims = get_atom_feature_dims()

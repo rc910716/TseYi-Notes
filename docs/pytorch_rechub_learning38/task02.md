@@ -1,49 +1,50 @@
-# Task02 精排模型：DeepFM、DIN
+## Task02 精排模型：DeepFM、DIN
 
-## 1 DeepFM（Wide&Deep系列）
+### 1 DeepFM（Wide&Deep 系列）
 
-### 1.1 DeepFM产生背景
+#### 1.1 DeepFM 产生背景
 
-- 解决DNN局限性：网络参数过大，将One Hot特征转换为Dense Vector
-- FNN和PNN：使用预训练好的FM模块，连接到DNN上形成FNN模型，后又在Embedding layer和hidden layer1之间增加一个product层，使用product layer替换FM预训练层，形成PNN模型
-- 低阶组合特征学习问题：由于FM和DNN的串行方式导致，学习到的低阶组合特征比较少
+- 解决 DNN 局限性：网络参数过大，将 One Hot 特征转换为 Dense Vector
+- FNN 和 PNN：使用预训练好的 FM 模块，连接到 DNN 上形成 FNN 模型，后又在 Embedding layer 和 hidden layer1 之间增加一个 product 层，使用 product layer 替换 FM 预训练层，形成 PNN 模型
+- 低阶组合特征学习问题：由于 FM 和 DNN 的串行方式导致，学习到的低阶组合特征比较少
 
-### 1.2 DeepFM模型
+#### 1.2 DeepFM 模型
 
 ![DeepFM-architecture.png](./images/task02/DeepFM-architecture.png)
 
-#### 1.2.1 FM部分
+##### 1.2.1 FM 部分
 
-- FM Layer主要是由一阶特征和二阶特征组合，再经过Sigmoid得到logits
+- FM Layer 主要是由一阶特征和二阶特征组合，再经过 Sigmoid 得到 logits
 - 模型公式：
+
 $$\hat{y}_{FM}(x) = w_0 + \sum_{i=1}^N w_i x_i + \sum_{i=1}^N \sum_{j=i+1}^N v_i^T v_j x_i x_j$$
-FM的模型公式是一个通用的拟合方程，可以采用不同的损失函数用于解决regression、classification等问题，FM可以在线性时间对新样本作出预测
+
+FM 的模型公式是一个通用的拟合方程，可以采用不同的损失函数用于解决 regression、classification 等问题，FM 可以在线性时间对新样本作出预测
 
 - 优点：
     1. 通过向量内积作为交叉特征的权重，可以在数据非常稀疏的情况下，有效地训练出交叉特征的权重（因为不需要两个特征同时不为零）
-    2. 可以通过公式上的优化，得到$O(nk)$的计算复杂度，计算效率非常高
-    3. 尽管推荐场景下的总体特征空间非常大，但是FM的训练和预测只需要处理样本中的非零特征，这也提升了模型训练和线上预测的速度
+    2. 可以通过公式上的优化，得到 $O(nk)$ 的计算复杂度，计算效率非常高
+    3. 尽管推荐场景下的总体特征空间非常大，但是 FM 的训练和预测只需要处理样本中的非零特征，这也提升了模型训练和线上预测的速度
     4. 由于模型的计算效率高，并且在稀疏场景下可以自动挖掘长尾低频物料，可适用于召回、粗排和精排三个阶段。应用在不同阶段时，样本构造、拟合目标及线上服务都有所不同“
 
 - 缺点：只能显示的做特征的二阶交叉，对于更高阶的交叉无能为力。
 
-#### 1.2.2 Deep部分
+##### 1.2.2 Deep 部分
 
 - 模型构成：
-    1. 使用全连接的方式将Dense Embedding输入到Hidden Layer，解决DNN中的参数爆炸问题
-    2. Embedding层的输出是将所有id类特征对应的embedding向量连接到一起，并输入到DNN中
+    1. 使用全连接的方式将 Dense Embedding 输入到 Hidden Layer，解决 DNN 中的参数爆炸问题
+    2. Embedding 层的输出是将所有 id 类特征对应的 embedding 向量连接到一起，并输入到 DNN 中
 - 模型公式：
+
 $$y_{DNN} = \sigma(W^L a^L + b^L)$$
 
-### 1.3 DeepFM模型代码实现
-
+#### 1.3 DeepFM 模型代码实现
 
 ```python
 from torch_rechub.basic.layers import FM, MLP, LR, EmbeddingLayer
 from tqdm import tqdm
 import torch
 ```
-
 
 ```python
 class DeepFM(torch.nn.Module):
@@ -80,47 +81,48 @@ class DeepFM(torch.nn.Module):
         return torch.sigmoid(y.squeeze(1))
 ```
 
-## 2 DIN（序列模型）
+### 2 DIN（序列模型）
 
-### 2.1 DIN产生背景
+#### 2.1 DIN 产生背景
 
 - 创新点：基于用户的大量历史行为（历史购买过的商品或者类别信息），使用注意力机制对用户的兴趣动态模拟
 - 解决个性化电商广告推荐业务场景下，广告点击预测任务无法表达用户广泛兴趣
 - 解决因历史行为特征带来的特征维度规模过大的问题
 
-### 2.2 DIN模型
+#### 2.2 DIN 模型
 
 ![DIN Architecture](./images/task02/DIN-architecture.png)
 
-#### 2.2.1 特征表达
+##### 2.2.1 特征表达
 
-&emsp;&emsp;基于multi-hot编码的用户历史行为特征的特征表示，由于特征没有交互组合，需要由神经网络学习得到。
+&emsp;&emsp; 基于 multi-hot 编码的用户历史行为特征的特征表示，由于特征没有交互组合，需要由神经网络学习得到。
 
-#### 2.2.2 基线模型
+##### 2.2.2 基线模型
 
 ![BaseModel-architecture.png](./images/task02/BaseModel-architecture.png)
 
 - Embedding Layer：将高维稀疏的输入转成低维稠密向量
-- Pooling Layer and Concat Layer：将用户的历史行为的上述Embedding结果变成一个定长的向量，并进行拼接作为MLP的输入
+- Pooling Layer and Concat Layer：将用户的历史行为的上述 Embedding 结果变成一个定长的向量，并进行拼接作为 MLP 的输入
 - MLP：全连接层，学习特征的各种交互
 - Loss：使用如下公式计算损失
+
 $$
 L=-\frac{1}{N} \sum_{(\boldsymbol{x}, y) \in \mathcal{S}}(y \log p(\boldsymbol{x})+(1-y) \log (1-p(\boldsymbol{x})))
 $$
 
-#### 2.2.3 DIN的注意力单元
+##### 2.2.3 DIN 的注意力单元
 
 - 在当前候选广告和用户的历史行为之间引入注意力的机制，与当前商品更加相关的历史行为更能促进用户的点击行为
-- 通过给定一个候选广告，新增对该广告相关的局部兴趣的注意力表示模拟，通过考虑用户历史行为的相关性来自适应地计算用户兴趣的表示向量，即`local activation unit`
-
+- 通过给定一个候选广告，新增对该广告相关的局部兴趣的注意力表示模拟，通过考虑用户历史行为的相关性来自适应地计算用户兴趣的表示向量，即 `local activation unit`
 - 用户兴趣表示
+
 $$
 \boldsymbol{v}_{U}(A)=f\left(\boldsymbol{v}_{A}, \boldsymbol{e}_{1}, \boldsymbol{e}_{2}, \ldots, \boldsymbol{e}_{H}\right)=\sum_{j=1}^{H} a\left(\boldsymbol{e}_{j}, \boldsymbol{v}_{A}\right) \boldsymbol{e}_{j}=\sum_{j=1}^{H} \boldsymbol{w}_{j} \boldsymbol{e}_{j}
 $$
-其中，$\boldsymbol{v}_{U}(A)$表示用户兴趣，$\{\boldsymbol{v}_{A}, \boldsymbol{e}_{1}, \boldsymbol{e}_{2}, \ldots, \boldsymbol{e}_{H}\}$是用户$U$的历史行为特征embedding， $v_{A}$表示的是候选广告$A$的embedding向量， $a(e_j, v_A)=w_j$表示权重或者历史行为商品与当前广告$A$的相关性程度。$a(\cdot)$表示前馈神经网络，也就是注意力机制
 
-### 2.3 DIN模型代码实现
+其中，$\boldsymbol{v}_{U}(A)$ 表示用户兴趣，$\{\boldsymbol{v}_{A}, \boldsymbol{e}_{1}, \boldsymbol{e}_{2}, \ldots, \boldsymbol{e}_{H}\}$ 是用户 $U$ 的历史行为特征 embedding， $v_{A}$ 表示的是候选广告 $A$ 的 embedding 向量， $a(e_j, v_A)=w_j$ 表示权重或者历史行为商品与当前广告 $A$ 的相关性程度。$a(\cdot)$ 表示前馈神经网络，也就是注意力机制
 
+#### 2.3 DIN 模型代码实现
 
 ```python
 class ActivationUnit(torch.nn.Module):
@@ -146,7 +148,6 @@ class ActivationUnit(torch.nn.Module):
         output = (att_weight.unsqueeze(-1) * history).sum(dim=1)
         return output
 ```
-
 
 ```python
 class DIN(torch.nn.Module):
@@ -191,8 +192,9 @@ class DIN(torch.nn.Module):
         return torch.sigmoid(y.squeeze(1))
 ```
 
-## 3 总结
+### 3 总结
 
-&emsp;&emsp;本次任务，主要介绍了DeepFM和DIN的模型原理和代码实践：
-1. DeepFM主要在FNN和PNN的基础上，采用并行方式，结合FM Layer和Deep Layer，提高模型计算效率；
-2. DIN主要在Base Model的基础上，解决个性化电商广告推荐业务场景下，广告点击预测任务无法表达用户广泛兴趣，加入了注意力机制，对用户的兴趣进行动态模拟，提高推荐的准确率。
+&emsp;&emsp; 本次任务，主要介绍了 DeepFM 和 DIN 的模型原理和代码实践：
+
+1. DeepFM 主要在 FNN 和 PNN 的基础上，采用并行方式，结合 FM Layer 和 Deep Layer，提高模型计算效率；
+2. DIN 主要在 Base Model 的基础上，解决个性化电商广告推荐业务场景下，广告点击预测任务无法表达用户广泛兴趣，加入了注意力机制，对用户的兴趣进行动态模拟，提高推荐的准确率。

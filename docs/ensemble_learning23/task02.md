@@ -1,50 +1,57 @@
-# Task02 掌握基本的回归模型
+## Task02 掌握基本的回归模型
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 使用sklearn构建完整的机器学习项目流程
+#### 1.1 使用 sklearn 构建完整的机器学习项目流程
+
 机器学习项目的步骤有如下几步：
+
 1. 明确项目任务：回归/分类
 2. 收集数据集并选择合适的特征。
 3. 选择度量模型性能的指标。
 4. 选择具体的模型并进行训练以优化模型。
 5. 评估模型的性能并调参。
 
-### 1.2选择度量模型性能的指标
+#### 1.2 选择度量模型性能的指标
 
-其目的是通过各种指标（即得分）衡量模型的性能。  
+其目的是通过各种指标（即得分）衡量模型的性能。
 衡量回归模式经常使用的指标如下：
-- MSE均方误差：$\displaystyle \text{MSE}(y, \hat{y}) = \frac{1}{n_\text{samples}} \sum_{i=0}^{n_\text{samples} - 1} (y_i - \hat{y}_i)^2.$
-- MAE平均绝对误差:$\displaystyle \text{MAE}(y, \hat{y}) = \frac{1}{n_{\text{samples}}} \sum_{i=0}^{n_{\text{samples}}-1} \left| y_i - \hat{y}_i \right|$
-- $R^2$决定系数：$R^2(y, \hat{y}) = 1 - \displaystyle \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}$
-- 解释方差得分:$\displaystyle explained\_{}variance(y, \hat{y}) = 1 - \frac{Var\{ y - \hat{y}\}}{Var\{y\}}$
 
-### 1.3 选择具体的模型并训练
+- MSE 均方误差：$\text{MSE}(y, \hat{y}) = \frac{1}{n_\text{samples}} \sum_{i=0}^{n_\text{samples} - 1} (y_i - \hat{y}_i)^2.$
+- MAE 平均绝对误差:$\text{MAE}(y, \hat{y}) = \frac{1}{n_{\text{samples}}} \sum_{i=0}^{n_{\text{samples}}-1} \left| y_i - \hat{y}_i \right|$
+- $R^2$ 决定系数：$R^2(y, \hat{y}) = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}$
+- 解释方差得分:$\text{explained\_variance}(y, \hat{y}) = 1 - \frac{Var\{ y - \hat{y}\}}{Var\{y\}}$
 
-#### 1.3.1 线性回归模型
+#### 1.3 选择具体的模型并训练
+
+##### 1.3.1 线性回归模型
+
 - 回归分析：研究的是因变量（目标）和自变量（特征）之间的关系。这种技术通常用于预测分析，时间序列模型以及发现变量之间的因果关系
-- 线性回归模型：假设目标值与特征之间线性相关，即满足一个多元一次方程。通过构建损失函数，来求解损失函数最小时的参数$w$
+- 线性回归模型：假设目标值与特征之间线性相关，即满足一个多元一次方程。通过构建损失函数，来求解损失函数最小时的参数 $w$
   - 最小二乘估计：$L(w)=w^T X^TXw-2w^T X^T Y + YY^T \Rightarrow \hat{w}=(X^TX)^{-1}X^TY$
-  - 几何解释：平面$X$的法向量$Y-Xw$与平面$X$相互垂直，$X^T(Y-Xw)=0 \Rightarrow \hat{w}=(X^TX)^{-1}X^TY$
-  - 概率视角：假设噪声$\epsilon \backsim N(0,\sigma^2),y=f(w)+\epsilon=w^Tx+\epsilon$，使用极大似然估计，$L(w) = log\;P(Y|X;w) \Rightarrow argmax_w L(w) = argmin_w[l(w) = \sum\limits_{i = 1}^{N}(y_i-w^Tx_i)^2]$
+  - 几何解释：平面 $X$ 的法向量 $Y-Xw$ 与平面 $X$ 相互垂直，$X^T(Y-Xw)=0 \Rightarrow \hat{w}=(X^TX)^{-1}X^TY$
+  - 概率视角：假设噪声 $\epsilon \backsim N(0,\sigma^2),y=f(w)+\epsilon=w^Tx+\epsilon$，使用极大似然估计，$L(w) = log\;P(Y|X;w) \Rightarrow argmax_w L(w) = argmin_w[l(w) = \sum\limits_{i = 1}^{N}(y_i-w^Tx_i)^2]$
 
-#### 1.3.2 线性回归的推广
-  - 多项式回归：使用`sklearn.preprocessing.PolynomialFeatures`，可得$[a,b] \Rightarrow [1,a,b,a^2,ab,b^2]$，如果`interaction_only=True`，则输出$[1,a,b,ab]$ 
-  - 广义可加模型(GAM)：使用`pygam.LinearGAM`
+##### 1.3.2 线性回归的推广
 
-#### 1.3.3 回归树（决策树）
+  - 多项式回归：使用 `sklearn.preprocessing.PolynomialFeatures`，可得 $[a,b] \Rightarrow [1,a,b,a^2,ab,b^2]$，如果 `interaction_only=True`，则输出 $[1,a,b,ab]$
+  - 广义可加模型 (GAM)：使用 `pygam.LinearGAM`
+
+##### 1.3.3 回归树（决策树）
+
 回归树：依据分层和分割的方式将特征空间划分为一系列简单的区域。对某个给定的待预测的自变量，用他所属区域中训练集的平均数或者众数对其进行预测
+
   - 优点：解释性强、更接近人的决策方式、用图来表示、直接做定性的特征、很好处理缺失值和异常值
   - 缺点：对异常值不敏感、预测准确性一般无法达到其他回归模型的水平
 
-#### 1.3.4 支持向量机回归(SVR)
-- 对偶问题：$f(x)$与$g_i(x)$为凸函数，$h_j(x)$为线性函数，X是凸集，$x^*$满足KKT条件，那么$D^* = P^*$
-- 概念描述：落在$f(x)$的$\epsilon$邻域空间中的样本点不需要计算损失，这些都是预测正确的，其余的落在$\epsilon$邻域空间以外的样本才需要计算损失
+##### 1.3.4 支持向量机回归 (SVR)
 
-## 2 实战练习：使用sklearn构建完整的回归项目
+- 对偶问题：$f(x)$ 与 $g_i(x)$ 为凸函数，$h_j(x)$ 为线性函数，X 是凸集，$x^*$ 满足 KKT 条件，那么 $D^* = P^*$
+- 概念描述：落在 $f(x)$ 的 $\epsilon$ 邻域空间中的样本点不需要计算损失，这些都是预测正确的，其余的落在 $\epsilon$ 邻域空间以外的样本才需要计算损失
 
-本例使用sklearn内置数据集：糖尿病数据集
+### 2 实战练习：使用 sklearn 构建完整的回归项目
 
+本例使用 sklearn 内置数据集：糖尿病数据集
 
 ```python
 # 引入相关科学计算包
@@ -56,8 +63,7 @@ plt.style.use("ggplot")
 import seaborn as sns
 ```
 
-### 2.1 选择合适的特征
-
+#### 2.1 选择合适的特征
 
 ```python
 from sklearn import datasets
@@ -71,9 +77,6 @@ diabetes_data = pd.DataFrame(X,columns=features)
 diabetes_data['disease_progression'] = y
 diabetes_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -181,9 +184,8 @@ diabetes_data.head()
 </table>
 </div>
 
-
-
 各个特征的相关解释：
+
 - age：年龄
 - sex：性别
 - bmi：体重指标
@@ -191,8 +193,7 @@ diabetes_data.head()
 - s1、s2、s3、s4、s5、s6：六次血清测量值
 - disease_progression：一年疾病进展的测量值
 
-### 2.2 线性回归模型 
-
+#### 2.2 线性回归模型
 
 ```python
 # 引入线性回归方法
@@ -212,8 +213,7 @@ print("糖尿病数据集的线性回归模型得分：",lin_reg.score(X,y))
     糖尿病数据集的线性回归模型得分： 0.5177494254132934
     
 
-### 2.3 决策树模型
-
+#### 2.3 决策树模型
 
 ```python
 from sklearn.tree import DecisionTreeRegressor    
@@ -225,8 +225,7 @@ print("糖尿病数据集的决策树模型得分：",reg_tree.score(X,y))
     糖尿病数据集的决策树模型得分： 0.7617420924706106
     
 
-### 2.4 SVR模型
-
+#### 2.4 SVR 模型
 
 ```python
 from sklearn.svm import SVR

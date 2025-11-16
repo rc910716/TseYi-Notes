@@ -1,48 +1,51 @@
-# Task06 掌握分类问题的评估及超参数调优
+## Task06 掌握分类问题的评估及超参数调优
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 用管道简化工作流
-- 使用`sklearn.pipeline.make_pipeline`建立工作流
-- 使用`sklearn.pipelime.Pipeline`构建工作流对象，然后在使用该对象的`fit`方法
+#### 1.1 用管道简化工作流
 
-### 1.2 使用k折交叉验证评估模型性能
+- 使用 `sklearn.pipeline.make_pipeline` 建立工作流
+- 使用 `sklearn.pipelime.Pipeline` 构建工作流对象，然后在使用该对象的 `fit` 方法
+
+#### 1.2 使用 k 折交叉验证评估模型性能
+
 - 具体步骤：
-    1. 将数据集随机分成$k$个数量基本一致的组，将第1组作为验证集，其余$k-1$组作为训练集
-    2. 计算验证集的均方误差$\text{MSE}_1$
-    3. 重复步骤(1)(2)$k$次，将得到的$k$个$\text{MSE}$取平均：$$CV_{(k)}=\frac{1}{k}\sum_{i=1}^k \text{MSE}_i$$
-- $k$折交叉验证：使用`sklearn.model_selection.cross_val_score`
-- 分层$k$折交叉验证：使用`sklearn.model_selection.StratifiedKFold`
+    1. 将数据集随机分成 $k$ 个数量基本一致的组，将第 1 组作为验证集，其余 $k-1$ 组作为训练集
+    2. 计算验证集的均方误差 $\text{MSE}_1$
+    3. 重复步骤 (1)(2)$k$ 次，将得到的 $k$ 个 $\text{MSE}$ 取平均：$$CV_{(k)}=\frac{1}{k}\sum_{i=1}^k \text{MSE}_i$$
 
-### 1.3 使用学习和验证曲线调试算法
+- $k$ 折交叉验证：使用 `sklearn.model_selection.cross_val_score`
+- 分层 $k$ 折交叉验证：使用 `sklearn.model_selection.StratifiedKFold`
 
-- 用学习曲线诊断偏差与方差：使用`sklearn.model_selection.learning_curve`
-- 用验证曲线解决欠拟合和过拟合：使用`sklearn.model_selection.validation_curve`
+#### 1.3 使用学习和验证曲线调试算法
 
-### 1.4 通过网格搜索进行超参数调优
-- 网格搜索：使用`sklearn.model_selection.GridSearchCV`
-- 随机网格搜索：使用`sklearn.model_selection.RandomizedSearchCV`
+- 用学习曲线诊断偏差与方差：使用 `sklearn.model_selection.learning_curve`
+- 用验证曲线解决欠拟合和过拟合：使用 `sklearn.model_selection.validation_curve`
+
+#### 1.4 通过网格搜索进行超参数调优
+
+- 网格搜索：使用 `sklearn.model_selection.GridSearchCV`
+- 随机网格搜索：使用 `sklearn.model_selection.RandomizedSearchCV`
 - 嵌套交叉验证：构建网格搜索对象，并在交叉验证中传入网格搜索对象
 
-### 1.5 比较不同的性能评估指标
+#### 1.5 比较不同的性能评估指标
 
 - 混淆矩阵
-    1. 误差率：$\displaystyle ERR= \frac{FP+FN}{FP+FN+TP+TN}$
-    2. 准确率：$\displaystyle ACC=\frac{TP+TN}{FP+FN+TP+TN}$
-    3. 假阳率：$\displaystyle FPR=\frac{FP}{N}=\frac{FP}{FP+TN}$
-    4. 真阳率：$\displaystyle TPR=\frac{TP}{P}=\frac{TP}{FN+TP}$
-    5. 精度：$\displaystyle PRE=\frac{TP}{TP+FP}$
-    6. 召回率：$\displaystyle REC=TPR=\frac{TP}{P}=\frac{TP}{FN+TP}$
-    7. $\displaystyle \text{F1-score}=2 \cdot \frac{PRE \times REC}{PRE + REC}$
-- 各种指标计算：  
-  准确率：使用`sklearn.metrics.precision_score`  
-  召回率：使用`sklearn.metrics.recall_score`  
-  F1-Score：使用`sklearn.metrics.f1_score`
+    1. 误差率：$\text{ERR}= \frac{FP+FN}{FP+FN+TP+TN}$
+    2. 准确率：$\text{ACC}=\frac{TP+TN}{FP+FN+TP+TN}$
+    3. 假阳率：$\text{FPR}=\frac{FP}{N}=\frac{FP}{FP+TN}$
+    4. 真阳率：$\text{TPR}=\frac{TP}{P}=\frac{TP}{FN+TP}$
+    5. 精度：$\text{PRE}=\frac{TP}{TP+FP}$
+    6. 召回率：$\text{REC}=\text{TPR}=\frac{TP}{P}=\frac{TP}{FN+TP}$
+    7. $\text{F1-score}=2 \cdot \frac{PRE \times REC}{PRE + REC}$
+- 各种指标计算：
+  准确率：使用 `sklearn.metrics.precision_score`
+  召回率：使用 `sklearn.metrics.recall_score`
+  F1-Score：使用 `sklearn.metrics.f1_score`
 
-## 2 实战练习
+### 2 实战练习
 
-本例使用sklearn内置数据集：葡萄酒识别数据集
-
+本例使用 sklearn 内置数据集：葡萄酒识别数据集
 
 ```python
 # 引入相关科学计算包
@@ -53,7 +56,6 @@ import matplotlib.pyplot as plt
 plt.style.use("ggplot")      
 import seaborn as sns
 ```
-
 
 ```python
 from sklearn import datasets
@@ -66,9 +68,6 @@ wine_data = pd.DataFrame(X, columns=features)
 wine_data['target'] = y
 wine_data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -194,9 +193,8 @@ wine_data.head()
 </table>
 </div>
 
-
-
 各个特征的相关解释：
+
    - alcohol：酒精
    - malic_acid：苹果酸
    - ash：灰
@@ -208,13 +206,12 @@ wine_data.head()
    - proanthocyanins：原花青素
    - color_intensity：色彩强度
    - hue：色调
-   - od280/od315_of_diluted_wines：稀释酒的OD280 / OD315
+   - od280/od315_of_diluted_wines：稀释酒的 OD280 / OD315
    - proline：脯氨酸
 
-### 2.1 使用网格搜索进行超参数调优
+#### 2.1 使用网格搜索进行超参数调优
 
-#### 2.2.1 使用网格搜索`GridSearchCV()`
-
+##### 2.2.1 使用网格搜索 `GridSearchCV()`
 
 ```python
 from sklearn.preprocessing import StandardScaler
@@ -240,8 +237,7 @@ print('最优参数是:', gs.best_params_)
     最优参数是: {'svc__C': 1.0, 'svc__gamma': 0.01, 'svc__kernel': 'rbf'}
     
 
-#### 2.2.2 随机网格搜索RandomizedSearchCV()
-
+##### 2.2.2 随机网格搜索 RandomizedSearchCV()
 
 ```python
 from sklearn.model_selection import RandomizedSearchCV
@@ -266,8 +262,7 @@ print('最优参数是:', gs.best_params_)
     最优参数是: {'svc__kernel': 'rbf', 'svc__gamma': 0.001, 'svc__C': 10.0}
     
 
-### 2.3 混淆矩阵和ROC曲线
-
+#### 2.3 混淆矩阵和 ROC 曲线
 
 ```python
 # 查看数据集的分类数，可知有3类
@@ -275,16 +270,10 @@ wine_data['target'].unique()
 wine_data['target'].value_counts()
 ```
 
-
-
-
     1    71
     0    59
     2    48
     Name: target, dtype: int64
-
-
-
 
 ```python
 # 取出类别0和1作为基础数据集
@@ -293,8 +282,7 @@ y = df['target'].values
 X = df.iloc[:, :-1].values
 ```
 
-#### 2.3.1 绘制混淆矩阵
-
+##### 2.3.1 绘制混淆矩阵
 
 ```python
 from sklearn.model_selection import train_test_split
@@ -319,14 +307,9 @@ plt.ylabel('true label')
 plt.show()
 ```
 
-
-    
 ![png](./images/task06/01.png)
-    
 
-
-#### 2.3.2 绘制ROC曲线
-
+##### 2.3.2 绘制 ROC 曲线
 
 ```python
 from sklearn.metrics import roc_curve,auc
@@ -356,8 +339,5 @@ plt.legend(loc="lower right")
 plt.show()
 ```
 
-
-    
 ![png](images/task06/02.png)
-    
 

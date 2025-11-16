@@ -1,20 +1,19 @@
-# Task04 复现OSS-订阅智能体
+## Task04 复现 OSS- 订阅智能体
 
-## 1 基本介绍
+### 1 基本介绍
 
-- 订阅智能体：让Agent为我们关注某些想关注的信息，当有我们关注的事件发生时，Agent获取信息并进行处理，然后通过一些如邮件、微信、discord等通知渠道将处理后的信息发送给我们。
-- 需求分析：基于Agent的Role，配置一个资讯订阅员，主要包含两种工作：从外界信息源中搜集信息和对搜集得到的信息进行总结。
+- 订阅智能体：让 Agent 为我们关注某些想关注的信息，当有我们关注的事件发生时，Agent 获取信息并进行处理，然后通过一些如邮件、微信、discord 等通知渠道将处理后的信息发送给我们。
+- 需求分析：基于 Agent 的 Role，配置一个资讯订阅员，主要包含两种工作：从外界信息源中搜集信息和对搜集得到的信息进行总结。
 
-## 2 实现方案
+### 2 实现方案
 
-1. 实现一个OSSWatcher的Role：帮我们关注并分析热门的开源项目，当有相关信息时将信息推送给我们，这里需要确定让OSS从哪个网页获取信息。
-2. 触发Trigger：指这个OSSWatcher角色运行的触发条件，可以是定时触发或者是某个网站有更新时触发。
-3. 结果Callback：处理OSSWatcher角色运行生成的信息，将数据发送到微信或者discord。
+1. 实现一个 OSSWatcher 的 Role：帮我们关注并分析热门的开源项目，当有相关信息时将信息推送给我们，这里需要确定让 OSS 从哪个网页获取信息。
+2. 触发 Trigger：指这个 OSSWatcher 角色运行的触发条件，可以是定时触发或者是某个网站有更新时触发。
+3. 结果 Callback：处理 OSSWatcher 角色运行生成的信息，将数据发送到微信或者 discord。
 
-## 3 实现OSSWatcher的Role
+### 3 实现 OSSWatcher 的 Role
 
-- 分析思路：从GitHub Trending网页爬取热门开源项目信息，再从编程语言优势、项目类型和用途、社区活跃度、新兴技术和工具等方面分析热门开源项目。
-
+- 分析思路：从 GitHub Trending 网页爬取热门开源项目信息，再从编程语言优势、项目类型和用途、社区活跃度、新兴技术和工具等方面分析热门开源项目。
 
 ```python
 import asyncio
@@ -35,8 +34,7 @@ from metagpt.subscription import SubscriptionRunner
 from pytz import BaseTzInfo, timezone
 ```
 
-从`https://github.com/trending`中爬取项目链接、项目描述、编写语言、star数、fork数、今日star数。
-
+从 `https://github.com/trending` 中爬取项目链接、项目描述、编写语言、star 数、fork 数、今日 star 数。
 
 ```python
 class CrawlOSSTrending(Action):
@@ -81,10 +79,10 @@ class CrawlOSSTrending(Action):
 ```
 
 从以下几个角度分析，并按照一定的格式输出：
+
 - 今天榜单的整体趋势，例如哪几个编程语言比较热门、最热门的项目是哪些、主要集中在哪些领域。
 - 榜单的仓库分类。
 - 推荐进一步关注哪些仓库，推荐原因是什么。
-
 
 ```python
 TRENDING_ANALYSIS_PROMPT = """# Requirements
@@ -129,7 +127,6 @@ class AnalysisOSSTrending(Action):
         return await self._aask(TRENDING_ANALYSIS_PROMPT.format(trending=trending))
 ```
 
-
 ```python
 class OssWatcher(Role):
     def __init__(
@@ -157,10 +154,9 @@ class OssWatcher(Role):
         return msg
 ```
 
-## 4 实现Trigger
+### 4 实现 Trigger
 
-实现触发器`Trigger`，按照设定的时间，触发执行动作。
-
+实现触发器 `Trigger`，按照设定的时间，触发执行动作。
 
 ```python
 class GithubTrendingCronTrigger:
@@ -181,11 +177,10 @@ class GithubTrendingCronTrigger:
         return Message(content=self.url)
 ```
 
-## 5 实现Callback
+### 5 实现 Callback
 
 - Callback：定义如何处理智能体生成的信息。
-- 实现目标：基于[WxPusher微信推送服务](https://wxpusher.zjiecode.com/docs/#/?id=%e8%8e%b7%e5%8f%96apptoken)将智能体产生的数据发送到微信。
-
+- 实现目标：基于 [WxPusher微信推送服务](https://wxpusher.zjiecode.com/docs/#/?id=%e8%8e%b7%e5%8f%96apptoken) 将智能体产生的数据发送到微信。
 
 ```python
 class WxPusherClient:
@@ -223,17 +218,15 @@ class WxPusherClient:
                 return await response.json()
 ```
 
-
 ```python
 async def wxpusher_callback(msg: Message):
     client = WxPusherClient()
     await client.send_message(msg.content, content_type=3)
 ```
 
-## 6 运行代码
+### 6 运行代码
 
-配置系统环境变量`WXPUSHER_TOKEN`、`WXPUSHER_UIDS`。
-
+配置系统环境变量 `WXPUSHER_TOKEN`、`WXPUSHER_UIDS`。
 
 ```python
 async def main(spec: str = "42 17 * * *", wxpusher: bool = True):
@@ -254,7 +247,6 @@ async def main(spec: str = "42 17 * * *", wxpusher: bool = True):
     await runner.subscribe(OssWatcher(), GithubTrendingCronTrigger(spec), callback)
     await runner.run()
 ```
-
 
 ```python
 await main()
@@ -289,8 +281,6 @@ await main()
 
     2024-03-01 17:42:26.476 | INFO     | metagpt.utils.cost_manager:update_cost:48 - Total running cost: $0.000 | Max budget: $10.000 | Current cost: $0.000, prompt_tokens: 2872, completion_tokens: 411
     
-
-
 
 设置定时时间，当时间触发之后，可以在推送平台上收到消息。
 

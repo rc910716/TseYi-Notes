@@ -1,36 +1,36 @@
-# Task01 熟悉Torch-RecHub框架设计与使用方法
+## Task01 熟悉 Torch-RecHub 框架设计与使用方法
 
-## 1 Torch-RecHub框架
+### 1 Torch-RecHub 框架
 
-### 1.1 框架概述
+#### 1.1 框架概述
 
 - 核心定位：易使用易扩展、可复现业界实用的推荐模型、聚焦泛生态化的模型复现研究
-- 工程设计：基于PyTorch原生的类和函数，模型训练与模型定义解耦，无basemodel，在符合论文思想的基础上，使同学快速上手
-- 学习参考：参考`DeepCTR`、`FuxiCTR`等优秀开源框架的特性
+- 工程设计：基于 PyTorch 原生的类和函数，模型训练与模型定义解耦，无 basemodel，在符合论文思想的基础上，使同学快速上手
+- 学习参考：参考 `DeepCTR`、`FuxiCTR` 等优秀开源框架的特性
 
-### 1.2 主要特性
+#### 1.2 主要特性
 
-- `scikit-learn`风格易用的API（`fit`、`predict`），开箱即用
+- `scikit-learn` 风格易用的 API（`fit`、`predict`），开箱即用
 - 模型训练与模型定义解耦，易拓展，可针对不同类型的模型设置不同的训练机制
-- 支持`pandas`的`DataFrame`、`Dict`等数据类型的输入，降低上手成本
-- 高度模块化，支持常见`Layer`，容易调用组装形成新的模型
+- 支持 `pandas` 的 `DataFrame`、`Dict` 等数据类型的输入，降低上手成本
+- 高度模块化，支持常见 `Layer`，容易调用组装形成新的模型
   - LR、MLP、FM、FFM、CIN
   - target-attention、self-attention、transformer
 - 支持常见排序模型
-  - WideDeep、DeepFM、DIN、DCN、xDeepFM等
+  - WideDeep、DeepFM、DIN、DCN、xDeepFM 等
 - 支持常见召回模型
-  - DSSM、YoutubeDNN、YoutubeDSSM、FacebookEBR、MIND等
+  - DSSM、YoutubeDNN、YoutubeDSSM、FacebookEBR、MIND 等
 - 丰富的多任务学习支持
-  - SharedBottom、ESMM、MMOE、PLE、AITM等模型
-  - GradNorm、UWL、MetaBanlance等动态loss加权机制
+  - SharedBottom、ESMM、MMOE、PLE、AITM 等模型
+  - GradNorm、UWL、MetaBanlance 等动态 loss 加权机制
 - 聚焦更生态化的推荐场景
 - 支持丰富的训练机制
 
-### 1.3 架构设计
+#### 1.3 架构设计
 
 ![torch-rechub-architecture](./images/task01/torch-rechub-architecture.png)
 
-&emsp;&emsp;Torch-RecHub主要由数据处理模块、模型层模块和训练器模块组成：
+&emsp;&emsp;Torch-RecHub 主要由数据处理模块、模型层模块和训练器模块组成：
 
 1. 数据处理模块
   - 特征处理：DenseFeature（用于构建数值型特征）、SparseFeature（用于处理类别型特征）、SequenceFeature（用于处理序列特征）
@@ -46,10 +46,9 @@
   - MTLTrainer：用于多任务排序模型训练与评估
   - MatchTrainer：用于召回模型训练与评估
 
-## 2 Torch-RecHub的使用
+### 2 Torch-RecHub 的使用
 
-&emsp;&emsp;以下采用小样本的criteo数据集，仅有115条数据。该数据集是`Criteo Labs`发布的在线广告数据集。它包含数百万个展示广告的点击反馈记录，该数据可作为点击率（CTR）预测的基准。数据集具有40个特征，第1列是标签，其中值1表示已点击广告，而值0表示未点击广告。其他特征包含13个dense特征和26个sparse特征。
-
+&emsp;&emsp; 以下采用小样本的 criteo 数据集，仅有 115 条数据。该数据集是 `Criteo Labs` 发布的在线广告数据集。它包含数百万个展示广告的点击反馈记录，该数据可作为点击率（CTR）预测的基准。数据集具有 40 个特征，第 1 列是标签，其中值 1 表示已点击广告，而值 0 表示未点击广告。其他特征包含 13 个 dense 特征和 26 个 sparse 特征。
 
 ```python
 import numpy as np
@@ -63,16 +62,12 @@ from torch_rechub.trainers import CTRTrainer
 from torch_rechub.models.ranking import WideDeep
 ```
 
-
 ```python
 data_path = './data/criteo/criteo_sample.csv'
 # 导入数据集
 data = pd.read_csv(data_path)
 data.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -102,7 +97,7 @@ data.head()
       <th>I7</th>
       <th>I8</th>
       <th>I9</th>
-      <th>...</th>
+      <th>…</th>
       <th>C17</th>
       <th>C18</th>
       <th>C19</th>
@@ -128,7 +123,7 @@ data.head()
       <td>4.0</td>
       <td>32.0</td>
       <td>37.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>e5ba7672</td>
       <td>25c88e42</td>
       <td>21ddcdc9</td>
@@ -152,7 +147,7 @@ data.head()
       <td>4.0</td>
       <td>37.0</td>
       <td>46.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>e5ba7672</td>
       <td>d3303ea5</td>
       <td>21ddcdc9</td>
@@ -176,7 +171,7 @@ data.head()
       <td>14.0</td>
       <td>25.0</td>
       <td>489.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>3486227d</td>
       <td>642f2610</td>
       <td>55dd3565</td>
@@ -200,7 +195,7 @@ data.head()
       <td>33.0</td>
       <td>47.0</td>
       <td>126.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>e5ba7672</td>
       <td>a78bd508</td>
       <td>21ddcdc9</td>
@@ -224,7 +219,7 @@ data.head()
       <td>9.0</td>
       <td>35.0</td>
       <td>135.0</td>
-      <td>...</td>
+      <td>…</td>
       <td>e5ba7672</td>
       <td>7ce63c71</td>
       <td>NaN</td>
@@ -241,9 +236,6 @@ data.head()
 <p>5 rows × 40 columns</p>
 </div>
 
-
-
-
 ```python
 dense_features = [f for f in data.columns.tolist() if f[0] == "I"]
 sparse_features = [f for f in data.columns.tolist() if f[0] == "C"]
@@ -251,7 +243,6 @@ sparse_features = [f for f in data.columns.tolist() if f[0] == "C"]
 data[sparse_features] = data[sparse_features].fillna('-996',)
 data[dense_features] = data[dense_features].fillna(0,)
 ```
-
 
 ```python
 def convert_numeric_feature(val):
@@ -261,7 +252,6 @@ def convert_numeric_feature(val):
     else:
         return v - 2
 ```
-
 
 ```python
 # 进行归一化
@@ -273,14 +263,12 @@ sca = MinMaxScaler()  #scaler dense feature
 data[dense_features] = sca.fit_transform(data[dense_features])
 ```
 
-
 ```python
 # 处理sparse特征数据
 for feat in sparse_features:
     lbe = LabelEncoder()
     data[feat] = lbe.fit_transform(data[feat])
 ```
-
 
 ```python
 # 得到最终的数据
@@ -291,12 +279,10 @@ del data["label"]
 x = data
 ```
 
-
 ```python
 # 构造数据生成器
 data_generator = DataGenerator(x, y)
 ```
-
 
 ```python
 batch_size = 2048
@@ -306,8 +292,6 @@ train_dataloader, val_dataloader, test_dataloader = data_generator.generate_data
 ```
 
     the samples of train : val : test are  80 : 11 : 24
-    
-
 
 ```python
 # 配置多层感知器模块的参数
@@ -319,7 +303,6 @@ mlp_params={
 # 构建WideDeep模型
 model = WideDeep(wide_features=dense_feas, deep_features=sparse_feas, mlp_params=mlp_params)
 ```
-
 
 ```python
 learning_rate = 1e-3
@@ -337,7 +320,6 @@ optimizer_params={
 ctr_trainer = CTRTrainer(model, optimizer_params=optimizer_params, n_epoch=epoch, earlystop_patience=10, 
                          device=device, model_path=save_dir)
 ```
-
 
 ```python
 # 模型训练
@@ -359,11 +341,6 @@ ctr_trainer.fit(train_dataloader, val_dataloader)
     validation: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:10<00:00, 10.69s/it]
 
     epoch: 1 validation: auc: 0.35
-    
-
-    
-    
-
 
 ```python
 # 模型评估
@@ -379,8 +356,9 @@ print(f'test auc: {auc}')
     
     
 
-## 3 总结
+### 3 总结
 
-&emsp;&emsp;本次任务，主要介绍了Torch-RecHub框架和基本的使用方法：
-1. Torch-RecHub框架主要基于PyTorch和sklearn，易使用易扩展、可复现业界实用的推荐模型，高度模块化，支持常见Layer，支持常见排序模型、召回模型、多任务学习；
-2. 使用方法：使用DataGenerator构建数据加载器，通过构建轻量级的模型，并基于统一的训练器进行模型训练，最后完成模型评估。
+&emsp;&emsp; 本次任务，主要介绍了 Torch-RecHub 框架和基本的使用方法：
+
+1. Torch-RecHub 框架主要基于 PyTorch 和 sklearn，易使用易扩展、可复现业界实用的推荐模型，高度模块化，支持常见 Layer，支持常见排序模型、召回模型、多任务学习；
+2. 使用方法：使用 DataGenerator 构建数据加载器，通过构建轻量级的模型，并基于统一的训练器进行模型训练，最后完成模型评估。

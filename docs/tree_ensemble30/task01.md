@@ -1,17 +1,20 @@
-# Task01 决策树（上）
+## Task01 决策树（上）
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 信息论基础
+#### 1.1 信息论基础
+
 - 决策树思想：通过判定条件对节点内的样本进行划分，通过节点内部纯度规则，进行分类
 - 节点纯度：节点样本标签的不确定性
 - 不确定性的度量：$$H(p_1,\cdots,p_n) = -C \sum_{i=1}^n p_i \log p_i$$
 - 三个信息熵条件：
-  1. $H$是关于$p_i$的连续函数
-  2. 若$p_1=p_2=\cdots=p_n$，则$H$关于$n$单调递增
-  3. 若将某一个$p_i$拆分为$p_{i1}$和$p_{i2}$，即$p_{i1}+p_{i2}=p_i$，则$$
+  1. $H$ 是关于 $p_i$ 的连续函数
+  2. 若 $p_1=p_2=\cdots=p_n$，则 $H$ 关于 $n$ 单调递增
+  3. 若将某一个 $p_i$ 拆分为 $p_{i1}$ 和 $p_{i2}$，即 $p_{i1}+p_{i2}=p_i$，则 $$
   H(p_1,\cdots,p_{i-1},p_{i+1},\cdots,p_n,p_{i1}, p_{i2})=H(p_1, \cdots, p_n) + p_i H(\frac{p_{i1}}{p_i}, \frac{p_{i2}}{p_i})
+
   $$
+
 
 - 条件熵：$H(Y|X) = E_{X}[E_{Y|X}[-\log_2 p(Y|X)]]$
 - 信息增益：$$
@@ -20,16 +23,17 @@ G(Y,X)
 &= H(Y) - H(Y|X) \\
 &= -\sum_{i=1}^K \tilde{p}(y_k) \log_2 \tilde{p}(y_k) + \sum_{m=1}^M \tilde{p}(x_m) \sum_{k=1}^K \tilde{p}(y_k|x_m) \log_2 \tilde{p}(y_k|x_m)
 \end{aligned}
+
 $$
 
 ### 1.2 分类树的节点分裂
 
-- 类别特征：每个节点选择最大信息增益$G_N^{max}(Y,X)$对应的特征进行分裂，直到所有节点的相对最大信息增益$\displaystyle \frac{D_N}{D_{all}}G_N^{max}(Y,X)$小于$\epsilon$
+- 类别特征：每个节点选择最大信息增益$G_N^{max}(Y,X)$对应的特征进行分裂，直到所有节点的相对最大信息增益$\frac{D_N}{D_{all}}G_N^{max}(Y,X)$小于$\epsilon$
 - 数值特征：
   1. 最佳分割法：遍历所有的$x$，按照特征$x$中元素与$s$（$s \sim U[x_{min}, x_{max}]$）比较，分为两个集合，计算所有$s$对应信息增益最大值，将该值作为特征分裂信息增益
   2. 随机分割法：通过将节点样本按照特征$x$中元素与$s$（$s \sim U[x_{min}, x_{max}]$）比较，分为两个集合，转变为类别特征处理
 
-- C4.5算法：使用信息增益比代替信息增益，信息增益比：$\displaystyle G^R(Y,X)=\frac{G(Y,X)}{H(X)}$
+- C4.5算法：使用信息增益比代替信息增益，信息增益比：$G^R(Y,X)=\frac{G(Y,X)}{H(X)}$
 
 - sklearn提供两种生长模式：深度优先生长、最佳增益生长
 
@@ -42,40 +46,48 @@ $$
   G^{MSE}(Y,X)=\frac{1}{N}\sum_{i=1}^{N}(y^{(D)}_i-\bar{y}^{(D)})^2-\frac{N_L}{N}\frac{1}{N_L}\sum_{i=1}^{N_L}(y^{(L)}_i-\bar{y}^{(L)})^2-\frac{N_R}{N}\frac{1}{N_R}\sum_{i=1}^{N_R}(y^{(R)}_i-\bar{y}^{(R)})^2 \\
   G^{MAE}(Y,X)=\frac{1}{N}\sum_{i=1}^{N}\vert y^{(D)}_i-\tilde{y}^{(D)}\vert-\frac{N_L}{N}\frac{1}{N_L}\sum_{i=1}^{N_L}\vert y^{(L)}_i-\tilde{y}^{(L)}\vert-\frac{N_R}{N}\sum_{i=1}^{N_R}\frac{1}{N_R}\vert y^{(R)}_i-\tilde{y}^{(R)}\vert
   $$
+
 - 分类问题处理：
-  1. 通过将熵中的log在$p=1$处一阶泰勒展开，计算近似的基尼系数
+  1. 通过将熵中的 log 在 $p=1$ 处一阶泰勒展开，计算近似的基尼系数
   2. 基于基尼系数的信息增益：$$G(Y,X) = \text{Gini}(Y) - \text{Gini}(Y|X)$$
 
-### 1.4 决策树的剪枝
+#### 1.4 决策树的剪枝
 
 - 预剪枝：树在判断节点是否分裂的时候就预先通过一些规则来阻止其分裂。
 - 后剪枝：在树的节点已经全部生长完成后，同故宫一些规则来摘除一些子树。
 
-## 2 练习
+### 2 练习
 
-### 2.1 练习1
-定义$X,Y$的联合熵为$H(Y,X)$为$\mathbb{E}_{(Y,X)\sim p(y,x)}[-\log_2p(Y,X)]$
+#### 2.1 练习 1
+
+定义 $X,Y$ 的联合熵为 $H(Y,X)$ 为 $\mathbb{E}_{(Y,X)\sim p(y,x)}[-\log_2p(Y,X)]$
+
 1. 请证明如下关系：
+
 $$
 G(Y,X) = H(X) - H(X|Y) \\
 G(Y,X) = H(X) + H(Y) - H(Y,X) \\
 G(Y,X) = H(Y,X) -H(X|Y) -H(Y|X)
 $$
-2. 下图被分为了$A$、$B$和$C$三个区域。若$AB$区域代表$X$的不确定性，$BC$区域代表$Y$的不确定性，那么$H(X)、H(Y)、H(X|Y)、H(Y|X)、H(Y,X)和G(Y,X)$分别指代的是哪片区域？
+
+2. 下图被分为了 $A$、$B$ 和 $C$ 三个区域。若 $AB$ 区域代表 $X$ 的不确定性，$BC$ 区域代表 $Y$ 的不确定性，那么 $H(X)、H(Y)、H(X|Y)、H(Y|X)、H(Y,X)和G(Y,X)$ 分别指代的是哪片区域？
 
 ![练习1](./images/task01/tree_pic3.png)
 
 **解答：**
 
 **第一问：**
+
 $$
 H(X) = E_Y[-\log_2 p(Y)] = -\sum_{k=1}^K p(y_k) \log_2 p(y_k) \\
 H(Y|X) = E_X[E_{Y|X}[-log_2 p(Y|X)]] = - \sum_{m=1}^M p(x_m) \sum_{k=1}^K p(y_k | X=x_m) \log_2 p(y_k| X = x_m) \\
 G(Y, X) = - \sum_{k=1}^K \sum_{m=1}^M p(y_k, x_m) \log_2 \frac{p(y_k) p(x_m)}{p(y_k, x_m)}
 $$
+
 通过公式推导，可证得：$G(Y,X) = H(Y) - H(Y|X)$
 
-由于$H(Y,X) = \mathbb{E}_{(Y,X)\sim p(y,x)}[-\log_2p(Y,X)]$，可推导：
+由于 $H(Y,X) = \mathbb{E}_{(Y,X)\sim p(y,x)}[-\log_2p(Y,X)]$，可推导：
+
 $$
 \begin{aligned}
 H(Y,X) 
@@ -89,41 +101,58 @@ H(Y,X)
 \end{aligned}
 $$
 
-$\therefore H(Y,X) = H(X) + H(Y|X)$ 
+$\therefore H(Y,X) = H(X) + H(Y|X)$
 
 $
+
 \begin{aligned}
-\therefore G(Y,X) 
+
+\therefore G(Y,X)
+
 &= H(Y) - H(Y|X) \\
+
 &= H(Y) - (H(Y, X) - H(X)) \\
+
 &= H(X) + H(Y) - H(Y, X)
+
 \end{aligned}$
 
 $
+
 \begin{aligned}
+
 \because H(Y|X) = H(Y,X) - H(X) \\
+
 H(X|Y) = H(X) - G(Y, X)
+
 \end{aligned}
+
 $
 
-$\begin{aligned} 
+$\begin{aligned}
+
 \therefore & H(Y,X) -H(X|Y) - H(Y|X) \\
+
 &= H(Y,X) - (H(X) - G(Y, X)) - (H(Y,X) - H(X)) \\
+
 &= H(Y,X) - H(X) + G(Y,X) - H(Y,X) + H(X) \\
+
 &= G(Y,X)
+
 \end{aligned}
+
 $
 
 **第二问：**
 
-1. $AB$区域代表$X$的不确定性，则$H(X)$表示$A \cup B$
-2. $BC$区域代表$Y$的不确定性，则$H(Y)$表示$B \cup C$
-3. $H(X|Y)$表示$A$区域
-4. $H(Y|X)$表示$C$区域
-5. $H(Y,X)$表示$A \cup B \cup C$区域
-6. $G(Y,X)=H(Y) - H(Y|X)$表示$B$区域
+1. $AB$ 区域代表 $X$ 的不确定性，则 $H(X)$ 表示 $A \cup B$
+2. $BC$ 区域代表 $Y$ 的不确定性，则 $H(Y)$ 表示 $B \cup C$
+3. $H(X|Y)$ 表示 $A$ 区域
+4. $H(Y|X)$ 表示 $C$ 区域
+5. $H(Y,X)$ 表示 $A \cup B \cup C$ 区域
+6. $G(Y,X)=H(Y) - H(Y|X)$ 表示 $B$ 区域
 
-### 2.2 练习2
+#### 2.2 练习 2
 
 假设当前我们需要处理一个分类问题，请问对输入特征进行归一化会对树模型的类别输出产生影响吗？请解释原因。
 
@@ -131,14 +160,16 @@ $
 
 不会，因为归一化是一个线性变换，不会影响样本的输入特征和标签类别的分布。
 
-### 2.3 练习3
+#### 2.3 练习 3
 
-如果将系数替换为$1- \gamma^2$，请问对缺失值是加强了还是削弱了惩罚？
+如果将系数替换为 $1- \gamma^2$，请问对缺失值是加强了还是削弱了惩罚？
 
 **解答：**
 
-在C4.5算法中，修正的信息增益是$$
+在 C4.5 算法中，修正的信息增益是 $$
+
 \tilde{G}(Y,X) = (1 - \gamma)G(\tilde{Y}, \tilde{X})
+
 $$
 由于在相同的$\gamma$($\gamma<1$)下，则$1 - \gamma < 1 - \gamma^2$，信息增益增大了，对缺失值削弱了惩罚。
 
@@ -166,22 +197,37 @@ $$
 
 在$p=1$处进行二阶泰勒展开
 $$
+
 \begin{aligned}
-H(Y) 
+
+H(Y)
+
 &= E_Y I(p) \\
+
 &= E_Y[-\log_2 p(Y)] \\
+
 &\approx E_Y[1 - p(Y) + \frac{1}{2}(1 - p(Y))^2] \\
+
 &= \sum_{k=1}^K p(y_k)[1-p(y_k) + \frac{1}{2}(1 - p(y_k))^2]
+
 \end{aligned}
+
 $$
 
 $$
+
 \begin{aligned}
-H(Y|X) 
+
+H(Y|X)
+
 &= E_X[E_{Y|X}(-\log_2 p(Y|X))] \\
+
 &\approx E_X[E_{Y|X}[1 - p(Y|X) + \frac{1}{2}(1 - p(Y|X))^2]] \\
+
 &= \sum_{m=1}^M p(x_m) \sum_{k=1}^K[p(y_k|X=x_m)(1 - p(y_k|X=x_m) + \frac{1}{2}(1 - p(y_k|X=x_m))^2) ]
+
 \end{aligned}
+
 $$
 
 信息增益为$G(Y,X) = H(Y) - H(Y|X)$
@@ -196,8 +242,11 @@ $$
 
 先求出信息熵
 $$
+
 H(Y) = 1 - \max_k p(Y=y_k) \\
+
 H(Y|X) = \sum_{m=1}^M p(x_m)[1 - \max_k p(Y=y_k | X=x_m)]
+
 $$
 
 信息增益为$G(Y,X) = H(Y) - H(Y|X)$

@@ -1,16 +1,15 @@
-# Task02 PyTorch主要组成模块
+## Task02 PyTorch 主要组成模块
 
-## 1 深度学习步骤
+### 1 深度学习步骤
 
-（1）数据预处理：通过专门的数据加载，通过批训练提高模型表现，每次训练读取固定数量的样本输入到模型中进行训练  
-（2）深度神经网络搭建：逐层搭建，实现特定功能的层（如积层、池化层、批正则化层、LSTM层等）  
-（3）损失函数和优化器的设定：保证反向传播能够在用户定义的模型结构上实现  
-（4）模型训练：使用并行计算加速训练，将数据按批加载，放入GPU中训练，对损失函数反向传播回网络最前面的层，同时使用优化器调整网络参数
+（1）数据预处理：通过专门的数据加载，通过批训练提高模型表现，每次训练读取固定数量的样本输入到模型中进行训练
+（2）深度神经网络搭建：逐层搭建，实现特定功能的层（如积层、池化层、批正则化层、LSTM 层等）
+（3）损失函数和优化器的设定：保证反向传播能够在用户定义的模型结构上实现
+（4）模型训练：使用并行计算加速训练，将数据按批加载，放入 GPU 中训练，对损失函数反向传播回网络最前面的层，同时使用优化器调整网络参数
 
-## 2 基本配置
+### 2 基本配置
 
 - 导入相关的包
-
 
 ```python
 import os
@@ -21,26 +20,22 @@ from torch.utils.data import Dataset, DataLoader
 import torch.optim as optimizer
 ```
 
-- 统一设置超参数：batch size、初始学习率、训练次数、GPU配置
-
+- 统一设置超参数：batch size、初始学习率、训练次数、GPU 配置
 
 ```python
 # set batch size
 batch_size = 16
 ```
 
-
 ```python
 # 初始学习率
 lr = 1e-4
 ```
 
-
 ```python
 # 训练次数
 max_epochs = 100
 ```
-
 
 ```python
 # 配置GPU
@@ -48,31 +43,23 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 device
 ```
 
-
-
-
     device(type='cuda', index=1)
 
+### 3 数据读入
 
-
-## 3 数据读入
-
-- 读取方式：通过Dataset+DataLoader的方式加载数据，Dataset定义好数据的格式和数据变换形式，DataLoader用iterative的方式不断读入批次数据。
-
-- 自定义Dataset类：实现`__init___`、`__getitem__`、`__len__`函数
-
-- `torch.utils.data.DataLoader`参数：
+- 读取方式：通过 Dataset+DataLoader 的方式加载数据，Dataset 定义好数据的格式和数据变换形式，DataLoader 用 iterative 的方式不断读入批次数据。
+- 自定义 Dataset 类：实现 `__init___`、`__getitem__`、`__len__` 函数
+- `torch.utils.data.DataLoader` 参数：
   1. batch_size：样本是按“批”读入的，表示每次读入的样本数
   2. num_workers：表示用于读取数据的进程数
   3. shuffle：是否将读入的数据打乱
   4. drop_last：对于样本最后一部分没有达到批次数的样本，使其不再参与训练
 
-## 4 模型构建
+### 4 模型构建
 
-### 4.1 神经网络的构造
+#### 4.1 神经网络的构造
 
-通过`Module`类构造模型，实例化模型之后，可完成模型构造
-
+通过 `Module` 类构造模型，实例化模型之后，可完成模型构造
 
 ```python
 # 构造多层感知机
@@ -87,7 +74,6 @@ class MLP(nn.Module):
         o = self.act(self.hidden(x))
         return self.output(o)
 ```
-
 
 ```python
 x = torch.rand(2, 784)
@@ -108,12 +94,9 @@ net(x)
             [-0.2271,  0.0056, -0.0984, -0.0432, -0.0160, -0.0038,  0.0953,  0.0545,
              -0.1530, -0.0214]], grad_fn=<AddmmBackward>)
 
-
-
-### 4.2 神经网络常见的层
+#### 4.2 神经网络常见的层
 
 - 不含模型参数的层
-
 
 ```python
 # 构造一个输入减去均值后输出的层
@@ -125,22 +108,15 @@ class MyLayer(nn.Module):
         return x - x.mean()
 ```
 
-
 ```python
 x = torch.tensor([0, 5, 10, 15, 20], dtype=torch.float)
 layer = MyLayer()
 layer(x)
 ```
 
-
-
-
     tensor([-10.,  -5.,   0.,   5.,  10.])
 
-
-
-- 含模型参数的层：如果一个`Tensor`是`Parameter`，那么它会⾃动被添加到模型的参数列表里
-
+- 含模型参数的层：如果一个 `Tensor` 是 `Parameter`，那么它会⾃动被添加到模型的参数列表里
 
 ```python
 # 使用ParameterList定义参数的列表
@@ -157,7 +133,6 @@ class MyListDense(nn.Module):
         return x
 ```
 
-
 ```python
 net = MyListDense()
 print(net)
@@ -171,8 +146,6 @@ print(net)
           (3): Parameter containing: [torch.FloatTensor of size 4x1]
       )
     )
-    
-
 
 ```python
 # 使用ParameterDict定义参数的字典
@@ -190,7 +163,6 @@ class MyDictDense(nn.Module):
         return torch.mm(x, self.params[choice])
 ```
 
-
 ```python
 net = MyDictDense()
 print(net)
@@ -205,8 +177,7 @@ print(net)
     )
     
 
-- 二维卷积层：使用`nn.Conv2d`类构造，模型参数包括卷积核和标量偏差，在训练模式时，通常先对卷积核随机初始化，再不断迭代卷积核和偏差
-
+- 二维卷积层：使用 `nn.Conv2d` 类构造，模型参数包括卷积核和标量偏差，在训练模式时，通常先对卷积核随机初始化，再不断迭代卷积核和偏差
 
 ```python
 # 计算卷积层，对输入和输出做相应的升维和降维
@@ -218,7 +189,6 @@ def comp_conv2d(conv2d, X):
     return Y.view(Y.shape[2:]) 
 ```
 
-
 ```python
 # 注意这里是两侧分别填充1⾏或列，所以在两侧一共填充2⾏或列
 conv2d = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3,padding=1)
@@ -227,15 +197,9 @@ X = torch.rand(8, 8)
 comp_conv2d(conv2d, X).shape
 ```
 
-
-
-
     torch.Size([8, 8])
 
-
-
 - 池化层：直接计算池化窗口内元素的最大值或者平均值，分别叫做最大池化或平均池化
-
 
 ```python
 # 二维池化层
@@ -251,46 +215,33 @@ def pool2d(X, pool_size, mode='max'):
     return Y
 ```
 
-
 ```python
 X = torch.tensor([[0, 1, 2], [3, 4, 5], [6, 7, 8]], dtype=torch.float)
 pool2d(X, (2, 2), 'max')
 ```
 
-
-
-
     tensor([[4., 5.],
             [7., 8.]])
-
-
-
 
 ```python
 pool2d(X, (2, 2), 'avg')
 ```
 
-
-
-
     tensor([[2., 3.],
             [5., 6.]])
 
-
-
-### 4.3 模型示例
+#### 4.3 模型示例
 
 - 神经网络训练过程：
   1. 定义可学习参数的神经网络
   2. 在输入数据集上进行迭代训练
   3. 通过神经网络处理输入数据
-  4. 计算loss（损失值）
+  4. 计算 loss（损失值）
   5. 将梯度反向传播给神经网络参数
   6. 更新网络参数，使用梯度下降
 
 - LeNet(前馈神经网络)
 ![LeNet](images/ch02/01.png)
-
 
 ```python
 import torch.nn.functional as F
@@ -326,14 +277,10 @@ class Net(nn.Module):
         return num_features
 ```
 
-
 ```python
 net = Net()
 net
 ```
-
-
-
 
     Net(
       (conv1): Conv2d(1, 6, kernel_size=(5, 5), stride=(1, 1))
@@ -342,9 +289,6 @@ net
       (fc2): Linear(in_features=120, out_features=84, bias=True)
       (fc3): Linear(in_features=84, out_features=10, bias=True)
     )
-
-
-
 
 ```python
 # 假设输入的数据为随机的32x32
@@ -356,8 +300,6 @@ print(out)
     tensor([[-0.0921, -0.0605, -0.0726, -0.0451,  0.1399, -0.0087,  0.1075,  0.0799,
              -0.1472,  0.0288]], grad_fn=<AddmmBackward>)
 
-
-
 ```python
 # 清零所有参数的梯度缓存，然后进行随机梯度的反向传播
 net.zero_grad()
@@ -366,7 +308,6 @@ out.backward(torch.randn(1, 10))
 
 - AlexNet
 ![AlexNet](images/ch02/02.png)
-
 
 ```python
 class AlexNet(nn.Module):
@@ -411,7 +352,6 @@ class AlexNet(nn.Module):
         return output
 ```
 
-
 ```python
 net = AlexNet()
 print(net)
@@ -445,10 +385,9 @@ print(net)
     )
     
 
-## 5 损失函数
+### 5 损失函数
 
 - 二分类交叉熵损失函数：`torch.nn.BCELoss`，用于计算二分类任务时的交叉熵
-
 
 ```python
 m = nn.Sigmoid()
@@ -466,7 +405,6 @@ print('BCE损失函数的计算结果:',output)
 
 - 交叉熵损失函数：`torch.nn.CrossEntropyLoss`，用于计算交叉熵
 
-
 ```python
 loss = nn.CrossEntropyLoss()
 input = torch.randn(3, 5, requires_grad=True)
@@ -480,8 +418,7 @@ print('CrossEntropy损失函数的计算结果:',output)
     CrossEntropy损失函数的计算结果: tensor(2.7367, grad_fn=<NllLossBackward>)
     
 
-- L1损失函数：`torch.nn.L1Loss`，用于计算输出`y`和真实值`target`之差的绝对值
-
+- L1 损失函数：`torch.nn.L1Loss`，用于计算输出 `y` 和真实值 `target` 之差的绝对值
 
 ```python
 loss = nn.L1Loss()
@@ -496,8 +433,7 @@ print('L1损失函数的计算结果:',output)
     L1损失函数的计算结果: tensor(1.0351, grad_fn=<L1LossBackward>)
     
 
-- MSE损失函数：`torch.nn.MSELoss`，用于计算输出`y`和真实值`target`之差的平方
-
+- MSE 损失函数：`torch.nn.MSELoss`，用于计算输出 `y` 和真实值 `target` 之差的平方
 
 ```python
 loss = nn.MSELoss()
@@ -512,8 +448,7 @@ print('MSE损失函数的计算结果:',output)
     MSE损失函数的计算结果: tensor(1.7612, grad_fn=<MseLossBackward>)
     
 
-- 平滑L1（Smooth L1）损失函数：`torch.nn.SmoothL1Loss`，用于计算L1的平滑输出，减轻离群点带来的影响，通过与L1损失的比较，在0点的尖端处，过渡更为平滑
-
+- 平滑 L1（Smooth L1）损失函数：`torch.nn.SmoothL1Loss`，用于计算 L1 的平滑输出，减轻离群点带来的影响，通过与 L1 损失的比较，在 0 点的尖端处，过渡更为平滑
 
 ```python
 loss = nn.SmoothL1Loss()
@@ -530,7 +465,6 @@ print('Smooth L1损失函数的计算结果:',output)
 
 - 目标泊松分布的负对数似然损失：`torch.nn.PoissonNLLLoss`
 
-
 ```python
 loss = nn.PoissonNLLLoss()
 log_input = torch.randn(5, 2, requires_grad=True)
@@ -544,8 +478,7 @@ print('PoissonNL损失函数的计算结果:',output)
     PoissonNL损失函数的计算结果: tensor(1.7593, grad_fn=<MeanBackward0>)
     
 
-- KL散度：`torch.nn.KLDivLoss`，用于连续分布的距离度量，可用在对离散采用的连续输出空间分布的回归场景
-
+- KL 散度：`torch.nn.KLDivLoss`，用于连续分布的距离度量，可用在对离散采用的连续输出空间分布的回归场景
 
 ```python
 inputs = torch.tensor([[0.5, 0.3, 0.2], [0.2, 0.3, 0.5]])
@@ -560,7 +493,6 @@ print('KLDiv损失函数的计算结果:',output)
     
 
 - MarginRankingLoss：`torch.nn.MarginRankingLoss`，用于计算两组数据之间的差异（相似度），可使用在排序任务的场景
-
 
 ```python
 loss = nn.MarginRankingLoss()
@@ -578,7 +510,6 @@ print('MarginRanking损失函数的计算结果:',output)
 
 - 多标签边界损失函数：`torch.nn.MultiLabelMarginLoss`，用于计算多标签分类问题的损失
 
-
 ```python
 loss = nn.MultiLabelMarginLoss()
 x = torch.FloatTensor([[0.9, 0.2, 0.4, 0.8]])
@@ -592,8 +523,7 @@ print('MultiLabelMargin损失函数的计算结果:',output)
     MultiLabelMargin损失函数的计算结果: tensor(0.4500)
     
 
-- 二分类损失函数：`torch.nn.SoftMarginLoss`，用于计算二分类的`logistic`损失
-
+- 二分类损失函数：`torch.nn.SoftMarginLoss`，用于计算二分类的 `logistic` 损失
 
 ```python
 # 定义两个样本，两个神经元
@@ -611,7 +541,6 @@ print('SoftMargin损失函数的计算结果:',output)
 
 - 多分类的折页损失函数：`torch.nn.MultiMarginLoss`，用于计算多分类问题的折页损失
 
-
 ```python
 inputs = torch.tensor([[0.3, 0.7], [0.5, 0.5]]) 
 target = torch.tensor([0, 1], dtype=torch.long) 
@@ -624,8 +553,7 @@ print('MultiMargin损失函数的计算结果:',output)
     MultiMargin损失函数的计算结果: tensor(0.6000)
     
 
-- 三元组损失函数：`torch.nn.TripletMarginLoss`，用于处理<实体1，关系，实体2>类型的数据，计算该类型数据的损失
-
+- 三元组损失函数：`torch.nn.TripletMarginLoss`，用于处理<实体 1，关系，实体 2>类型的数据，计算该类型数据的损失
 
 ```python
 triplet_loss = nn.TripletMarginLoss(margin=1.0, p=2)
@@ -641,8 +569,7 @@ print('TripletMargin损失函数的计算结果:',output)
     TripletMargin损失函数的计算结果: tensor(1.1507, grad_fn=<MeanBackward0>)
     
 
-- HingEmbeddingLoss：`torch.nn.HingeEmbeddingLoss`，用于计算输出的embedding结果的Hing损失
-
+- HingEmbeddingLoss：`torch.nn.HingeEmbeddingLoss`，用于计算输出的 embedding 结果的 Hing 损失
 
 ```python
 loss_f = nn.HingeEmbeddingLoss()
@@ -658,7 +585,6 @@ print('HingEmbedding损失函数的计算结果:',output)
 
 - 余弦相似度：`torch.nn.CosineEmbeddingLoss`，用于计算两个向量的余弦相似度，如果两个向量距离近，则损失函数值小，反之亦然
 
-
 ```python
 loss_f = nn.CosineEmbeddingLoss()
 inputs_1 = torch.tensor([[0.3, 0.5, 0.7], [0.3, 0.5, 0.7]])
@@ -672,8 +598,7 @@ print('CosineEmbedding损失函数的计算结果:',output)
     CosineEmbedding损失函数的计算结果: tensor(0.5000)
     
 
-- CTC损失函数：`torch.nn.CTCLoss`，用于处理时序数据的分类问题，计算连续时间序列和目标序列之间的损失
-
+- CTC 损失函数：`torch.nn.CTCLoss`，用于处理时序数据的分类问题，计算连续时间序列和目标序列之间的损失
 
 ```python
 # Target are to be padded
@@ -704,26 +629,23 @@ print('CTC损失函数的计算结果:',loss)
     CTC损失函数的计算结果: tensor(6.1333, grad_fn=<MeanBackward0>)
     
 
-## 6 优化器
+### 6 优化器
 
-### 6.1 Optimizer的属性和方法
+#### 6.1 Optimizer 的属性和方法
 
-- 使用方向：为了使求解参数过程更快，使用BP+优化器逼近求解
-
-- Optimizer的属性：
+- 使用方向：为了使求解参数过程更快，使用 BP+ 优化器逼近求解
+- Optimizer 的属性：
   - `defaults`：优化器的超参数
   - `state`：参数的缓存
-  - `param_groups`：参数组，顺序是params，lr，momentum，dampening，weight_decay，nesterov
-
-- Optimizer的方法：
+  - `param_groups`：参数组，顺序是 params，lr，momentum，dampening，weight_decay，nesterov
+- Optimizer 的方法：
   - `zero_grad()`：清空所管理参数的梯度
   - `step()`：执行一步梯度更新
   - `add_param_group()`：添加参数组
   - `load_state_dict()`：加载状态参数字典，可以用来进行模型的断点续训练，继续上次的参数进行训练
   - `state_dict()`：获取优化器当前状态信息字典
 
-### 6.2 基本操作
-
+#### 6.2 基本操作
 
 ```python
 # 设置权重，服从正态分布  --> 2 x 2
@@ -743,8 +665,6 @@ print("The grad of weight before step:\n{}".format(weight.grad))
     The grad of weight before step:
     tensor([[1., 1.],
             [1., 1.]])
-    
-
 
 ```python
 # 实例化优化器
@@ -764,8 +684,6 @@ print("The grad of weight after step:\n{}".format(weight.grad))
     The grad of weight after step:
     tensor([[1., 1.],
             [1., 1.]])
-    
-
 
 ```python
 # 权重清零
@@ -778,8 +696,6 @@ print("The grad of weight after optimizer.zero_grad():\n{}".format(weight.grad))
     The grad of weight after optimizer.zero_grad():
     tensor([[0., 0.],
             [0., 0.]])
-    
-
 
 ```python
 # 添加参数：weight2
@@ -802,8 +718,6 @@ print("state_dict before step:\n", opt_state_dict)
     state_dict before step:
      {'state': {0: {'momentum_buffer': tensor([[1., 1.],
             [1., 1.]])}}, 'param_groups': [{'lr': 0.1, 'momentum': 0.9, 'dampening': 0, 'weight_decay': 0, 'nesterov': False, 'params': [0]}, {'lr': 0.0001, 'nesterov': True, 'momentum': 0.9, 'dampening': 0, 'weight_decay': 0, 'params': [1]}]}
-    
-
 
 ```python
 # 进行5次step操作
@@ -818,8 +732,7 @@ print("state_dict after step:\n", optimizer.state_dict())
             [0.0052, 0.0052]])}}, 'param_groups': [{'lr': 0.1, 'momentum': 0.9, 'dampening': 0, 'weight_decay': 0, 'nesterov': False, 'params': [0]}, {'lr': 0.0001, 'nesterov': True, 'momentum': 0.9, 'dampening': 0, 'weight_decay': 0, 'params': [1]}]}
     
 
-## 7 训练与评估
-
+### 7 训练与评估
 
 ```python
 def train(epoch):
@@ -846,7 +759,6 @@ def train(epoch):
     print('Epoch: {} \tTraining Loss: {:.6f}'.format(epoch, train_loss))
 ```
 
-
 ```python
 def val(epoch):  
     # 设置验证状态
@@ -866,6 +778,6 @@ def val(epoch):
     print('Epoch: {} \tTraining Loss: {:.6f}'.format(epoch, val_loss))
 ```
 
-## 8 总结
+### 8 总结
 
-&emsp;&emsp;本次任务，通过介绍PyTorch的主要组成模块，使用PyTorch框架进行深度学习，详细介绍了深度学习的各个环节，包括数据加载、模型构建、损失函数、优化器、训练与评估。
+&emsp;&emsp; 本次任务，通过介绍 PyTorch 的主要组成模块，使用 PyTorch 框架进行深度学习，详细介绍了深度学习的各个环节，包括数据加载、模型构建、损失函数、优化器、训练与评估。

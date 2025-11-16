@@ -1,23 +1,24 @@
-# Task04 文字图例尽眉目
+## Task04 文字图例尽眉目
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 Figure和Axes上的文本
+#### 1.1 Figure 和 Axes 上的文本
 
-1. text方法
-   - pyplot API：matplotlib.pyplot.text(x, y, s, fontdict=None, \*\*kwargs)  
+1. text 方法
+   - pyplot API：matplotlib.pyplot.text(x, y, s, fontdict=None, \*\*kwargs)
    - OO API：Axes.text(self, x, y, s, fontdict=None, \*\*kwargs)
    - 相关参数：
-      - s：此参数是要添加的文本。  
-      - xy：此参数是放置文本的点(x，y)。  
-      - fontdict：此参数是一个可选参数，并且是一个覆盖默认文本属性的字典。如果fontdict为None，则由rcParams确定默认值。
+      - s：此参数是要添加的文本。
+      - xy：此参数是放置文本的点 (x，y)。
+      - fontdict：此参数是一个可选参数，并且是一个覆盖默认文本属性的字典。如果 fontdict 为 None，则由 rcParams 确定默认值。
 
-2. title和set_title方法
-   - pyplot API：matplotlib.pyplot.title(label, fontdict=None, loc=None, pad=None, \*, y=None, \*\*kwargs)  
+2. title 和 set_title 方法
+   - pyplot API：matplotlib.pyplot.title(label, fontdict=None, loc=None, pad=None, \*, y=None, \*\*kwargs)
    - OO API：Axes.set_title(self, label, fontdict=None, loc=None, pad=None, \*, y=None, \*\*kwargs)
    - 相关参数：
-      - label：str，此参数是要添加的文本  
-      - fontdict：dict，此参数是控制title文本的外观，默认fontdict如下：
+      - label：str，此参数是要添加的文本
+      - fontdict：dict，此参数是控制 title 文本的外观，默认 fontdict 如下：
+
           ```python
           {'fontsize': rcParams['axes.titlesize'],
           'fontweight': rcParams['axes.titleweight'],
@@ -25,64 +26,66 @@
           'verticalalignment': 'baseline',
           'horizontalalignment': loc}
           ```
-      - loc：str，{'center', 'left', 'right'}默认为center  
-      - pad：float，该参数是指标题偏离图表顶部的距离，默认为6。  
-      - y：float，该参数是title所在axes垂向的位置。默认值为1，即title位于axes的顶部。  
+
+      - loc：str，{'center', 'left', 'right'}默认为 center
+      - pad：float，该参数是指标题偏离图表顶部的距离，默认为 6。
+      - y：float，该参数是 title 所在 axes 垂向的位置。默认值为 1，即 title 位于 axes 的顶部。
       - kwargs：该参数是指可以设置的一些奇特文本的属性。
 
-3. figtext方法
-   - pyplot API：matplotlib.pyplot.figtext(x, y, s, fontdict=None, \*\*kwargs)  
+3. figtext 方法
+   - pyplot API：matplotlib.pyplot.figtext(x, y, s, fontdict=None, \*\*kwargs)
    - OO API：text(self, x, y, s, fontdict=None,\*\*kwargs)
    - 相关参数：
-      - x,y：float，此参数是指在figure中放置文本的位置。一般取值是在$[0,1]$范围内。使用transform关键字可以更改坐标系。  
-      - s：str，此参数是指文本  
-      - fontdict：dict，此参数是一个可选参数，并且是一个覆盖默认文本属性的字典。如果fontdict为None，则由rcParams确定默认值。
+      - x,y：float，此参数是指在 figure 中放置文本的位置。一般取值是在 $[0,1]$ 范围内。使用 transform 关键字可以更改坐标系。
+      - s：str，此参数是指文本
+      - fontdict：dict，此参数是一个可选参数，并且是一个覆盖默认文本属性的字典。如果 fontdict 为 None，则由 rcParams 确定默认值。
 
-4. suptitle方法
-   - pyplot API：matplotlib.pyplot.suptitle(t, \*\*kwargs)  
+4. suptitle 方法
+   - pyplot API：matplotlib.pyplot.suptitle(t, \*\*kwargs)
    - OO API：suptitle(self, t, \*\*kwargs)
    - 相关参数：
-      - t：str，标题的文本  
-      - x：float，默认值是0.5。该参数是指文本在figure坐标系下的x坐标  
-      - y：float，默认值是0.95。该参数是指文本在figure坐标系下的y坐标  
-      - horizontalalignment, ha：该参数是指选择文本水平对齐方式，有三种选择{'center', 'left', right'}，默认值是 'center'  
-      - verticalalignment, va：该参数是指选择文本垂直对齐方式，有四种选择{'top', 'center', 'bottom', 'baseline'}，默认值是 'top'  
-      - fontsize, size：该参数是指文本的大小，默认值是依据rcParams的设置：rcParams["figure.titlesize"] (default: 'large')  
-      - fontweight, weight：该参数是用来设置字重。默认值是依据rcParams的设置：rcParams["figure.titleweight"] (default: 'normal')  
+      - t：str，标题的文本
+      - x：float，默认值是 0.5。该参数是指文本在 figure 坐标系下的 x 坐标
+      - y：float，默认值是 0.95。该参数是指文本在 figure 坐标系下的 y 坐标
+      - horizontalalignment, ha：该参数是指选择文本水平对齐方式，有三种选择{'center', 'left', right'}，默认值是 'center'
+      - verticalalignment, va：该参数是指选择文本垂直对齐方式，有四种选择{'top', 'center', 'bottom', 'baseline'}，默认值是 'top'
+      - fontsize, size：该参数是指文本的大小，默认值是依据 rcParams 的设置：rcParams["figure.titlesize"] (default: 'large')
+      - fontweight, weight：该参数是用来设置字重。默认值是依据 rcParams 的设置：rcParams["figure.titleweight"] (default: 'normal')
       - [fontproperties](https://matplotlib.org/api/font_manager_api.html#matplotlib.font_manager.FontProperties)：None or dict，该参数是可选参数，如果该参数被指定，字体的大小将从该参数的默认值中提取。
 
-5. xlabel和ylabel
-   - yplot API：  
-    matplotlib.pyplot.xlabel(xlabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs)  
-    matplotlib.pyplot.ylabel(ylabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs) 
-   - OO API：   
-    Axes.set_xlabel(self, xlabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs)   
-    Axes.set_ylabel(self, ylabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs) 
+5. xlabel 和 ylabel
+   - yplot API：
+    matplotlib.pyplot.xlabel(xlabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs)
+    matplotlib.pyplot.ylabel(ylabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs)
+   - OO API：
+    Axes.set_xlabel(self, xlabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs)
+    Axes.set_ylabel(self, ylabel, fontdict=None, labelpad=None, \*, loc=None, \*\*kwargs)
    - 相关参数：
-       - xlabel或者ylabel：label的文本  
-       - labelpad：设置label距离轴(axis)的距离  
-       - loc：{'left', 'center', 'right'},默认为center  
-       - \*\*kwargs：[文本](https://matplotlib.org/api/text_api.html#matplotlib.text.Text)属性
+       - xlabel 或者 ylabel：label 的文本
+       - labelpad：设置 label 距离轴 (axis) 的距离
+       - loc：{'left', 'center', 'right'},默认为 center
+       - \*\*kwargs：[文本](https://matplotlib.org/api/text_api.html#matplotlib.text.Text) 属性
 
 6. 字体属性的设置
-   - 全局字体设置：使用`plt.rcParams`进行设置
-   - 局部字体设置：在方法中直接使用`fontproperties`进行设置
+   - 全局字体设置：使用 `plt.rcParams` 进行设置
+   - 局部字体设置：在方法中直接使用 `fontproperties` 进行设置
 
-### 1.2 Tick上的文本
+#### 1.2 Tick 上的文本
 
 1. 简单模式
-   - 使用axis的`set_ticks`方法设置标签位置
-   - 使用axis的`set_ticklabels`方法设置标签格式
-   - 使用axis的`set_ticks_position`方法设置刻度所在位置
+   - 使用 axis 的 `set_ticks` 方法设置标签位置
+   - 使用 axis 的 `set_ticklabels` 方法设置标签格式
+   - 使用 axis 的 `set_ticks_position` 方法设置刻度所在位置
 
 2. Tick Formatters
-   - 使用axis实例的`set_major_formatter`和`set_minor_formatter`方法设置标签格式
+   - 使用 axis 实例的 `set_major_formatter` 和 `set_minor_formatter` 方法设置标签格式
       - 字符串格式：`matplotlib.ticker.StrMethodFormatter`
-      - 函数参数：`matplotlib.ticker.FuncFormatter`    
+      - 函数参数：`matplotlib.ticker.FuncFormatter`
 
 3. Tick Locators
-  - 使用axis实例的`set_major_locator`和`set_minor_locator`方法设置标签位置
-  - 设置locator类型：
+  - 使用 axis 实例的 `set_major_locator` 和 `set_minor_locator` 方法设置标签位置
+  - 设置 locator 类型：
+
     ```python
     locator=plt.MaxNLocator(nbins=7)  
     # 直接指定刻度所在的位置  
@@ -97,45 +100,44 @@
     locator=plt.LinearLocator(numticks=5)  
     ```
 
-### 1.3 legend（图例）
+#### 1.3 legend（图例）
 
 常用的几个参数：
 
-1. 设置图列位置  
-plt.legend(loc='upper center') 等同于plt.legend(loc=9)
+1. 设置图列位置
+plt.legend(loc='upper center') 等同于 plt.legend(loc=9)
 
 |  |
 | --- |
 | 0: ‘best' |
-| 1: ‘upper right' |  
-| 2: ‘upper left' |  
-| 3: ‘lower left' |   
-| 4: ‘lower right' | 
-| 5: ‘right' | 
-| 6: ‘center left' |                                          |    
-| 7: ‘center right' | 
+| 1: ‘upper right' |
+| 2: ‘upper left' |
+| 3: ‘lower left' |
+| 4: ‘lower right' |
+| 5: ‘right' |
+| 6: ‘center left' |                                          |
+| 7: ‘center right' |
 | 8: ‘lower center'  |
 | 9: ‘upper center'  |
-| 10: ‘center' |  
+| 10: ‘center' |
 
-2. 设置图例字体大小  
+2. 设置图例字体大小
 fontsize : int or float or {‘xx-small’, ‘x-small’, ‘small’, ‘medium’, ‘large’, ‘x-large’, ‘xx-large’}
 
-3. 设置图例边框及背景  
-plt.legend(loc='best',frameon=False) #去掉图例边框  
-plt.legend(loc='best',edgecolor='blue') #设置图例边框颜色  
+3. 设置图例边框及背景
+plt.legend(loc='best',frameon=False) #去掉图例边框
+plt.legend(loc='best',edgecolor='blue') #设置图例边框颜色
 plt.legend(loc='best',facecolor='blue') #设置图例背景颜色,若无边框,参数无效
 
-4. 设置图例标题  
+4. 设置图例标题
 legend = plt.legend(["CH", "US"], title='China VS Us')
 
-5. 设置图例名字及对应关系  
+5. 设置图例名字及对应关系
 legend = plt.legend([p1, p2], ["CH", "US"])
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 Figure和Axes上的文本应用
-
+#### 2.1 Figure 和 Axes 上的文本应用
 
 ```python
 import matplotlib
@@ -173,14 +175,9 @@ ax.text(0.95, 0.01, 'colored text in axes coords',
 plt.show()
 ```
 
-
-    
 ![png](images/task04/output_21_0.png)
-    
 
-
-### 2.2 Tick上的文本应用
-
+#### 2.2 Tick 上的文本应用
 
 ```python
 import matplotlib.pyplot as plt
@@ -237,14 +234,9 @@ ax.yaxis.set_ticks_position('left')  # 设置ticks在y轴的位置
 plt.show()
 ```
 
-
-    
 ![png](images/task04/output_23_0.png)
-    
 
-
-### 2.3 多图例应用
-
+#### 2.3 多图例应用
 
 ```python
 import matplotlib.pyplot as plt
@@ -270,19 +262,15 @@ plt.legend([p3, p4], ['label', 'label1'], loc='lower right', scatterpoints=1)
 plt.gca().add_artist(l1)
 ```
 
-
-
-
     <matplotlib.legend.Legend at 0x17662530288>
 
 
 
 
     
+
 ![png](images/task04/output_25_1.png)
-    
 
+### 3 总结
 
-## 3 总结
-
-&emsp;&emsp;本次任务，主要介绍了Figure、Axes和Tick上的文本应用，以及legend图例的使用。详细讲解了`text`、`title`、`set_title`、`figtext`、`subtitle`、`xlabel`、`ylabel`和字体的属性设置；Tick上的文本主要分为Locators（标签位置）和Formatters（标签格式化）的应用；通过讲解legend（图例）的常用参数，展示了多图例的使用方式。
+&emsp;&emsp; 本次任务，主要介绍了 Figure、Axes 和 Tick 上的文本应用，以及 legend 图例的使用。详细讲解了 `text`、`title`、`set_title`、`figtext`、`subtitle`、`xlabel`、`ylabel` 和字体的属性设置；Tick 上的文本主要分为 Locators（标签位置）和 Formatters（标签格式化）的应用；通过讲解 legend（图例）的常用参数，展示了多图例的使用方式。

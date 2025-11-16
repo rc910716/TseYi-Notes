@@ -1,24 +1,25 @@
-# Task12 Blending集成学习算法
+## Task12 Blending 集成学习算法
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 Blending集成学习思路
+#### 1.1 Blending 集成学习思路
+
 1. 将数据按照一定比例划分为训练集和测试集，其中训练集按照一定比例再次划分为训练集和验证集
 2. 创建第一层的多个同质或异质模型
-3. 使用训练集数据对第一层模型进行训练，然后使用验证集和测试集进行模型验证和测试，得到`{val_predict}`，`test_predict`
-4. 创建第二层的模型（一般是线性模型），使用`val_predict`作为第二层模型的训练集
-5. 使用训练好的第二层模型对`test_predict`进行预测，将得到的结果作为整个测试集的结果
+3. 使用训练集数据对第一层模型进行训练，然后使用验证集和测试集进行模型验证和测试，得到 `{val_predict}`，`test_predict`
+4. 创建第二层的模型（一般是线性模型），使用 `val_predict` 作为第二层模型的训练集
+5. 使用训练好的第二层模型对 `test_predict` 进行预测，将得到的结果作为整个测试集的结果
 
 ![jpg](images/ch12/01.jpg)
 
-### 1.2 Blending集成学习的优劣
+#### 1.2 Blending 集成学习的优劣
+
 - 优点：方法简单，使用传递的方法进行训练、验证、测试
 - 缺点：只使用一部分数据集进行模型验证
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 Blending集成学习自编程
-
+#### 2.1 Blending 集成学习自编程
 
 ```python
 import numpy as np
@@ -64,8 +65,7 @@ class Blending:
         print('Blending Accuracy: %.3f' % (score * 100))
 ```
 
-### 2.1 教程例题
-
+#### 2.1 教程例题
 
 ```python
 from sklearn.datasets import make_blobs
@@ -110,8 +110,7 @@ blending.score(y_test, yhat)
     Blending Accuracy: 100.000
     
 
-### 2.2 使用iris数据集
-
+#### 2.2 使用 iris 数据集
 
 ```python
 import pandas as pd
@@ -136,7 +135,6 @@ le = LabelEncoder()
 y = le.fit_transform(y)
 ```
 
-
 ```python
 # 划分训练集、验证集、测试集
 X_train, X_val, y_train, y_val, X_test, y_test = train_test_val_split(X, y)
@@ -153,8 +151,6 @@ blending.score(y_test, yhat)
 
     Train: (56, 2), Val: (24, 2), Test: (20, 2)
     Blending Accuracy: 95.000
-    
-
 
 ```python
 import matplotlib.pyplot as plt
@@ -179,8 +175,5 @@ plt.xlabel('sepal width (cm)')
 plt.show()
 ```
 
-
-    
 ![png](images/ch12/02.png)
-    
 

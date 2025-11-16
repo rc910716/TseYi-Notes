@@ -1,20 +1,23 @@
-# Task5 变形
+## Task5 变形
 
-## 1 知识梳理（重点记忆）
+### 1 知识梳理（重点记忆）
 
-### 1.1 长宽表变形
-- pivot函数，使用场景：长表变宽表
-- pivot_table函数，使用场景：长表变宽表的同时，进行数据聚合  
+#### 1.1 长宽表变形
+
+- pivot 函数，使用场景：长表变宽表
+- pivot_table 函数，使用场景：长表变宽表的同时，进行数据聚合
 参数说明：
+
 |参数|描述|
 |---|---|
 |index|宽表的索引列|
 |columns|宽表的列名|
 |values|数据集，即资源|
-|margins|bool类型，边际汇总|
+|margins|bool 类型，边际汇总|
 
-- melt函数，使用场景：宽表变长表  
+- melt 函数，使用场景：宽表变长表
 参数说明：
+
 |参数|描述|
 |---|---|
 |id_vars|分组列|
@@ -22,8 +25,9 @@
 |var_name|类别名|
 |value_name|数据集，即资源|
 
-- wide_to_long函数，使用场景：列名拆分，即列中包含交叉类别
+- wide_to_long 函数，使用场景：列名拆分，即列中包含交叉类别
 参数说明：
+
 |参数|描述|
 |---|---|
 |stubnames|分隔列名之后的前缀列名|
@@ -32,27 +36,28 @@
 |sep|列名分隔符|
 |suffix|正则表达式|
 
-### 1.2 索引的变形
-- stack函数，使用场景：把列索引的层压入行索引
-- unstack函数，使用场景：把行索引转为列索引
+#### 1.2 索引的变形
 
-### 1.3 其他变形函数
-- crosstab函数，使用场景：在默认状态下，可以统计元素组合出现的频数
-- explode函数，使用场景：对某一列的元素进行纵向的展开，其类型必须为`list`, `tuple`, `Series`, `np.ndarray`中的一种
+- stack 函数，使用场景：把列索引的层压入行索引
+- unstack 函数，使用场景：把行索引转为列索引
 
-## 2 练一练
+#### 1.3 其他变形函数
 
+- crosstab 函数，使用场景：在默认状态下，可以统计元素组合出现的频数
+- explode 函数，使用场景：对某一列的元素进行纵向的展开，其类型必须为 `list`, `tuple`, `Series`, `np.ndarray` 中的一种
+
+### 2 练一练
 
 ```python
 import pandas as pd
 import numpy as np
 ```
 
-### 2.1 第1题
+#### 2.1 第 1 题
+
 在上面的边际汇总例子中，行或列的汇总为新表中行元素或者列元素的平均值，而总体的汇总为新表中四个元素的平均值。这种关系一定成立吗？若不成立，请给出一个例子来说明。
 
 **我的解答：**
-
 
 ```python
 df = pd.DataFrame({'Name':['San Zhang', 'San Zhang', 
@@ -63,9 +68,6 @@ df = pd.DataFrame({'Name':['San Zhang', 'San Zhang',
                    'Grade':[80, 90, 100, 90, 70, 80, 85, 95]})
 df
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -143,9 +145,6 @@ df
 </table>
 </div>
 
-
-
-
 ```python
 df.pivot_table(index = 'Name',
                columns = 'Subject',
@@ -153,9 +152,6 @@ df.pivot_table(index = 'Name',
                aggfunc=lambda x:x.min(),
                margins=True)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -209,12 +205,11 @@ df.pivot_table(index = 'Name',
 </table>
 </div>
 
+上面的说法不正确，总体的汇总为应该为所有 Grade 的值进行聚合，而不是新表中四个元素，通过查看 pandas 源码，`pivot.py` 下的 `_compute_grand_margin` 函数，描述了整个计算过程：
 
-
-上面的说法不正确，总体的汇总为应该为所有Grade的值进行聚合，而不是新表中四个元素，通过查看pandas源码，`pivot.py`下的`_compute_grand_margin`函数，描述了整个计算过程：  
-- 遍历data[values]
-- 根据给定的函数，计算grand_margin[k] = aggfunc(v)
-- 最后返回计算得到的grand_margin
+- 遍历 data[values]
+- 根据给定的函数，计算 grand_margin[k] = aggfunc(v)
+- 最后返回计算得到的 grand_margin
 
 ```python
 def _compute_grand_margin(data, values, aggfunc, margins_name: str = "All"):
@@ -238,19 +233,16 @@ def _compute_grand_margin(data, values, aggfunc, margins_name: str = "All"):
         return {margins_name: aggfunc(data.index)}
 ```
 
-### 2.2 第2题
-前面提到了`crosstab`的性能劣于`pivot_table`，请选用多个聚合方法进行验证。
+#### 2.2 第 2 题
+
+前面提到了 `crosstab` 的性能劣于 `pivot_table`，请选用多个聚合方法进行验证。
 
 **我的解答：**
-
 
 ```python
 df = pd.read_csv('../data/learn_pandas.csv')
 df.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -352,18 +344,13 @@ df.head()
 </table>
 </div>
 
-
-
-1. `mean`聚合函数，统计身高`Height`的均值
-
+1. `mean` 聚合函数，统计身高 `Height` 的均值
 
 ```python
 %timeit -n 30 pd.crosstab(index = df.School, columns = df.Transfer, values = df.Height, aggfunc = 'mean')
 ```
 
     30 loops, best of 5: 9.62 ms per loop
-    
-
 
 ```python
 %timeit -n 30 df.pivot_table(index = 'School', columns = 'Transfer', values = 'Height', aggfunc = 'mean')
@@ -372,16 +359,13 @@ df.head()
     30 loops, best of 5: 9.08 ms per loop
     
 
-2. `max`聚合函数，统计体重`Weight`的最大值
-
+2. `max` 聚合函数，统计体重 `Weight` 的最大值
 
 ```python
 %timeit -n 30 pd.crosstab(index = df.School, columns = df.Transfer, values = df.Weight, aggfunc = 'max')
 ```
 
     30 loops, best of 5: 11.1 ms per loop
-    
-
 
 ```python
 %timeit -n 30 df.pivot_table(index = 'School', columns = 'Transfer', values = 'Weight', aggfunc = 'max')
@@ -390,19 +374,16 @@ df.head()
     30 loops, best of 5: 10.2 ms per loop
     
 
-## 3 练习
-### 3.1 Ex1：美国非法药物数据集
+### 3 练习
 
-现有一份关于美国非法药物的数据集，其中`SubstanceName, DrugReports`分别指药物名称和报告数量：
+#### 3.1 Ex1：美国非法药物数据集
 
+现有一份关于美国非法药物的数据集，其中 `SubstanceName, DrugReports` 分别指药物名称和报告数量：
 
 ```python
 df = pd.read_csv('../data/drugs.csv').sort_values(['State','COUNTY','SubstanceName'],ignore_index=True)
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -458,28 +439,22 @@ df.head(3)
 </table>
 </div>
 
-
-
 1. 将数据转为如下的形式：
 
     <img src="./pandas20/images/Ex5_1.png" width="35%">
 
-2. 将第1问中的结果恢复为原表。
-3. 按`State`分别统计每年的报告数量总和，其中`State, YYYY`分别为列索引和行索引，要求分别使用`pivot_table`函数与`groupby+unstack`两种不同的策略实现，并体会它们之间的联系。
+2. 将第 1 问中的结果恢复为原表。
+3. 按 `State` 分别统计每年的报告数量总和，其中 `State, YYYY` 分别为列索引和行索引，要求分别使用 `pivot_table` 函数与 `groupby+unstack` 两种不同的策略实现，并体会它们之间的联系。
 
-**我的解答：**  
+**我的解答：**
 
-**第1问：**
-
+**第 1 问：**
 
 ```python
 df_pivot = df.pivot(index=['State', 'COUNTY', 'SubstanceName'], columns='YYYY', values='DrugReports')
 df_pivot = df_pivot.reset_index().rename_axis(columns={'YYYY':''})
 df_pivot.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -587,10 +562,7 @@ df_pivot.head()
 </table>
 </div>
 
-
-
-**第2问：** 使用`melt`进行恢复
-
+**第 2 问：** 使用 `melt` 进行恢复
 
 ```python
 df_melt = df_pivot.melt(id_vars=['State', 'COUNTY', 'SubstanceName'],
@@ -599,9 +571,6 @@ df_melt = df_pivot.melt(id_vars=['State', 'COUNTY', 'SubstanceName'],
               value_name='DrugReports')
 df_melt.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -657,15 +626,9 @@ df_melt.head(3)
 </table>
 </div>
 
-
-
-
 ```python
 df.head(3)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -721,9 +684,6 @@ df.head(3)
 </table>
 </div>
 
-
-
-
 ```python
 df_melt.info()
 ```
@@ -740,8 +700,6 @@ df_melt.info()
      4   DrugReports    24062 non-null  float64
     dtypes: float64(1), object(4)
     memory usage: 1.9+ MB
-    
-
 
 ```python
 df.info()
@@ -761,18 +719,15 @@ df.info()
     memory usage: 940.0+ KB
     
 
-观察可知，`df_melt`需要再进行如下操作，才能和`df`一致：
-- 将`DrugReports`列为`NaN`的行删除
-- 重新将列进行重排，然后将`YYYY`的类型修改为`int64`，将`DrugReports`的类型修改为`int64`
+观察可知，`df_melt` 需要再进行如下操作，才能和 `df` 一致：
 
+- 将 `DrugReports` 列为 `NaN` 的行删除
+- 重新将列进行重排，然后将 `YYYY` 的类型修改为 `int64`，将 `DrugReports` 的类型修改为 `int64`
 
 ```python
 df_melt.dropna(subset=['DrugReports'], inplace=True)
 df_melt.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -844,36 +799,23 @@ df_melt.head()
 </table>
 </div>
 
-
-
-
 ```python
 df_melt = df_melt[df.columns].sort_values(['State', 'COUNTY', 'SubstanceName'], ignore_index=True)
 df_melt = df_melt.astype({'YYYY':'int64', 'DrugReports':'int64'})
 ```
 
-
 ```python
 df_melt.equals(df)
 ```
 
-
-
-
     True
 
-
-
-**第3问：** 按State分别统计每年的报告数量总和，其中State, YYYY分别为列索引和行索引，要求分别使用pivot_table函数与groupby+unstack两种不同的策略实现，并体会它们之间的联系。  
-1. 使用`pivot_table`函数
-
+**第 3 问：** 按 State 分别统计每年的报告数量总和，其中 State, YYYY 分别为列索引和行索引，要求分别使用 pivot_table 函数与 groupby+unstack 两种不同的策略实现，并体会它们之间的联系。
+1. 使用 `pivot_table` 函数
 
 ```python
 df.pivot_table(index='YYYY', columns='State', values='DrugReports', aggfunc='sum')
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -977,18 +919,12 @@ df.pivot_table(index='YYYY', columns='State', values='DrugReports', aggfunc='sum
 </table>
 </div>
 
-
-
-2. 使用`groupby`和`unstack`方法
-
+2. 使用 `groupby` 和 `unstack` 方法
 
 ```python
 df_ex1_3 = df.groupby(['State', 'YYYY'])['DrugReports'].sum().to_frame()
 df_ex1_3.head(5)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1043,16 +979,10 @@ df_ex1_3.head(5)
 </table>
 </div>
 
-
-
-
 ```python
 df_ex1_3 = df_ex1_3.unstack(0)
 df_ex1_3
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1164,16 +1094,10 @@ df_ex1_3
 </table>
 </div>
 
-
-
-
 ```python
 # 删掉DrugReports，使用droplevel方法
 df_ex1_3.droplevel(level=0, axis=1)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1277,12 +1201,9 @@ df_ex1_3.droplevel(level=0, axis=1)
 </table>
 </div>
 
+#### 3.2 Ex2：特殊的 wide_to_long 方法
 
-
-### 3.2 Ex2：特殊的wide_to_long方法
-
-从功能上看，`melt`方法应当属于`wide_to_long`的一种特殊情况，即`stubnames`只有一类。请使用`wide_to_long`生成`melt`一节中的`df_melted`。（提示：对列名增加适当的前缀）
-
+从功能上看，`melt` 方法应当属于 `wide_to_long` 的一种特殊情况，即 `stubnames` 只有一类。请使用 `wide_to_long` 生成 `melt` 一节中的 `df_melted`。（提示：对列名增加适当的前缀）
 
 ```python
 df = pd.DataFrame({'Class':[1,2],
@@ -1291,9 +1212,6 @@ df = pd.DataFrame({'Class':[1,2],
                    'Math':[80, 75]})
 df
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1338,9 +1256,6 @@ df
 </table>
 </div>
 
-
-
-
 ```python
 df_melted = df.melt(id_vars = ['Class', 'Name'],
                     value_vars = ['Chinese', 'Math'],
@@ -1348,9 +1263,6 @@ df_melted = df.melt(id_vars = ['Class', 'Name'],
                     value_name = 'Grade')
 df_melted
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1409,10 +1321,7 @@ df_melted
 </table>
 </div>
 
-
-
 **我的解答：**
-
 
 ```python
 # 对列名增加适当的前缀
@@ -1420,9 +1329,6 @@ df_ex2 = df.copy()
 df_ex2.rename(columns={'Chinese':'my_Chinese', 'Math':'my_Math'}, inplace=True)
 df_ex2.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1467,9 +1373,6 @@ df_ex2.head()
 </table>
 </div>
 
-
-
-
 ```python
 df_ex2 = pd.wide_to_long(df_ex2,
                 stubnames=['my'],
@@ -1480,9 +1383,6 @@ df_ex2 = pd.wide_to_long(df_ex2,
 df_ex2 = df_ex2.reset_index()
 df_ex2
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1541,23 +1441,16 @@ df_ex2
 </table>
 </div>
 
-
-
-
 ```python
 # 修改列名
 df_ex2.rename(columns={'my':'Grade'}, inplace=True)
 ```
-
 
 ```python
 # 按照Subject排序并忽略index列
 df_ex2.sort_values(['Subject'], inplace=True, ignore_index=True)
 df_ex2
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -1616,16 +1509,8 @@ df_ex2
 </table>
 </div>
 
-
-
-
 ```python
 df_ex2.equals(df_melted)
 ```
 
-
-
-
     True
-
-

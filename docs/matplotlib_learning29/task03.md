@@ -1,5 +1,4 @@
-# Task03 布局格式定方圆
-
+## Task03 布局格式定方圆
 
 ```python
 import numpy as np
@@ -9,32 +8,32 @@ plt.rcParams['font.sans-serif'] = ['SimHei']   #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False   #用来正常显示负号
 ```
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 均匀子图
+#### 1.1 均匀子图
 
-- 使用plt.subplots
-  1. 返回元素：画布figure，子图axes列表
+- 使用 plt.subplots
+  1. 返回元素：画布 figure，子图 axes 列表
   2. 常用参数：
-      - 第1,2个参数：行列个数
+      - 第 1,2 个参数：行列个数
       - figsize：指定整个画布的大小
       - sharex：共享横轴刻度
       - sharey：共享纵轴刻度
-      - projection：`polar`表示极坐标
+      - projection：`polar` 表示极坐标
   3. 方法：
       - tight_layout：调整子图的相对大小，使字符不会重复
 
-### 1.2 非均匀子图
+#### 1.2 非均匀子图
 
 - 含义：
   1. 图的比例大小不同，但没有跨行或跨列
   2. 图为跨行或跨列状态
-- 使用add_gridspec
+- 使用 add_gridspec
   1. 常用参数：
       - width_ratios：相对宽度比例
       - height_ratios：相对高度比例
 
-### 1.3 子图上的方法
+#### 1.3 子图上的方法
 
 - plot：绘制折线
 - hist：绘制直方图
@@ -44,12 +43,10 @@ plt.rcParams['axes.unicode_minus'] = False   #用来正常显示负号
 - set_xscale：设置横坐标轴的规度（指对数坐标等）
 - set_title：设置标题
 - set_xlabel：设置轴名
-
 - legend：绘制图例
 - annotate：绘制注释
 - arrow：绘制带箭头的直线
 - text：绘制文字
-
 - 图例的 `loc` 参数如下：
 
 |  string   | code  |
@@ -66,10 +63,9 @@ plt.rcParams['axes.unicode_minus'] = False   #用来正常显示负号
 | upper center  | 9 |
 | center  | 10 |
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 绘制均匀子图
-
+#### 2.1 绘制均匀子图
 
 ```python
 # 创建2行5列的均匀子图
@@ -93,14 +89,9 @@ for i in range(2):
 fig.tight_layout()
 ```
 
-
-    
 ![png](images/task03/output_13_0.png)
-    
 
-
-### 2.2 绘制非均匀子图
-
+#### 2.2 绘制非均匀子图
 
 ```python
 fig = plt.figure(figsize=(10, 4))
@@ -125,12 +116,7 @@ for i in range(2):
 fig.tight_layout()
 ```
 
-
-    
 ![png](images/task03/output_15_0.png)
-    
-
-
 
 ```python
 fig = plt.figure(figsize=(10, 4))
@@ -158,14 +144,9 @@ ax.scatter(np.random.randn(10), np.random.randn(10))
 fig.tight_layout()
 ```
 
-
-    
 ![png](images/task03/output_16_0.png)
-    
 
-
-### 2.3 绘制各种对象
-
+#### 2.3 绘制各种对象
 
 ```python
 # 创建figure，axes
@@ -181,33 +162,25 @@ ax.annotate('这是中点', xy=(0.5, 0.5), xytext=(0.8, 0.2), arrowprops=dict(
     facecolor='yellow', edgecolor='black'), fontsize=16)
 ```
 
-
-
-
     Text(0.8, 0.2, '这是中点')
 
 
 
 
     
+
 ![png](images/task03/output_18_1.png)
-    
 
+### 3 课后习题
 
-## 3 课后习题
+#### 3.1 习题 1
 
-### 3.1 习题1
-
-墨尔本1981年至1990年的每月温度情况
-
+墨尔本 1981 年至 1990 年的每月温度情况
 
 ```python
 ex1 = pd.read_csv('../data/layout_ex1.csv')
 ex1.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -261,14 +234,11 @@ ex1.head()
 </table>
 </div>
 
-
-
 请利用数据，画出如下的图：
 
 <img src="https://s1.ax1x.com/2020/11/01/BwvCse.png" width="800" align="bottom" />
 
 **解答：**
-
 
 ```python
 # 将Time列进行拆分，分成year和month两列
@@ -279,9 +249,6 @@ ex1 = pd.concat([ex1.drop(columns=['Time']), new_cols], 1)
 ex1.month = ex1.month.astype('int').astype('str')
 ex1.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -341,14 +308,10 @@ ex1.head()
 </table>
 </div>
 
-
-
-
 ```python
 years = ex1['year'].unique().tolist()
 months = ex1['month'].unique()
 ```
-
 
 ```python
 fig, axs = plt.subplots(2, 5, figsize=(16, 4), sharex=True, sharey=True)
@@ -366,13 +329,9 @@ for i in range(2):
 fig.tight_layout()
 ```
 
-
-    
 ![png](images/task03/output_27_0.png)
-    
 
-
-### 3.2 习题2
+#### 3.2 习题 2
 
 画出数据的散点图和边际分布，使用 `np.random.randn(2, 150)` 生成一组二维数据，使用两种非均匀子图的分割方法，做出该数据对应的散点图和边际分布图
 
@@ -380,8 +339,7 @@ fig.tight_layout()
 
 **解答：**
 
-**方法1：**使用`add_gridspec`方式
-
+**方法 1：**使用 `add_gridspec` 方式
 
 ```python
 data = np.random.randn(2, 150)
@@ -409,14 +367,9 @@ for i in range(2):
 fig.tight_layout()
 ```
 
-
-    
 ![png](images/task03/output_33_0.png)
-    
 
-
-**方法2：**通过切片实现子图
-
+**方法 2：**通过切片实现子图
 
 ```python
 fig = plt.figure(figsize=(6, 6))
@@ -438,12 +391,8 @@ ax.hist(data[1], bins=10, orientation = 'horizontal',rwidth=0.9)
 fig.tight_layout()
 ```
 
-
-    
 ![png](images/task03/output_35_0.png)
-    
 
+### 4 总结
 
-## 4 总结
-
-&emsp;&emsp;本次任务，主要介绍了绘制均匀子图和非均匀子图，并讲解了Axes对象的图形绘制函数，通过习题，熟悉了子图、散点图和直方图的绘制。
+&emsp;&emsp; 本次任务，主要介绍了绘制均匀子图和非均匀子图，并讲解了 Axes 对象的图形绘制函数，通过习题，熟悉了子图、散点图和直方图的绘制。

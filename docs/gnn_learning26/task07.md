@@ -1,25 +1,27 @@
-# Task07 图预测任务实践
+## Task07 图预测任务实践
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 Dataset基类
+#### 1.1 Dataset 基类
+
 - 继承时需实现的方法：`raw_file_names()`、`processed_file_names()`、`download()`、`process()`
-- 额外需要实现的方法：`len()`获取数据集中样本数量，`get()`实现加载单个图的操作
+- 额外需要实现的方法：`len()` 获取数据集中样本数量，`get()` 实现加载单个图的操作
 
-### 1.2 图样本封装成batch和DataLoader类
+#### 1.2 图样本封装成 batch 和 DataLoader 类
+
 - 基本思路：将小图的邻接矩阵存储在大图邻接矩阵的对角线上
 - 优势：
-  1. 不需要修改GNN算法
+  1. 不需要修改 GNN 算法
   2. 没有额外计算或内存开销
 
-### 1.3 小图的属性增值与拼接
-- 节点序号增值：修改`__inc__()`和`__cat_dim__()`函数
-- 图的匹配：使用一个Data对象存储多个图，并使用follow_batch参数指定要维护batch信息的属性
-- 二部图：不同类型的节点数量不一致，edge_index边的源节点与目标节点进行增值操作不同
-- 新维度的拼接：图级别属性或预测目标，通过`__cat_dim__()`返回`None`的连接维度实现
+#### 1.3 小图的属性增值与拼接
 
-## 2 实战练习
+- 节点序号增值：修改 `__inc__()` 和 `__cat_dim__()` 函数
+- 图的匹配：使用一个 Data 对象存储多个图，并使用 follow_batch 参数指定要维护 batch 信息的属性
+- 二部图：不同类型的节点数量不一致，edge_index 边的源节点与目标节点进行增值操作不同
+- 新维度的拼接：图级别属性或预测目标，通过 `__cat_dim__()` 返回 `None` 的连接维度实现
 
+### 2 实战练习
 
 ```python
 import torch
@@ -30,8 +32,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.ERROR) 
 ```
 
-### 2.1 图的匹配
-
+#### 2.1 图的匹配
 
 ```python
 class PairData(Data):
@@ -50,7 +51,6 @@ class PairData(Data):
         else:
             return super().__inc__(key, value)
 ```
-
 
 ```python
 edge_index_s = torch.tensor([
@@ -79,8 +79,6 @@ print(batch.edge_index_t)
             [1, 2, 3, 4, 6, 7, 8, 9]])
     tensor([[0, 0, 0, 4, 4, 4],
             [1, 2, 3, 5, 6, 7]])
-    
-
 
 ```python
 # 为节点特征x_s和x_t创建了batch对象
@@ -97,8 +95,7 @@ print(batch.x_t_batch)
     tensor([0, 0, 0, 0, 1, 1, 1, 1])
     
 
-### 2.2 二部图
-
+#### 2.2 二部图
 
 ```python
 class BipartiteData(Data):
@@ -114,7 +111,6 @@ class BipartiteData(Data):
         else:
             return super().__inc__(key, value)
 ```
-
 
 ```python
 edge_index = torch.tensor([
@@ -138,8 +134,7 @@ print(batch.edge_index)
             [0, 1, 1, 2, 3, 4, 4, 5]])
     
 
-### 2.3 在新维度进行拼接
-
+#### 2.3 在新维度进行拼接
 
 ```python
 class MyData(Data):
@@ -166,8 +161,7 @@ print(batch)
     Batch(batch=[6], edge_index=[2, 8], foo=[2, 16], ptr=[3])
     
 
-### 2.4 创建超大规模数据集类
-
+#### 2.4 创建超大规模数据集类
 
 ```python
 import os
@@ -230,7 +224,6 @@ class MyPCQM4MDataset(Dataset):
         return split_dict
 ```
 
-
 ```python
 dataset = MyPCQM4MDataset('dataset')
 from torch_geometric.data import DataLoader
@@ -243,13 +236,14 @@ dataloader = DataLoader(dataset, batch_size=256, shuffle=True, num_workers=16)
 
 ![png](images/ch07/01.png)
 
-### 2.5 图预测任务实践
+#### 2.5 图预测任务实践
 
 ![png](images/ch07/02.png)
 
 使用教程中的代码需要注意：
-1. 虚拟内存需要128G，需要GPU运行
-2. 使用教程中的参数，需要运行49个epoch，16个num_workders，每个epoch运行时间大概为3~4分钟，整体运行需要至少5个小时左右
-3. 运行结果可使用tensorboard查看
+
+1. 虚拟内存需要 128G，需要 GPU 运行
+2. 使用教程中的参数，需要运行 49 个 epoch，16 个 num_workders，每个 epoch 运行时间大概为 3~4 分钟，整体运行需要至少 5 个小时左右
+3. 运行结果可使用 tensorboard 查看
 运行命令：tensorboard --logdir=GINGraphPooling
-4. 完整代码见`task06_gin_regression.py`
+4. 完整代码见 `task06_gin_regression.py`

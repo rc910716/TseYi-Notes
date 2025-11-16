@@ -1,24 +1,23 @@
-# Task07 大模型应用
+## Task07 大模型应用
 
-## 1 LLM 的评测
+### 1 LLM 的评测
 
 - LLM 的评测数据集：通用评测集（MMLU）、工具使用评测集（BFCL V2、Nexus）、数学评测集（GSM8K、MATH）、推理评测集（ARC Challenge、GPQA、HellaSwag）、长文本理解评测集（InfiniteBench/En.MC、NIH/Multi-needle）、多语言评测集（MGSM）
 - 主流评测榜单：Open LLM Leaderboard、Lmsys Chatbot Arena Leaderboard、OpenCompass。
-- 垂类评测榜单：金融榜（基于CFBenchmark评测集）、安全榜（基于Flames评测集）、通识榜（基于BotChat评测集）、法律榜（基于LawBench评测集）、医疗榜（基于MedBench评测集）
+- 垂类评测榜单：金融榜（基于 CFBenchmark 评测集）、安全榜（基于 Flames 评测集）、通识榜（基于 BotChat 评测集）、法律榜（基于 LawBench 评测集）、医疗榜（基于 MedBench 评测集）
 
-## 2 RAG
+### 2 RAG
 
-### 2.1 RAG原理
+#### 2.1 RAG 原理
 
 将“检索”与“生成”结合，当用户提出查询时，系统首先通过检索模块找到与问题相关的文本片段，然后将这些片段作为附加信息传递给语言模型，模型据此生成更为精准和可靠的回答。
 
-### 2.2 搭建一个 RAG 框架
+#### 2.2 搭建一个 RAG 框架
 
-- RAG基本结构：向量化模块、文档加载和切分模块、数据库、检索模块、大模型模块。
-- RAG主要流程：索引、检索、生成。
+- RAG 基本结构：向量化模块、文档加载和切分模块、数据库、检索模块、大模型模块。
+- RAG 主要流程：索引、检索、生成。
 
-1. 加载python依赖库
-
+1. 加载 python 依赖库
 
 ```python
 import json
@@ -35,15 +34,13 @@ from dotenv import load_dotenv, find_dotenv
 from tqdm import tqdm
 ```
 
-2. 加载环境变量，用于加载API_KEY。
-
+2. 加载环境变量，用于加载 API_KEY。
 
 ```python
 loaded = load_dotenv(find_dotenv(), override=True)
 ```
 
-3. 实现RAG向量化
-
+3. 实现 RAG 向量化
 
 ```python
 class BaseEmbeddings:
@@ -73,7 +70,6 @@ class BaseEmbeddings:
         return dot_product / magnitude
 ```
 
-
 ```python
 class SiliconFlowEmbedding(BaseEmbeddings):
     """
@@ -97,7 +93,6 @@ class SiliconFlowEmbedding(BaseEmbeddings):
 ```
 
 4. 实现文档加载和切分
-
 
 ```python
 class ReadFiles:
@@ -229,7 +224,6 @@ class ReadFiles:
 
 5. 实现数据库与向量检索
 
-
 ```python
 class VectorStore:
     def __init__(self, document=None) -> None:
@@ -271,7 +265,6 @@ class VectorStore:
 
 6. 实现大模型模块
 
-
 ```python
 class BaseModel:
     def __init__(self, path: str = '') -> None:
@@ -283,7 +276,6 @@ class BaseModel:
     def load_model(self):
         pass
 ```
-
 
 ```python
 class SiliconFlowChat(BaseModel):
@@ -307,8 +299,7 @@ class SiliconFlowChat(BaseModel):
         return response.choices[0].message.content
 ```
 
-7. 用一个字典来保存所有的prompt，方便维护
-
+7. 用一个字典来保存所有的 prompt，方便维护
 
 ```python
 PROMPT_TEMPLATE = dict(
@@ -323,8 +314,7 @@ PROMPT_TEMPLATE = dict(
 )
 ```
 
-8. 开始基于知识库聊天了，我们上传了一个Git介绍的文档，然后可以针对这个文档来提问
-
+8. 开始基于知识库聊天了，我们上传了一个 Git 介绍的文档，然后可以针对这个文档来提问
 
 ```python
 # 没有保存数据库
@@ -373,21 +363,20 @@ print(chat.chat(question, [], rag_content))
     这种设计使得Git具有强大的分支管理能力、高效的本地操作和完整的历史追溯功能。
     
 
-## 3 Agent
+### 3 Agent
 
-### 3.1 LLM Agent
+#### 3.1 LLM Agent
 
-- LLM Agent简介：大模型Agent是一个以LLM为核心“大脑”，并赋予其自主规划、记忆和使用工具能力的系统。
+- LLM Agent 简介：大模型 Agent 是一个以 LLM 为核心“大脑”，并赋予其自主规划、记忆和使用工具能力的系统。
 - LLM Agent 的类型：
-    1. 任务导向型Agent：专注于完成特定领域的、定义明确的任务，使用预设的流程和可调用的特定工具集。
-    2. 规划与推理型Agent：强调自主分解复杂任务、制定多步计划，采用特定的思维框架。
-    3. 多Agent系统：由多个具有不同角色或能力的Agent协同工作，共同完成一个更宏大的目标。
-    4. 探索与学习型Agent： 不仅执行任务，还能在与环境的交互中主动学习新知识、新技能或优化自身策略，可能包含更复杂的记忆和反思机制。
+    1. 任务导向型 Agent：专注于完成特定领域的、定义明确的任务，使用预设的流程和可调用的特定工具集。
+    2. 规划与推理型 Agent：强调自主分解复杂任务、制定多步计划，采用特定的思维框架。
+    3. 多 Agent 系统：由多个具有不同角色或能力的 Agent 协同工作，共同完成一个更宏大的目标。
+    4. 探索与学习型 Agent： 不仅执行任务，还能在与环境的交互中主动学习新知识、新技能或优化自身策略，可能包含更复杂的记忆和反思机制。
 
-### 3.2 搭建一个Agent
+#### 3.2 搭建一个 Agent
 
-1. 加载python依赖库
-
+1. 加载 python 依赖库
 
 ```python
 import inspect
@@ -401,7 +390,6 @@ from openai import OpenAI
 
 2. 初始化客户端和模型
 
-
 ```python
 loaded = load_dotenv(find_dotenv(), override=True)
 
@@ -411,7 +399,6 @@ client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 ```
 
 3. 定义工具函数
-
 
 ```python
 def get_current_datetime() -> str:
@@ -475,7 +462,6 @@ def count_letter_in_string(a: str, b: str):
 
 4. 将工具类转换成特定的 JSON Schema 格式
 
-
 ```python
 def function_to_json(func) -> dict:
     # 定义 Python 类型到 JSON 数据类型的映射
@@ -535,7 +521,6 @@ def function_to_json(func) -> dict:
 ```
 
 5. 构造 Agent 类
-
 
 ```python
 class Agent:
@@ -603,8 +588,7 @@ class Agent:
         return response.choices[0].message.content
 ```
 
-6. 启动Agent，可以开心聊天了！
-
+6. 启动 Agent，可以开心聊天了！
 
 ```python
 SYSTEM_PROMPT = """
@@ -612,7 +596,6 @@ SYSTEM_PROMPT = """
 当用户的问题需要调用工具时，你可以从提供的工具列表中调用适当的工具函数。
 """
 ```
-
 
 ```python
 agent = Agent(

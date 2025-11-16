@@ -1,15 +1,15 @@
-# Task04 多任务模型：ESMM、MMOE
+## Task04 多任务模型：ESMM、MMOE
 
-## 1 ESMM
+### 1 ESMM
 
-### 1.1 ESMM产生背景
+#### 1.1 ESMM 产生背景
 
 - 样本选择偏差：构建的训练样本集的分布采样不准确
 - 稀疏数据：点击样本占曝光样本的比例很小
 
-### 1.2 ESMM原理
+#### 1.2 ESMM 原理
 
-- 解决思路：基于多任务学习，引入CTR、CTCVR消除样本选择偏差和稀疏数据
+- 解决思路：基于多任务学习，引入 CTR、CTCVR 消除样本选择偏差和稀疏数据
 - 三个预测任务：
 1. pCTR：点击率预估模型
 2. pCVR：转化率预估模型
@@ -18,11 +18,13 @@
 $$
 \underbrace{p(y=1, z=1 | x)}_{pCTCVR}=\underbrace{p(y=1 | x)}_{pCTR} \times \underbrace{p(z=1 | y=1, x)}_{pCVR}
 $$
-其中$x$表示曝光，$y$表示点击，$z$表示转化
+
+其中 $x$ 表示曝光，$y$ 表示点击，$z$ 表示转化
 
 ![ESMM-architecture.png](./images/task04/ESMM-architecture.png)
 
-- 主任务和辅助任务共享特征，并利用CTCVR和CTR的`label`构造损失函数：
+- 主任务和辅助任务共享特征，并利用 CTCVR 和 CTR 的 `label` 构造损失函数：
+
 $$
 \begin{aligned}
 L(\theta_{c v r}, \theta_{c t r}) 
@@ -31,17 +33,16 @@ L(\theta_{c v r}, \theta_{c t r})
 \end{aligned}
 $$
 
-- 解决样本选择偏差：在训练过程中，模型只需要预测pCTCVR和pCTR，即可更新参数，由于pCTCVR和pCTR的数据是基于完整样本空间提取的，故根据公式，可以解决pCVR的样本选择偏差
-- 解决数据稀疏：使用共享的embedding层，使得CVR子任务也能够从只展示没点击的样本中学习，可以缓解训练数据稀疏的问题
+- 解决样本选择偏差：在训练过程中，模型只需要预测 pCTCVR 和 pCTR，即可更新参数，由于 pCTCVR 和 pCTR 的数据是基于完整样本空间提取的，故根据公式，可以解决 pCVR 的样本选择偏差
+- 解决数据稀疏：使用共享的 embedding 层，使得 CVR 子任务也能够从只展示没点击的样本中学习，可以缓解训练数据稀疏的问题
 
-### 1.3 ESSM模型的优化
+#### 1.3 ESSM 模型的优化
 
-- 论文中，子任务独立的Tower网络是纯MLP模型，可以根据自身特点设置不一样的模型，例如使用DeepFM、DIN等
-- 引入动态加权的学习机制，优化loss
-- 可构建更长的序列依赖模型，例如美团AITM信用卡业务，用户转换过程是曝光->点击->申请->核卡->激活
+- 论文中，子任务独立的 Tower 网络是纯 MLP 模型，可以根据自身特点设置不一样的模型，例如使用 DeepFM、DIN 等
+- 引入动态加权的学习机制，优化 loss
+- 可构建更长的序列依赖模型，例如美团 AITM 信用卡业务，用户转换过程是曝光 ->点击 ->申请 ->核卡 ->激活
 
-### 1.4 ESSM模型代码实现
-
+#### 1.4 ESSM 模型代码实现
 
 ```python
 import torch
@@ -49,7 +50,6 @@ import torch.nn.functional as F
 from torch_rechub.basic.layers import MLP, EmbeddingLayer
 from tqdm import tqdm
 ```
-
 
 ```python
 class ESMM(torch.nn.Module):
@@ -81,36 +81,35 @@ class ESMM(torch.nn.Module):
         return torch.cat(ys, dim=1)
 ```
 
-## 2 MMOE
+### 2 MMOE
 
-### 2.1 MMOE产生背景
+#### 2.1 MMOE 产生背景
 
 - 多任务模型：在不同任务之间学习共性以及差异性，能够提高建模的质量以及效率。
 - 多任务模型设计模式：
-    1. Hard Parameter Sharing方法：底层是共享的隐藏层，学习各个任务的共同模式，上层用一些特定的全连接层学习特定任务模式
-    2. Soft Parameter Sharing方法：底层不使用共享的shared bottom，而是有多个tower，给不同的tower分配不同的权重
+    1. Hard Parameter Sharing 方法：底层是共享的隐藏层，学习各个任务的共同模式，上层用一些特定的全连接层学习特定任务模式
+    2. Soft Parameter Sharing 方法：底层不使用共享的 shared bottom，而是有多个 tower，给不同的 tower 分配不同的权重
     3. 任务序列依赖关系建模：这种适合于不同任务之间有一定的序列依赖关系
 
-### 2.2 MOE模型和MMOE模型原理
+#### 2.2 MOE 模型和 MMOE 模型原理
 
 ![MMOE-architecture.png](images/task04/MMOE-architecture.png)
 
-#### 2.2.1 MOE模型（混合专家模型）
+##### 2.2.1 MOE 模型（混合专家模型）
 
-- 模型原理：基于多个`Expert`汇总输出，通过门控网络机制（注意力网络）得到每个`Expert`的权重
-- 特性：模型集成、注意力机制、multi-head机制
+- 模型原理：基于多个 `Expert` 汇总输出，通过门控网络机制（注意力网络）得到每个 `Expert` 的权重
+- 特性：模型集成、注意力机制、multi-head 机制
 
-#### 2.2.2 MMOE模型
+##### 2.2.2 MMOE 模型
 
-- 基于OMOE模型，每个`Expert`任务都有一个门控网络
+- 基于 OMOE 模型，每个 `Expert` 任务都有一个门控网络
 - 特性：
-  1. 避免任务冲突，根据不同的门控进行调整，选择出对当前任务有帮助的`Expert`组合
+  1. 避免任务冲突，根据不同的门控进行调整，选择出对当前任务有帮助的 `Expert` 组合
   2. 建立任务之间的关系
   3. 参数共享灵活
   4. 训练时模型能够快速收敛
 
-### 2.3 MMOE模型代码实现
-
+#### 2.3 MMOE 模型代码实现
 
 ```python
 import torch
@@ -118,7 +117,6 @@ import torch.nn as nn
 
 from torch_rechub.basic.layers import MLP, EmbeddingLayer, PredictionLayer
 ```
-
 
 ```python
 class MMOE(torch.nn.Module):
@@ -161,8 +159,9 @@ class MMOE(torch.nn.Module):
         return torch.cat(ys, dim=1)
 ```
 
-## 3 总结
+### 3 总结
 
-&emsp;&emsp;本次任务，主要介绍了ESSM和MMOE的多任务学习模型原理和代码实践：
-1. ESSM模型：主要引入CTR和CTCVR的辅助任务，解决样本选择偏差和稀疏数据问题，基于双塔模型，并可根据自身特点设置两个塔的不同模型，子网络支持任意替换
-2. MMOE模型：主要基于OMOE模型，其中每个`Expert`任务都有一个门控网络，下层是MOE基本模型，上层是双塔模型，满足各个任务在`Expert`组合选择上的解耦性，具备灵活的参数共享、训练快速收敛等特点
+&emsp;&emsp; 本次任务，主要介绍了 ESSM 和 MMOE 的多任务学习模型原理和代码实践：
+
+1. ESSM 模型：主要引入 CTR 和 CTCVR 的辅助任务，解决样本选择偏差和稀疏数据问题，基于双塔模型，并可根据自身特点设置两个塔的不同模型，子网络支持任意替换
+2. MMOE 模型：主要基于 OMOE 模型，其中每个 `Expert` 任务都有一个门控网络，下层是 MOE 基本模型，上层是双塔模型，满足各个任务在 `Expert` 组合选择上的解耦性，具备灵活的参数共享、训练快速收敛等特点

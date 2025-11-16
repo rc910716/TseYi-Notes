@@ -1,30 +1,32 @@
-# Task02 消息传递范式
+## Task02 消息传递范式
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 消息传递范式介绍
+#### 1.1 消息传递范式介绍
+
 - 概念：一种聚合邻接节点信息来更新中心节点信息的范式
 - 过程：通过邻接节点信息经过变换后聚合，在所有节点上进行一遍，多次更新后的节点信息就作为**节点表征**
 - 消息传递图神经网络：$$ \mathbf{x}_i^{(k)} = \gamma^{(k)} \left( \mathbf{x}_i^{(k-1)}, \square_{j \in \mathcal{N}(i)} \, \phi^{(k)}\left(\mathbf{x}_i^{(k-1)}, \mathbf{x}_j^{(k-1)},\mathbf{e}_{j,i}\right) \right)$$
 - 节点嵌入：神经网络生成节点表征的操作
 
-### 1.2 `MessagePassing`基类
+#### 1.2 `MessagePassing` 基类
+
 - 作用：封装了消息传递的运行流程
 - `aggr`：聚合方案，`flow`：消息传递的流向，`node_dim`：传播的具体维度
 - `MessagePassing.propagate()`：开始传递消息的起始调用
-- `MessagePassing.message()`：实现$\phi$函数
-- `MessagePassing.aggregate()`：从源节点传递过来的消息聚合在目标节点上的函数，使用`sum`,`mean`和`max`
-- `MessagePassing.update()`：实现$\gamma$函数
+- `MessagePassing.message()`：实现 $\phi$ 函数
+- `MessagePassing.aggregate()`：从源节点传递过来的消息聚合在目标节点上的函数，使用 `sum`,`mean` 和 `max`
+- `MessagePassing.update()`：实现 $\gamma$ 函数
 
-### 1.3 GCNConv示例
+#### 1.3 GCNConv 示例
+
 - 数学公式：$$\mathbf{x}_i^{(k)} = \sum_{j \in \mathcal{N}(i) \cup \{ i \}} \frac{1}{\sqrt{\deg(i)} \cdot \sqrt{\deg(j)}} \cdot \left( \mathbf{\Theta} \cdot \mathbf{x}_j^{(k-1)} \right)$$
 - 矩阵形式：$$\mathbf{X}' = \mathbf{\hat{D}}^{-1/2} \mathbf{\hat{A}} \mathbf{\hat{D}}^{-1/2}\mathbf{X}\Theta$$
 - 步骤：
-  1. 向邻接矩阵添加自循环边：构建$\mathbf{\hat{A}}$
-  2. 对节点表征进行线性变换：计算$\mathbf{X}\Theta$
-  3. 计算归一化系数：计算$\mathbf{\hat{D}}^{-1/2}$
-  4. 将相邻节点表征相加（`add`聚合）：得到一个对称且归一化的矩阵
-
+  1. 向邻接矩阵添加自循环边：构建 $\mathbf{\hat{A}}$
+  2. 对节点表征进行线性变换：计算 $\mathbf{X}\Theta$
+  3. 计算归一化系数：计算 $\mathbf{\hat{D}}^{-1/2}$
+  4. 将相邻节点表征相加（`add` 聚合）：得到一个对称且归一化的矩阵
 
 ```python
 import torch
@@ -65,7 +67,6 @@ class GCNConv(MessagePassing):
         return norm.view(-1, 1) * x_j
 ```
 
-
 ```python
 # 随机种子
 torch.manual_seed(0)
@@ -93,27 +94,31 @@ print(conv.lin.weight)
     tensor([[-0.0053,  0.3793]], requires_grad=True)
     
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 习题1 
-请总结`MessagePassing`基类的运行流程
+#### 2.1 习题 1
+
+请总结 `MessagePassing` 基类的运行流程
 
 **解答：**
 
-`MessagePassing`基类的运行流程：
-1. 初始化参数聚合函数`aggr`，消息传递流向`flow`，传播维度`node_dim`
-2. 初始化自实现函数中用到的自定义参数`__user_args__`，`__fused_user_args__`
-3. 基于`Module`基类，调用`forward`函数，用于数据或参数的初始化
-4. `propagate`函数：  
-  （1）检查`edge_index`和`size`参数是否符合要求，并返回`size`  
-  （2）判断`edge_index`是否为`SparseTensor`，如果满足，则执行`message_and_aggregate`，再执行`update`方法  
-  （3）如果不满足，就先执行`message`方法，再执行`aggregate`和`update`方法  
+`MessagePassing` 基类的运行流程：
 
-### 2.2 习题2
-请复现一个一层的图神经网络的构造，总结通过继承`MessagePassing`基类来构造自己的图神经网络类的规范。
+1. 初始化参数聚合函数 `aggr`，消息传递流向 `flow`，传播维度 `node_dim`
+2. 初始化自实现函数中用到的自定义参数 `__user_args__`，`__fused_user_args__`
+3. 基于 `Module` 基类，调用 `forward` 函数，用于数据或参数的初始化
+4. `propagate` 函数：
+  （1）检查 `edge_index` 和 `size` 参数是否符合要求，并返回 `size`
+  （2）判断 `edge_index` 是否为 `SparseTensor`，如果满足，则执行 `message_and_aggregate`，再执行 `update` 方法
+  （3）如果不满足，就先执行 `message` 方法，再执行 `aggregate` 和 `update` 方法
 
-**解答：**  
+#### 2.2 习题 2
+
+请复现一个一层的图神经网络的构造，总结通过继承 `MessagePassing` 基类来构造自己的图神经网络类的规范。
+
+**解答：**
 自定义一层图神经网络的数学公式如下：
+
 $$\mathbf{x}^{\prime}_i = \mathbf{x}_i \cdot \mathbf{\Theta}_1 +
         \sum_{j \in \mathcal{N}(i)} e_{j,i} \cdot
         (\mathbf{\Theta}_2 \mathbf{x}_i - \mathbf{\Theta}_3 \mathbf{x}_j)$$

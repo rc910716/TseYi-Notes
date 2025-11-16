@@ -1,33 +1,35 @@
-# Task01 知识图谱介绍
+## Task01 知识图谱介绍
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 知识图谱简介
+#### 1.1 知识图谱简介
+
 - 概念：知识图谱本质上是语义网络（Semantic Network）的知识库”。但这有点抽象，所以换个角度，从实际应用的角度出发其实可以简单地把知识图谱理解成多关系图（Multi-relational Graph）
 - 图：图（Graph）是由节点（Vertex）和边（Edge）来构成
 - Schema：知识图谱数据的格式（即数据模型）
 
-### 1.2 构建知识图谱
+#### 1.2 构建知识图谱
+
 - 数据来源：业务数据和来自爬取的数据
 - 信息抽取的方式：主要是自然语言处理技术
-- 具体构建技术：实体命名识别、关系抽取、实体统一、指代消解 
+- 具体构建技术：实体命名识别、关系抽取、实体统一、指代消解
 
-### 1.3 知识图谱的存储
-- RDF存储：RDF为资源描述框架(Resource Description Framework，英文简写RDF)
-- 图数据库存储：目前采用Neo4j图数据库
+#### 1.3 知识图谱的存储
+
+- RDF 存储：RDF 为资源描述框架 (Resource Description Framework，英文简写 RDF)
+- 图数据库存储：目前采用 Neo4j 图数据库
 
 |RDF| 图数据库|
 |:---|:---|
 | 存储三元组 | 节点和关系可以带有属性 |
 | 标准的推理引擎 | 没有标准的推理引擎 |
-| W3C标准 | 图的遍历效率高 |
+| W3C 标准 | 图的遍历效率高 |
 | 易于发布数据 | 事务管理 |
 | 多数为学术界场景 | 基本为工业界场景 |
 
-## 2 实战练习
+### 2 实战练习
 
-### 2.1 使用`neo4j`模块执行`CQL`语句
-
+#### 2.1 使用 `neo4j` 模块执行 `CQL` 语句
 
 ```python
 # step 1：导入 Neo4j 驱动包
@@ -38,7 +40,6 @@ password = 'hun1988'
 driver = GraphDatabase.driver("bolt://localhost:7687", auth=(user_name, password))
 ```
 
-
 ```python
 # 添加关系
 def add_friend(tx, name, friend_name):
@@ -47,7 +48,6 @@ def add_friend(tx, name, friend_name):
             name=name, friend_name=friend_name)
 ```
 
-
 ```python
 # 定义关系
 def print_friends(tx, name):
@@ -55,7 +55,6 @@ def print_friends(tx, name):
                           "RETURN friend.name ORDER BY friend.name", name=name):
         print(record["friend.name"])
 ```
-
 
 ```python
 # step 3：运行
@@ -73,14 +72,12 @@ with driver.session() as session:
 
 ![](images/task01/ch02-01.png)
 
-### 2.2 使用`py2neo`模块，操作`neo4j`图数据库
-
+#### 2.2 使用 `py2neo` 模块，操作 `neo4j` 图数据库
 
 ```python
 # step 1：导包
 from py2neo import Graph, Node, Relationship
 ```
-
 
 ```python
 # step 2：构建图
@@ -88,7 +85,6 @@ user_name = 'neo4j'
 password = 'hun1988'
 g = Graph("bolt://localhost:7687", auth=(user_name, password))
 ```
-
 
 ```python
 # step 3：创建节点
@@ -103,19 +99,13 @@ tx.create(ab)
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx84'>
-
-
 
 ![](images/task01/ch02-02.png)
 
-## 3 练一练
+### 3 练一练
 
-使用`py2neo`模块，完成教程第5节的内容
-
+使用 `py2neo` 模块，完成教程第 5 节的内容
 
 ```python
 from py2neo import Graph, Node, Relationship, Subgraph
@@ -126,14 +116,12 @@ password = 'hun1988'
 g = Graph("bolt://localhost:7687", auth=(user_name, password))
 ```
 
-
 ```python
 # 删除数据库中以前的图
 g.delete_all()
 ```
 
 ![](images/task01/ch03-01.png)
-
 
 ```python
 # 创建人物节点
@@ -151,15 +139,9 @@ for p_name in names:
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx86'>
 
-
-
 ![](images/task01/ch03-02.png)
-
 
 ```python
 # 创建地区节点
@@ -177,15 +159,9 @@ for location in locations:
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx87'>
 
-
-
 ![](images/task01/ch03-03.png)
-
 
 ```python
 # 创建朋友关系
@@ -199,15 +175,9 @@ tx.create(ab)
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx88'>
 
-
-
 ![](images/task01/ch03-04.png)
-
 
 ```python
 # 关系增加属性
@@ -221,13 +191,7 @@ tx.create(ab)
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx89'>
-
-
-
 
 ```python
 # 创建更多朋友关系
@@ -251,15 +215,9 @@ tx.create(A)
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx90'>
 
-
-
 ![](images/task01/ch03-05.png)
-
 
 ```python
 # 建立不同类型节点之间的关系-人物和地点的关系
@@ -290,15 +248,9 @@ tx.create(A)
 tx.commit()
 ```
 
-
-
-
     <Bookmark 'neo4j:bookmark:v1:tx91'>
 
-
-
 ![](images/task01/ch03-06.png)
-
 
 ```python
 # 查询下所有在Boston出生的人物

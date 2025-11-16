@@ -1,67 +1,68 @@
-# Task04 编写BERT模型
+## Task04 编写 BERT 模型
 
 ![BERT代码结构图](images/task04/bert.png)
 
-## 1 BertTokenizer（Tokenization分词）
+### 1 BertTokenizer（Tokenization 分词）
 
-- 组成结构：BasicTokenizer和WordPieceTokenizer
-- BasicTokenizer主要作用：
+- 组成结构：BasicTokenizer 和 WordPieceTokenizer
+- BasicTokenizer 主要作用：
   1. 按标点、空格分割句子，对于中文字符，通过预处理（加空格方式）进行按字分割
-  2. 通过never_split指定对某些词不进行分割
+  2. 通过 never_split 指定对某些词不进行分割
   3. 处理是否统一小写
   4. 清理非法字符
-- WordPieceTokenizer主要作用：
-  1. 进一步将词分解为子词(subword)
-  2. subword介于char和word之间，保留了词的含义，又能够解决英文中单复数、时态导致的词表爆炸和未登录词的OOV问题
-  3. 将词根和时态词缀分割，减小词表，降低训练难度  
+- WordPieceTokenizer 主要作用：
+  1. 进一步将词分解为子词 (subword)
+  2. subword 介于 char 和 word 之间，保留了词的含义，又能够解决英文中单复数、时态导致的词表爆炸和未登录词的 OOV 问题
+  3. 将词根和时态词缀分割，减小词表，降低训练难度
 
-- BertTokenizer常用方法：
+- BertTokenizer 常用方法：
   1. from_pretrained：从包含词表文件（vocab.txt）的目录中初始化一个分词器；
   2. tokenize：将文本（词或者句子）分解为子词列表；
   3. convert_tokens_to_ids：将子词列表转化为子词对应的下标列表；
   4. convert_ids_to_tokens ：与上一个相反；
-  5. convert_tokens_to_string：将subword列表按“##”拼接回词或者句子；
+  5. convert_tokens_to_string：将 subword 列表按“##”拼接回词或者句子；
   6. encode：
       - 对于单个句子输入，分解词，同时加入特殊词形成“[CLS], x, [SEP]”的结构，并转换为词表对应的下标列表；
       - 对于两个句子输入（多个句子只取前两个），分解词并加入特殊词形成“[CLS], x1, [SEP], x2, [SEP]”的结构并转换为下标列表；
-  7. decode：可以将encode方法的输出变为完整句子。
+  7. decode：可以将 encode 方法的输出变为完整句子。
 
-## 2 BertModel（BERT Model 本体模型）
+### 2 BertModel（BERT Model 本体模型）
 
-- 组成结构：主要是Transformer-Encoder结构
-  1. embeddings：BertEmbeddings类的实体，根据单词符号获取对应的向量表示；
-  2. encoder：BertEncoder类的实体；
-  3. pooler：BertPooler类的实体，这一部分是可选的
+- 组成结构：主要是 Transformer-Encoder 结构
+  1. embeddings：BertEmbeddings 类的实体，根据单词符号获取对应的向量表示；
+  2. encoder：BertEncoder 类的实体；
+  3. pooler：BertPooler 类的实体，这一部分是可选的
 
-- BertModel常用方法：
+- BertModel 常用方法：
   1. get_input_embeddings：提取 embedding 中的 word_embeddings，即词向量部分；
   2. set_input_embeddings：为 embedding 中的 word_embeddings 赋值；
   3. _prune_heads：提供了将注意力头剪枝的函数，输入为{layer_num: list of heads to prune in this layer}的字典，可以将指定层的某些注意力头剪枝。
 
-### 2.1 BertEmbeddings
+#### 2.1 BertEmbeddings
 
-- 输出结果：通过word_embeddings、token_type_embeddings、position_embeddings三个部分求和，并通过一层 LayerNorm+Dropout 后输出得到，其大小为(batch_size, sequence_length, hidden_size)
-- word_embeddings：子词(subword)对应的embeddings
+- 输出结果：通过 word_embeddings、token_type_embeddings、position_embeddings 三个部分求和，并通过一层 LayerNorm+Dropout 后输出得到，其大小为 (batch_size, sequence_length, hidden_size)
+- word_embeddings：子词 (subword) 对应的 embeddings
 - token_type_embeddings：用于表示当前词所在的句子，区别句子与 padding、句子对之间的差异
 - position_embeddings：表示句子中每个词的位置嵌入，用于区别词的顺序
 
-> 使用 LayerNorm+Dropout 的必要性：  
-&emsp;&emsp;通过layer normalization得到的embedding的分布，是以坐标原点为中心，1为标准差，越往外越稀疏的球体空间中
+> 使用 LayerNorm+Dropout 的必要性：
+&emsp;&emsp; 通过 layer normalization 得到的 embedding 的分布，是以坐标原点为中心，1 为标准差，越往外越稀疏的球体空间中
 
-### 2.2 BertEncoder
+#### 2.2 BertEncoder
 
 - 技术拓展：梯度检查点（gradient checkpointing），通过减少保存的计算图节点压缩模型占用空间
 
-#### 2.2.1 BertAttention
+##### 2.2.1 BertAttention
 
 - BertSelfAttention
   1. 初始化部分：检查隐藏层和注意力头的参数配置倍率、进行各参数的赋值
   2. 前向传播部分：
-      - multi-head self-attention的基本公式：
-      $$
-       \text{MHA}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O \\ 
+      - multi-head self-attention 的基本公式： $$
+       \text{MHA}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O \\
        \text{head}_i = \text{SDPA}(\text{QW}_i^Q, \text{KW}_i^K, \text{VW}_i^V) \\
-       \text{SDPA}(Q, K, V) = \text{softmax}(\frac{Q \cdot K^T}{\sqrt{d_k}}) \cdot V$$
+       \text{SDPA}(Q, K, V) = \text{softmax}(\frac{Q \cdot K^T}{\sqrt{d_k}}) \cdot V
+
+       $$
       - transpose_for_scores：用于将 hidden_size 拆成多个头输出的形状，并且将中间两维转置进行矩阵相乘
       - torch.einsum：根据下标表示形式，对矩阵中输入元素的乘积求和
       - positional_embedding_type：  
@@ -69,27 +70,29 @@
           - relative_key：对key layer处理
           - relative_key_query：对 key 和 value 都进行相乘以作为位置编码
 
-- BertSelfOutput：  
-&emsp;&emsp;前向传播部分使用LayerNorm+Dropout组合，残差连接用于降低网络层数过深，带来的训练难度，对原始输入更加敏感。
 
-#### 2.2.2 BertIntermediate
+
+
+- BertSelfOutput：
+&emsp;&emsp; 前向传播部分使用 LayerNorm+Dropout 组合，残差连接用于降低网络层数过深，带来的训练难度，对原始输入更加敏感。
+
+##### 2.2.2 BertIntermediate
 
 - 主要结构：全连接和激活操作
-- 全连接：将原始维度进行扩展，参数intermediate_size
-- 激活：激活函数默认为 gelu，使用一个包含tanh的表达式进行近似求解
+- 全连接：将原始维度进行扩展，参数 intermediate_size
+- 激活：激活函数默认为 gelu，使用一个包含 tanh 的表达式进行近似求解
 
-#### 2.2.3 BertOutput
+##### 2.2.3 BertOutput
 
 主要结构：全连接、dropout+LayerNorm、残差连接（residual connect）
 
-### 2.3 BertPooler
+#### 2.3 BertPooler
 
-主要作用：取出句子的第一个token，即\[CLS\]对应的向量，然后通过一个全连接层和一个激活函数后输出结果。
+主要作用：取出句子的第一个 token，即\[CLS\] 对应的向量，然后通过一个全连接层和一个激活函数后输出结果。
 
-## 3 实战练习
+### 3 实战练习
 
-### 3.1 BertToknizer代码
-
+#### 3.1 BertToknizer 代码
 
 ```python
 import collections
@@ -514,21 +517,14 @@ class WordpieceTokenizer(object):
         return output_tokens
 ```
 
-
 ```python
 bt = BertTokenizer.from_pretrained('bert-base-uncased')
 bt('I like natural language progressing!')
 ```
 
-
-
-
     {'input_ids': [101, 1045, 2066, 3019, 2653, 27673, 999, 102], 'token_type_ids': [0, 0, 0, 0, 0, 0, 0, 0], 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1]}
 
-
-
-### 3.2 BertSelfAttention
-
+#### 3.2 BertSelfAttention
 
 ```python
 from torch import nn
@@ -677,8 +673,7 @@ class BertSelfAttention(nn.Module):
         return outputs
 ```
 
-### 3.3 BerSelfOutput
-
+#### 3.3 BerSelfOutput
 
 ```python
 class BertSelfOutput(nn.Module):
@@ -696,8 +691,7 @@ class BertSelfOutput(nn.Module):
         return hidden_states
 ```
 
-### 3.4 BertOutput
-
+#### 3.4 BertOutput
 
 ```python
 class BertOutput(nn.Module):
@@ -715,8 +709,7 @@ class BertOutput(nn.Module):
         return hidden_states
 ```
 
-### 3.5 BertPooler
-
+#### 3.5 BertPooler
 
 ```python
 class BertPooler(nn.Module):
@@ -733,7 +726,6 @@ class BertPooler(nn.Module):
         pooled_output = self.activation(pooled_output)
         return pooled_output
 ```
-
 
 ```python
 from transformers.models.bert.configuration_bert import *
@@ -757,6 +749,6 @@ print(y.size())
     torch.Size([1, 768])
     
 
-## 4 总结
+### 4 总结
 
-&emsp;&emsp;本次任务，主要讲解了BERT的源码，包括BertTokenizer、BertModel，其中BertTokenizer主要用于分割句子，并分解成subword；BertModel是BERT的本体模型类，主要包括BertEmbeddings、BertEncoder和BertPooler三部分，BertEmbeddings用于构造word、position和token_type embedings的Embeddings，BertEncoder由BertAttention、BertIntermediate和BertOutput三个部分组成，BertPooler用于取出句子的第一个token。整个过程需要配合Task03的Bert模型架构来阅读。
+&emsp;&emsp; 本次任务，主要讲解了 BERT 的源码，包括 BertTokenizer、BertModel，其中 BertTokenizer 主要用于分割句子，并分解成 subword；BertModel 是 BERT 的本体模型类，主要包括 BertEmbeddings、BertEncoder 和 BertPooler 三部分，BertEmbeddings 用于构造 word、position 和 token_type embedings 的 Embeddings，BertEncoder 由 BertAttention、BertIntermediate 和 BertOutput 三个部分组成，BertPooler 用于取出句子的第一个 token。整个过程需要配合 Task03 的 Bert 模型架构来阅读。

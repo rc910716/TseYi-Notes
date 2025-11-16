@@ -1,28 +1,25 @@
-# Task03 单智能体开发
+## Task03 单智能体开发
 
-## 1 Agent简介
+### 1 Agent 简介
 
-- Agent的组成：Agent = 大语言模型（LLM） + 观察 + 思考 + 行动 + 记忆
-
+- Agent 的组成：Agent = 大语言模型（LLM） + 观察 + 思考 + 行动 + 记忆
 - 观察：智能体的感知机制，感知另一个智能体的文本消息、视觉数据或者来自客户服务的音频信息等一系列信号。
 - 思考：智能体内部的决策过程，思考设计分析观察结果和记忆内容并考虑可能的行动。
 - 行动：智能体对思考和观察的显式响应。
 - 记忆：智能体的记忆存储过去的经验，相当于历史记录。
 
-## 2 实现一个单动作Agent
+### 2 实现一个单动作 Agent
 
-- 背景介绍：使用MetaGPT框架，实现一个生成代码的Agent，根据用户需求生成代码。
-- 需求分析：实现一个`SimpleCoder`，获取用户输入的需求，记忆用户需求，编写对应的代码。
+- 背景介绍：使用 MetaGPT 框架，实现一个生成代码的 Agent，根据用户需求生成代码。
+- 需求分析：实现一个 `SimpleCoder`，获取用户输入的需求，记忆用户需求，编写对应的代码。
 
-### 2.1 编写SimpleWriteCode动作
-
+#### 2.1 编写 SimpleWriteCode 动作
 
 ```python
 import re
 import asyncio
 from metagpt.actions import Action
 ```
-
 
 ```python
 class SimpleWriteCode(Action):
@@ -50,15 +47,13 @@ class SimpleWriteCode(Action):
         return code_text
 ```
 
-### 2.2 设计SimpleCoder角色
-
+#### 2.2 设计 SimpleCoder 角色
 
 ```python
 from metagpt.roles import Role
 from metagpt.schema import Message
 from metagpt.logs import logger
 ```
-
 
 ```python
 class SimpleCoder(Role):
@@ -88,8 +83,7 @@ class SimpleCoder(Role):
         return msg
 ```
 
-### 2.3 运行SimpleCoder角色
-
+#### 2.3 运行 SimpleCoder 角色
 
 ```python
 async def main():
@@ -98,7 +92,6 @@ async def main():
     result = await role.run(msg)
     logger.info(result)
 ```
-
 
 ```python
 await main()
@@ -140,13 +133,12 @@ await main()
     
     
 
-## 3 实现一个多动作Agent
+### 3 实现一个多动作 Agent
 
-- 背景介绍：使用MetaGPT框架，实现一个多动作Agent，根据用户需求生成代码。
+- 背景介绍：使用 MetaGPT 框架，实现一个多动作 Agent，根据用户需求生成代码。
 - 需求分析：通过自然语言编写代码，并且生成的代码立即执行。
 
-### 3.1 编写SimpleRunCode动作
-
+#### 3.1 编写 SimpleRunCode 动作
 
 ```python
 import subprocess
@@ -163,8 +155,7 @@ class SimpleRunCode(Action):
         return code_result
 ```
 
-### 3.2 定义RunableCoder角色
-
+#### 3.2 定义 RunableCoder 角色
 
 ```python
 class RunnableCoder(Role):
@@ -193,8 +184,7 @@ class RunnableCoder(Role):
         return msg
 ```
 
-### 3.3 运行RunnableCoder角色
-
+#### 3.3 运行 RunnableCoder 角色
 
 ```python
 async def main():
@@ -204,7 +194,6 @@ async def main():
     result = await role.run(msg)
     logger.info(result)
 ```
-
 
 ```python
 await main()
@@ -238,13 +227,12 @@ await main()
     
     
 
-## 4 实现更复杂的Agent：技术文件助手
+### 4 实现更复杂的 Agent：技术文件助手
 
-- 背景介绍：使用MetaGPT实现一个更复杂的Agent，将需求进行拆解。
+- 背景介绍：使用 MetaGPT 实现一个更复杂的 Agent，将需求进行拆解。
 - 需求分析：实现一个技术文件助手，获取用户输入的需求，生成文档大纲，将任务根据大纲拆解出子任务，然后逐步完成各个子任务，最后将任务汇总输出完整文档。
 
-### 4.1 编写WriteDirectory动作
-
+#### 4.1 编写 WriteDirectory 动作
 
 ```python
 from datetime import datetime
@@ -259,7 +247,6 @@ from metagpt.utils.file import File
 from metagpt.actions import Action
 from metagpt.utils.common import OutputParser
 ```
-
 
 ```python
 COMMON_PROMPT = """
@@ -301,7 +288,6 @@ Strictly limit output according to the following requirements:
 )
 ```
 
-
 ```python
 class WriteDirectory(Action):
     """Action class for writing tutorial directories.
@@ -333,8 +319,7 @@ class WriteDirectory(Action):
         return OutputParser.extract_struct(resp, dict)
 ```
 
-### 4.2 编写WriteContent动作
-
+#### 4.2 编写 WriteContent 动作
 
 ```python
 class WriteContent(Action):
@@ -364,8 +349,7 @@ class WriteContent(Action):
         return await self._aask(prompt=prompt)
 ```
 
-### 4.3 编写TutorialAssistant角色
-
+#### 4.3 编写 TutorialAssistant 角色
 
 ```python
 class TutorialAssistant(Role):
@@ -478,8 +462,7 @@ class TutorialAssistant(Role):
         return msg
 ```
 
-### 4.5 运行TutorialAssistant角色
-
+#### 4.5 运行 TutorialAssistant 角色
 
 ```python
 async def main():
@@ -489,7 +472,6 @@ async def main():
     result = await role.run(msg)
     logger.info(result)
 ```
-
 
 ```python
 await main()
@@ -1349,6 +1331,6 @@ await main()
     ```bash
     
 
-生成Git教程的markdown格式的文件。
+生成 Git 教程的 markdown 格式的文件。
 
 ![文档生成](images/task03-01.png)

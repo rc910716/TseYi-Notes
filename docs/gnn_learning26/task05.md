@@ -1,38 +1,41 @@
-# Task05 超大图上的节点表征学习
+## Task05 超大图上的节点表征学习
 
-## 1 知识梳理
+### 1 知识梳理
 
-### 1.1 Cluster-GCN方法
+#### 1.1 Cluster-GCN 方法
+
 - 基本思路：利用图节点聚类算法，将一个图的节点划分为多个簇，每一次选择几个簇的节点和这些节点对应边，构成一个子图，然后对子图训练
 - 效果：
     1. 提高表征利用率，提高图神经网络的训练效率
-    2. 随机选择多个簇组成batch，保证batch内类别分布
+    2. 随机选择多个簇组成 batch，保证 batch 内类别分布
     3. 内存空间的优化
 
-### 1.2 节点表征学习
-- 节点表征递推公式：$\displaystyle Z^{(l+1)}=A^{\prime} X^{(l)} W^{(l)}, X^{(l+1)}=\sigma\left(Z^{(l+1)}\right)$
-- 训练目标：最小化损失函数来学习权重矩阵$\displaystyle \mathcal{L}=\frac{1}{\left|\mathcal{Y}_{L}\right|} \sum_{i \in \mathcal{Y}_{L}} \operatorname{loss}\left(y_{i}, z_{i}^{L}\right)$
+#### 1.2 节点表征学习
 
-### 1.3 Cluster-GCN方法详细分析
-- 内存消耗：存储所有的节点表征矩阵，需要$O(NFL)$空间
-- mini-batch SGD方式训练：不需要计算完整梯度，只需要计算部分梯度
-- 训练时间：一个节点梯度计算需要$O(d^L F^2)$时间
-- 节点表征的利用率：在训练过程中，如果节点$i$在$l$层的表征$z_{i}^{(l)}$被计算并在$l+1$层的表征计算中被重复使用$u$次
+- 节点表征递推公式：$Z^{(l+1)}=A^{\prime} X^{(l)} W^{(l)}, X^{(l+1)}=\sigma\left(Z^{(l+1)}\right)$
+- 训练目标：最小化损失函数来学习权重矩阵 $\mathcal{L}=\frac{1}{\left|\mathcal{Y}_{L}\right|} \sum_{i \in \mathcal{Y}_{L}} \operatorname{loss}\left(y_{i}, z_{i}^{L}\right)$
 
-### 1.4 简单的Cluster-GCN方法
+#### 1.3 Cluster-GCN 方法详细分析
+
+- 内存消耗：存储所有的节点表征矩阵，需要 $O(NFL)$ 空间
+- mini-batch SGD 方式训练：不需要计算完整梯度，只需要计算部分梯度
+- 训练时间：一个节点梯度计算需要 $O(d^L F^2)$ 时间
+- 节点表征的利用率：在训练过程中，如果节点 $i$ 在 $l$ 层的表征 $z_{i}^{(l)}$ 被计算并在 $l+1$ 层的表征计算中被重复使用 $u$ 次
+
+#### 1.4 简单的 Cluster-GCN 方法
+
 - 基本步骤：
-  1. 将节点划分为$c$个簇，邻接矩阵被划分为大小为$c^2$的块矩阵
-  2. 用块对角线邻接矩阵$\bar{A}$去近似邻接矩阵$A$
-  3. 采样一个簇$\mathcal{V}_{t}$，根据$\mathcal{L}_{{\bar{A}^{\prime}}_{tt}}$的梯度进行参数更新
+  1. 将节点划分为 $c$ 个簇，邻接矩阵被划分为大小为 $c^2$ 的块矩阵
+  2. 用块对角线邻接矩阵 $\bar{A}$ 去近似邻接矩阵 $A$
+  3. 采样一个簇 $\mathcal{V}_{t}$，根据 $\mathcal{L}_{{\bar{A}^{\prime}}_{tt}}$ 的梯度进行参数更新
 - 时间复杂度：
-  1. 每个batch的总体时间复杂度为$O\left(\left\|A_{t t}\right\|_{0} F+ b F^{2}\right)$
-  2. 每个epoch的总体时间复杂度为$O\left(\|A\|_{0} F+N F^{2}\right)$
-  3. 总时间复杂度为$O\left(L\|A\|_{0} F+LN F^{2}\right)$
-- 表征数：每个batch只需要计算$O(b L)$的表征
-- 空间复杂度：用于存储表征的内存为$O(bLF)$，总空间复杂度为$O(bLF + LF^2)$
+  1. 每个 batch 的总体时间复杂度为 $O\left(\left\|A_{t t}\right\|_{0} F+ b F^{2}\right)$
+  2. 每个 epoch 的总体时间复杂度为 $O\left(\|A\|_{0} F+N F^{2}\right)$
+  3. 总时间复杂度为 $O\left(L\|A\|_{0} F+LN F^{2}\right)$
+- 表征数：每个 batch 只需要计算 $O(b L)$ 的表征
+- 空间复杂度：用于存储表征的内存为 $O(bLF)$，总空间复杂度为 $O(bLF + LF^2)$
 
-## 2 实战练习
-
+### 2 实战练习
 
 ```python
 from torch_geometric.datasets import Reddit
@@ -49,8 +52,6 @@ print("节点维度：", data.num_features)
     节点数： 232965
     边数： 114615892
     节点维度： 602
-    
-
 
 ```python
 from torch_geometric.data import ClusterData, ClusterLoader, NeighborSampler
@@ -63,7 +64,6 @@ train_loader = ClusterLoader(
 subgraph_loader = NeighborSampler(
     data.edge_index, sizes=[-1], batch_size=1024, shuffle=False, num_workers=12)
 ```
-
 
 ```python
 import torch
@@ -111,7 +111,6 @@ class Net(torch.nn.Module):
         return x_all
 ```
 
-
 ```python
 def train():
     model.train()
@@ -145,7 +144,6 @@ def test():
         accs.append(correct / mask.sum().item())
     return accs
 ```
-
 
 ```python
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

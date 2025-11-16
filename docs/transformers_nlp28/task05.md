@@ -1,65 +1,69 @@
-# Task05 BERT应用到下游任务、训练和优化
+## Task05 BERT 应用到下游任务、训练和优化
 
-## 1 基于BERT的模型
+### 1 基于 BERT 的模型
 
-### 1.1 BertForPreTraining
+#### 1.1 BertForPreTraining
 
-- BERT预训练任务：
-  1. Masked Language Model：在句子中随机用\[MASK\]替换一部分单词，然后将句子传入 BERT 中编码每一个单词的信息，最终用\[MASK\]的编码信息预测该位置的正确单词，用于训练模型根据上下文理解单词的意思
-  2. Next Sentence Prediction：将句子对(A,B)输入BERT，使用\[CLS\]的编码信息进行预测句子B是否句子A的下一句，用于训练模型理解预测句子之间的关系
+- BERT 预训练任务：
+  1. Masked Language Model：在句子中随机用\[MASK\] 替换一部分单词，然后将句子传入 BERT 中编码每一个单词的信息，最终用\[MASK\] 的编码信息预测该位置的正确单词，用于训练模型根据上下文理解单词的意思
+  2. Next Sentence Prediction：将句子对 (A,B) 输入 BERT，使用\[CLS\] 的编码信息进行预测句子 B 是否句子 A 的下一句，用于训练模型理解预测句子之间的关系
 
-- BertPreTrainingHeads：负责两个任务的预测模块，主要包括BertLMPredictionHead和一个代表NSP任务的线性层
+- BertPreTrainingHeads：负责两个任务的预测模块，主要包括 BertLMPredictionHead 和一个代表 NSP 任务的线性层
 - BertLMPredictionHead：
   1. 作用：预测 \[MASK\] 位置的输出在每个词作为类别的分类输出
-  2. 该类重新初始化了一个全0向量作为预测权重的bias
+  2. 该类重新初始化了一个全 0 向量作为预测权重的 bias
   3. 该类的输出矩阵维度是 \[batch_size, seq_length, vocab_size\]，表示预测每个句子每个词的类别概率值
 
-- 其他预训练BERT模型
-  1. BertForMaskedLM：基于BertOnlyMLMHead，只进行MLM任务的预训练
-  2. BertLMHeadModel：基于BertOnlyMLMHead，作为decoder运行版本
-  3. BertForNextSentencePrediction：基于BertOnlyNSPHead，只进行NSP任务的预训练
+- 其他预训练 BERT 模型
+  1. BertForMaskedLM：基于 BertOnlyMLMHead，只进行 MLM 任务的预训练
+  2. BertLMHeadModel：基于 BertOnlyMLMHead，作为 decoder 运行版本
+  3. BertForNextSentencePrediction：基于 BertOnlyNSPHead，只进行 NSP 任务的预训练
 
-### 1.2 BertForSequenceClassification
+#### 1.2 BertForSequenceClassification
 
 - 用途：用于句子分类/回归任务
-- 输入输出：输入为句子(对)，输出为单个分类标签
-- 模型结构：BertModel（有pooling）、Dropout层和Linear层
-- 前向传播：如果num_labels=1，则默认是回归任务，使用MSELoss，否则是分类任务
+- 输入输出：输入为句子 (对)，输出为单个分类标签
+- 模型结构：BertModel（有 pooling）、Dropout 层和 Linear 层
+- 前向传播：如果 num_labels=1，则默认是回归任务，使用 MSELoss，否则是分类任务
 
-### 1.3 BertForMultipleChoice
+#### 1.3 BertForMultipleChoice
+
 - 用途：用于多项选择，如 RocStories/SWAG 任务
 - 输入输出：输入为一组依次输入的句子，输出为选择某一句子的单个标签
-- 模型结构：和BertForSequenceClassification类似，线性层输出维度为1，即每次需要将每个样本的多个句子的输出拼接起来作为每个样本的预测分数
+- 模型结构：和 BertForSequenceClassification 类似，线性层输出维度为 1，即每次需要将每个样本的多个句子的输出拼接起来作为每个样本的预测分数
 
-### 1.4 BertForTokenClassification
+#### 1.4 BertForTokenClassification
+
 - 用途：用于序列标注（词分类），如 NER 任务
 - 输入输出：输入为单个句子文本，输出为每个 token 对应的类别标签
-- 模型结构：和BertForSequenceClassification类似，BertModel不需要加入pooling层
+- 模型结构：和 BertForSequenceClassification 类似，BertModel 不需要加入 pooling 层
 
-### 1.5 BertForQuestionAnswering
+#### 1.5 BertForQuestionAnswering
+
 - 用途：用于解决问答任务，例如 SQuAD 任务
 - 输入输出：
   1. 输入：问题 +（对于 BERT 只能是一个）回答组成的句子对
   2. 输出：起始位置的预测和结束位置的预测，这两个位置都是用于标出回答中的具体文本，从其中选出最大的预测值对应的下标作为预测的位置
 
-## 2 BERT训练与优化
+### 2 BERT 训练与优化
 
-### 2.1 Pre-Training
+#### 2.1 Pre-Training
+
 - 参数共享：在初始化阶段，所有 huggingface 实现的 PLM 的 word embedding 和 masked language model 的预测权重都是共享的，通过共享方式降低训练难度
 
-### 2.2 Fine-Tuning（微调）
-- AdamW（BERT优化器）
-  1. 来源：Best Paper的论文《Fixing Weight Decay Regularization in Adam》
+#### 2.2 Fine-Tuning（微调）
+
+- AdamW（BERT 优化器）
+  1. 来源：Best Paper 的论文《Fixing Weight Decay Regularization in Adam》
   2. 算法改进：在 Adam+L2 正则化的基础上进行改进的算法
 
-- Warmup（BERT训练策略）
+- Warmup（BERT 训练策略）
   1. 含义：在训练初期，使用较小的学习率（从 0 开始），在一定步数（比如 1000 步）内逐渐提升到正常大小（比如上面的 2e-5），避免模型过早进入局部最优而过拟合
   2. 优点：在训练后期再慢慢将学习率降低到 0，避免后期训练还出现较大的参数变化
 
-## 3 实战练习
+### 3 实战练习
 
-### 3.1 BertForPreTraining
-
+#### 3.1 BertForPreTraining
 
 ```python
 from transformers.models.bert.configuration_bert import *
@@ -163,7 +167,6 @@ seq_relationship_logits = outputs.seq_relationship_logits
         )
 ```
 
-
 ```python
 from transformers import BertTokenizer
 
@@ -194,10 +197,7 @@ prediction_logits, seq_relationship_logits
             grad_fn=<AddBackward0>),
      tensor([[ 3.3474, -2.0613]], grad_fn=<AddmmBackward>))
 
-
-
-### 3.2 BertLMHeadModel
-
+#### 3.2 BertLMHeadModel
 
 ```python
 from transformers import BertTokenizer, BertLMHeadModel, BertConfig
@@ -350,7 +350,6 @@ class BertLMHeadModel(BertPreTrainedModel):
         return reordered_past
 ```
 
-
 ```python
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 config = BertConfig.from_pretrained("bert-base-uncased")
@@ -380,10 +379,7 @@ prediction_logits
              [-13.5756, -13.0523, -12.9125,  ..., -10.4893, -11.9085,  -9.3556]]],
            grad_fn=<AddBackward0>)
 
-
-
-### 3.3 BertForNextSentencePrediction
-
+#### 3.3 BertForNextSentencePrediction
 
 ```python
 class BertForNextSentencePrediction(BertPreTrainedModel):
@@ -474,7 +470,6 @@ assert logits[0, 0] < logits[0, 1] # next sentence was random
         )
 ```
 
-
 ```python
 from transformers import BertTokenizer, BertForNextSentencePrediction
 import torch
@@ -494,8 +489,7 @@ assert logits[0, 0] < logits[0, 1]  # next sentence was random
     - This IS NOT expected if you are initializing BertForNextSentencePrediction from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
     
 
-### 3.4 BertForSequenceClassification
-
+#### 3.4 BertForSequenceClassification
 
 ```python
 @add_start_docstrings(
@@ -597,7 +591,6 @@ class BertForSequenceClassification(BertPreTrainedModel):
         )
 ```
 
-
 ```python
 from transformers import BertTokenizer
 
@@ -639,8 +632,7 @@ for i in range(len(classes)):
     is paraphrase: 6%
     
 
-### 3.5 BertForMultipleChoice
-
+#### 3.5 BertForMultipleChoice
 
 ```python
 class BertForMultipleChoice(BertPreTrainedModel):
@@ -732,8 +724,7 @@ class BertForMultipleChoice(BertPreTrainedModel):
         )
 ```
 
-### 3.6 BertForTokenClassification
-
+#### 3.6 BertForTokenClassification
 
 ```python
 @add_start_docstrings(
@@ -829,7 +820,6 @@ class BertForTokenClassification(BertPreTrainedModel):
         )
 ```
 
-
 ```python
 from transformers import BertTokenizer
 import torch
@@ -898,8 +888,7 @@ for token, prediction in zip(tokens, predictions[0].numpy()):
     ('[SEP]', 'O')
     
 
-### 3.7 BertForQuestionAnswering
-
+#### 3.7 BertForQuestionAnswering
 
 ```python
 @add_start_docstrings(
@@ -1004,7 +993,6 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         )
 ```
 
-
 ```python
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 import torch
@@ -1051,11 +1039,12 @@ for question in questions:
     Answer: tensorflow 2. 0 and pytorch
     
 
-**提问：**  
-&emsp;&emsp;这里解释一下，为什么调用AutoModelForQuestionAnswering，会找到BertForQuestionAnswering类的调用？
+**提问：**
+&emsp;&emsp; 这里解释一下，为什么调用 AutoModelForQuestionAnswering，会找到 BertForQuestionAnswering 类的调用？
 
-**解答：**    
-&emsp;&emsp;通过设置bert-large-uncased-whole-word-masking-finetuned-squad，会找到对应的json，根据该json文件中的url，可以找到需要下载的config.json，这个配置文件中列出如下的配置信息：
+**解答：**
+&emsp;&emsp; 通过设置 bert-large-uncased-whole-word-masking-finetuned-squad，会找到对应的 json，根据该 json 文件中的 url，可以找到需要下载的 config.json，这个配置文件中列出如下的配置信息：
+
 ```json
 {
   "architectures": [
@@ -1078,6 +1067,6 @@ for question in questions:
 }
 ```
 
-## 4 总结
+### 4 总结
 
-&emsp;&emsp;本次任务，主要介绍了基于BERT模型的预训练模型和BERT训练与优化，其中预训练模型讲解了BertForPreTraining、BertForSequenceClassification、BertForMultipleChoice、BertForTokenClassification和BertForQuestionAnswering，包含用途、输入输出、模型结构和源码讲解，BERT训练与优化部分讲解了Pre-Training的参数共享、AdamW（BERT优化器）和Warmup（BERT训练策略）。值得注意的是代码需要根据Transformers版本对应部分来阅读，运行示例代码时，需要下载预训练模型。
+&emsp;&emsp; 本次任务，主要介绍了基于 BERT 模型的预训练模型和 BERT 训练与优化，其中预训练模型讲解了 BertForPreTraining、BertForSequenceClassification、BertForMultipleChoice、BertForTokenClassification 和 BertForQuestionAnswering，包含用途、输入输出、模型结构和源码讲解，BERT 训练与优化部分讲解了 Pre-Training 的参数共享、AdamW（BERT 优化器）和 Warmup（BERT 训练策略）。值得注意的是代码需要根据 Transformers 版本对应部分来阅读，运行示例代码时，需要下载预训练模型。

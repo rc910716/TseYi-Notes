@@ -1,22 +1,21 @@
-# Task02 Transformer架构
+## Task02 Transformer 架构
 
-## 1 注意力机制
+### 1 注意力机制
 
 - 核心架构：前馈神经网络（FNN）、卷积神经网络（CNN）、循环神经网络（RNN）
 - 注意力机制：将重点注意力集中在一个或几个 token，从而取得更高效高质的计算效果。
-- 注意力机制的核心变量：Query（查询值）、Key（键值）和 Value（真值）；当Key与Query相关性越高，则其所应该赋予的注意力权重就越大。
+- 注意力机制的核心变量：Query（查询值）、Key（键值）和 Value（真值）；当 Key 与 Query 相关性越高，则其所应该赋予的注意力权重就越大。
 
 **注意力机制公式推导：**
 
-1. 用$ v·w =\displaystyle \sum_{i}v_iw_i $ 公式表示词向量的相似性，语义相似，这个值就大于0，语义不相似，这个值就小于0。
-2. 计算查询值Query与字典中每个Key的相似度：$ x=q K^T $。
-3. 将上述相似度进行归一化：$ \text{softmax}(x)_i = \displaystyle \frac{e^{xi}}{\sum_{j}e^{x_j}} $。
-4. 得到注意力的基本公式：$ \text{attention}(Q,K,V) = \text{softmax}(qK^T)v $。
-5. 一次性查询多个Query，用Q表示，即注意力的基本公式为$\text{attention}(Q,K,V) = \text{softmax}(QK^T) V $。
-6. 对Q和K的乘积进行缩放，得到最终的注意力公式：$\text{attention}(Q,K,V) = \text{softmax} (\frac{QK^T}{\sqrt{d_k}}) V $。
+1. 用 $v \cdot w = \sum_{i} v_i w_i$ 公式表示词向量的相似性，语义相似，这个值就大于 0，语义不相似，这个值就小于 0。
+2. 计算查询值 Query 与字典中每个 Key 的相似度：$x=q K^T$。
+3. 将上述相似度进行归一化：$\text{softmax}(x)_i = \frac{e^{xi}}{\sum_{j}e^{x_j}}$。
+4. 得到注意力的基本公式：$\text{attention}(Q,K,V) = \text{softmax}(qK^T)v$。
+5. 一次性查询多个 Query，用 Q 表示，即注意力的基本公式为 $\text{attention}(Q,K,V) = \text{softmax}(QK^T) V$。
+6. 对 Q 和 K 的乘积进行缩放，得到最终的注意力公式：$\text{attention}(Q,K,V) = \text{softmax} (\frac{QK^T}{\sqrt{d_k}}) V$。
 
 **注意力机制的代码实现：**
-
 
 ```python
 import math
@@ -41,7 +40,8 @@ def attention(query, key, value):
     return torch.matmul(p_attn, value), p_attn
 ```
 
-- 自注意力：计算本身序列中每个元素对其他元素的注意力分布。在具体实现中是在attention函数中，通过给 Q、K、V 的输入传入同一个参数实现的。
+- 自注意力：计算本身序列中每个元素对其他元素的注意力分布。在具体实现中是在 attention 函数中，通过给 Q、K、V 的输入传入同一个参数实现的。
+
 ```python
 attention(Q,Q,Q)
 attention(K,K,K)
@@ -49,11 +49,9 @@ attention(V,V,V)
 ```
 
 - 掩码自注意力：使用注意力掩码（遮蔽一些特定位置的 token）的自注意力机制。其目的是让模型只能使用历史信息进行预测而不能看到未来信息。掩码矩阵是一个和文本序列等长的上三角矩阵。当输入维度为 （batch_size, seq_len, hidden_size）时，掩码矩阵维度一般为 (1, seq_len, seq_len)。
-
 - 多头注意力：将原始的输入序列进行多组的自注意力处理，然后再将每一组得到的自注意力结果拼接起来，再通过一个线性层进行处理，得到最终的输出。
 
 **多头注意力的代码实现：**
-
 
 ```python
 from dataclasses import dataclass
@@ -158,12 +156,10 @@ class MultiHeadAttention(nn.Module):
         return output
 ```
 
-## 2 Encoder-Decoder
+### 2 Encoder-Decoder
 
 - Seq2Seq 模型：序列到序列，对自然语言序列进行编码再解码。
-
 - 前馈神经网络（FFN）：每一层的神经元都和上下两层的每一个神经元完全连接的网络结构。
-
 
 ```python
 class MLP(nn.Module):
@@ -186,10 +182,9 @@ class MLP(nn.Module):
 ```
 
 - 层归一化：将深度神经网络中每一层的输入归一化成标准正态分布。
-    1. 计算样本的均值： $\displaystyle \mu_j = \frac{1}{m}\sum^{m}_{i=1}Z_j^{i}$
-    2. 计算样本的方差：$\displaystyle \sigma^2 = \frac{1}{m}\sum^{m}_{i=1}(Z_j^i - \mu_j)^2$
-    3. 进行归一化：$\displaystyle \widetilde{Z_j} = \frac{Z_j - \mu_j}{\sqrt{\sigma^2 + \epsilon}}$
-
+    1. 计算样本的均值：$\mu_j = \frac{1}{m}\sum^{m}_{i=1}Z_j^{i}$
+    2. 计算样本的方差：$\sigma^2 = \frac{1}{m}\sum^{m}_{i=1}(Z_j^i - \mu_j)^2$
+    3. 进行归一化：$\widetilde{Z_j} = \frac{Z_j - \mu_j}{\sqrt{\sigma^2 + \epsilon}}$
 
 ```python
 class LayerNorm(nn.Module):
@@ -211,9 +206,7 @@ class LayerNorm(nn.Module):
 ```
 
 - 残差连接：目的是为了避免模型退化，允许最底层信息直接传到最高层。
-
-- Encoder实现：由 N 个 Encoder Layer 组成，每一个 Encoder Layer 包括一个注意力层和一个前馈神经网络。
-
+- Encoder 实现：由 N 个 Encoder Layer 组成，每一个 Encoder Layer 包括一个注意力层和一个前馈神经网络。
 
 ```python
 class EncoderLayer(nn.Module):
@@ -255,7 +248,6 @@ class Encoder(nn.Module):
 ```
 
 - Decoder：由两个注意力层和一个前馈神经网络组成。第一个注意力层是一个掩码自注意力层，第二个注意力层是一个多头注意力层，该层将使用第一个注意力层的输出作为 query，使用 Encoder 的输出作为 key 和 value，来计算注意力分数。最后，再经过前馈神经网络。
-
 
 ```python
 class DecoderLayer(nn.Module):
@@ -303,17 +295,15 @@ class Decoder(nn.Module):
         return self.norm(x)
 ```
 
-## 3 搭建一个 Transformer
+### 3 搭建一个 Transformer
 
 - Embeddng 层：存储固定大小的词典的嵌入向量查找表。让自然语言输入通过分词器 tokenizer，形成一个固定的词序码。
-
-- 位置编码：保留词在语句序列中的相对位置信息，Transformer使用了正余弦函数来进行位置编码。
+- 位置编码：保留词在语句序列中的相对位置信息，Transformer 使用了正余弦函数来进行位置编码。
 
 $$
 \text{PE} (\text{pos}, 2i) = sin(\frac{\text{pos}} {10000^{2i/d_{\text{model}}}}) \\
 \text{PE} (\text{pos}, 2i+1) = cos(\frac{\text{pos}} {10000^{2i/d_{\text{model}}}})
 $$
-
 
 ```python
 import numpy as np
@@ -329,7 +319,6 @@ def PositionEncoding(seq_len, d_model, n=10000):
     return P
 ```
 
-
 ```python
 P = PositionEncoding(seq_len=4, d_model=4, n=100)
 print(P)
@@ -341,8 +330,7 @@ print(P)
      [ 0.14112001 -0.9899925   0.29552021  0.95533649]]
     
 
-按照torch的规则，依据位置编码的实现原理，代码实现如下：
-
+按照 torch 的规则，依据位置编码的实现原理，代码实现如下：
 
 ```python
 class PositionalEncoding(nn.Module):
@@ -372,8 +360,7 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 ```
 
-- 一个完整的 Transformer：经过 tokenizer 映射后的输出，先经过 Embedding 层和 Positional Embedding 层编码，然后进入 N 个 Encoder 和 N 个 Decoder（在 Transformer 原模型中，N 取为6），最后经过一个线性层和一个 Softmax 层就得到了最终输出。
-
+- 一个完整的 Transformer：经过 tokenizer 映射后的输出，先经过 Embedding 层和 Positional Embedding 层编码，然后进入 N 个 Encoder 和 N 个 Decoder（在 Transformer 原模型中，N 取为 6），最后经过一个线性层和一个 Softmax 层就得到了最终输出。
 
 ```python
 class Transformer(nn.Module):
@@ -460,8 +447,7 @@ class Transformer(nn.Module):
         return logits, loss
 ```
 
-测试一下这个Transformer是否能正常运行：
-
+测试一下这个 Transformer 是否能正常运行：
 
 ```python
 from transformers import BertTokenizer

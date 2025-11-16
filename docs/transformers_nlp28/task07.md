@@ -1,13 +1,12 @@
-# Task07 Transformers解析序列标注任务
+## Task07 Transformers 解析序列标注任务
 
-## 1 序列标注任务简介
+### 1 序列标注任务简介
 
-- 序列标注可以看作时token级别的分类问题，为文本中的每一个token预测一个标签
-- token级别的分类任务：
-  1. NER（Named-entity recognition 名词-实体识别）分辨出文本中的名词和实体（person人名, organization组织机构名, location地点名...）
-  2. POS（Part-of-speech tagging词性标注）根据语法对token进行词性标注（noun名词、verb动词、adjective形容词...）
-  3. Chunk（Chunking短语组块）将同一个短语的tokens组块放在一起
-
+- 序列标注可以看作时 token 级别的分类问题，为文本中的每一个 token 预测一个标签
+- token 级别的分类任务：
+  1. NER（Named-entity recognition 名词 - 实体识别）分辨出文本中的名词和实体（person 人名, organization 组织机构名, location 地点名…）
+  2. POS（Part-of-speech tagging 词性标注）根据语法对 token 进行词性标注（noun 名词、verb 动词、adjective 形容词…）
+  3. Chunk（Chunking 短语组块）将同一个短语的 tokens 组块放在一起
 
 ```python
 # 设置分类任务
@@ -18,13 +17,11 @@ model_checkpoint = "distilbert-base-uncased"
 batch_size = 16
 ```
 
-## 2 加载数据
-
+### 2 加载数据
 
 ```python
 from datasets import load_dataset, load_metric
 ```
-
 
 ```python
 # 加载conll2003数据集
@@ -32,15 +29,10 @@ datasets = load_dataset("conll2003")
 ```
 
     Reusing dataset conll2003 (C:\Users\hurui\.cache\huggingface\datasets\conll2003\conll2003\1.0.0\40e7cb6bcc374f7c349c83acd1e9352a4f09474eb691f64f364ee62eb65d0ca6)
-    
-
 
 ```python
 datasets
 ```
-
-
-
 
     DatasetDict({
         train: Dataset({
@@ -57,16 +49,10 @@ datasets
         })
     })
 
-
-
-
 ```python
 # 查看训练集第一条数据
 datasets["train"][0]
 ```
-
-
-
 
     {'id': '0',
      'tokens': ['EU',
@@ -82,43 +68,29 @@ datasets["train"][0]
      'chunk_tags': [11, 21, 11, 12, 21, 22, 11, 12, 0],
      'ner_tags': [3, 0, 7, 0, 0, 0, 7, 0, 0]}
 
-
-
-
 ```python
 # 数据标签labels都编码成了整数，可查看features属性
 datasets["train"].features[f"ner_tags"]
 ```
 
-
-
-
     Sequence(feature=ClassLabel(num_classes=9, names=['O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC'], names_file=None, id=None), length=-1, id=None)
 
-
-
 标签含义对应：
+
 - PER：person
 - ORG：organization
 - LOC：location
 - MISC：miscellaneous
 - O：没有特别实体
-- B-\*：实体开始的token
-- I-\*：实体中间的token
-
+- B-\*：实体开始的 token
+- I-\*：实体中间的 token
 
 ```python
 label_list = datasets["train"].features[f"{task}_tags"].feature.names
 label_list
 ```
 
-
-
-
     ['O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC']
-
-
-
 
 ```python
 from datasets import ClassLabel, Sequence
@@ -145,11 +117,9 @@ def show_random_elements(dataset, num_examples=10):
     display(HTML(df.to_html()))
 ```
 
-
 ```python
 show_random_elements(datasets["train"])
 ```
-
 
 <table border="0" class="dataframe">
   <thead>
@@ -246,25 +216,23 @@ show_random_elements(datasets["train"])
   </tbody>
 </table>
 
+### 3 预处理数据
 
-## 3 预处理数据
+#### 3.1 数据预处理流程
 
-### 3.1 数据预处理流程
 - 使用工具：Tokenizer
 - 流程：
-  1. 对输入数据进行tokenize，得到tokens
-  2. 将tokens转化为预训练模型中需要对应的token ID
-  3. 将token ID转化为模型需要的输入格式
+  1. 对输入数据进行 tokenize，得到 tokens
+  2. 将 tokens 转化为预训练模型中需要对应的 token ID
+  3. 将 token ID 转化为模型需要的输入格式
 
-### 3.2 构建模型对应的tokenizer
-
+#### 3.2 构建模型对应的 tokenizer
 
 ```python
 from transformers import AutoTokenizer
     
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 ```
-
 
 ```python
 import transformers
@@ -273,34 +241,21 @@ import transformers
 assert isinstance(tokenizer, transformers.PreTrainedTokenizerFast)
 ```
 
-
 ```python
 tokenizer("Hello, this is one sentence!")
 ```
 
-
-
-
     {'input_ids': [101, 7592, 1010, 2023, 2003, 2028, 6251, 999, 102], 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1]}
-
-
-
 
 ```python
 tokenizer(["Hello", ",", "this", "is", "one", "sentence", "split",
           "into", "words", "."], is_split_into_words=True)
 ```
 
-
-
-
     {'input_ids': [101, 7592, 1010, 2023, 2003, 2028, 6251, 3975, 2046, 2616, 1012, 102], 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
 
-
-
 **补充：**
-- 如果文本已经被切分为了word，还会被tokenizer分词器继续切分
-
+- 如果文本已经被切分为了 word，还会被 tokenizer 分词器继续切分
 
 ```python
 example = datasets["train"][4]
@@ -308,8 +263,6 @@ print(example["tokens"])
 ```
 
     ['Germany', "'s", 'representative', 'to', 'the', 'European', 'Union', "'s", 'veterinary', 'committee', 'Werner', 'Zwingmann', 'said', 'on', 'Wednesday', 'consumers', 'should', 'buy', 'sheepmeat', 'from', 'countries', 'other', 'than', 'Britain', 'until', 'the', 'scientific', 'advice', 'was', 'clearer', '.']
-    
-
 
 ```python
 tokenized_input = tokenizer(example["tokens"], is_split_into_words=True)
@@ -320,8 +273,7 @@ print(tokens)
     ['[CLS]', 'germany', "'", 's', 'representative', 'to', 'the', 'european', 'union', "'", 's', 'veterinary', 'committee', 'werner', 'z', '##wing', '##mann', 'said', 'on', 'wednesday', 'consumers', 'should', 'buy', 'sheep', '##me', '##at', 'from', 'countries', 'other', 'than', 'britain', 'until', 'the', 'scientific', 'advice', 'was', 'clearer', '.', '[SEP]']
     
 
-### 3.3 解决subtokens对齐问题
-
+#### 3.3 解决 subtokens 对齐问题
 
 ```python
 # 使用word_ids方法解决subtokens对齐问题
@@ -329,8 +281,6 @@ print(tokenized_input.word_ids())
 ```
 
     [None, 0, 1, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9, 10, 11, 11, 11, 12, 13, 14, 15, 16, 17, 18, 18, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, None]
-    
-
 
 ```python
 # 获取subtokens位置
@@ -346,17 +296,16 @@ print(len(aligned_labels), len(tokenized_input["input_ids"]))
     39 39
     
 
-两种对齐label的方式：
-- 多个subtokens对齐一个word，对齐一个label
-- 多个subtokens的第一个subtoken对齐word，对齐一个label，其他subtokens直接赋予-100.
+两种对齐 label 的方式：
 
-### 3.4 整合预处理函数
+- 多个 subtokens 对齐一个 word，对齐一个 label
+- 多个 subtokens 的第一个 subtoken 对齐 word，对齐一个 label，其他 subtokens 直接赋予 -100.
 
+#### 3.4 整合预处理函数
 
 ```python
 label_all_tokens = True
 ```
-
 
 ```python
 def tokenize_and_align_labels(examples):
@@ -391,20 +340,13 @@ def tokenize_and_align_labels(examples):
     return tokenized_inputs
 ```
 
-
 ```python
 tokenize_and_align_labels(datasets['train'][:5])
 ```
 
-
-
-
     {'input_ids': [[101, 7327, 19164, 2446, 2655, 2000, 17757, 2329, 12559, 1012, 102], [101, 2848, 13934, 102], [101, 9371, 2727, 1011, 5511, 1011, 2570, 102], [101, 1996, 2647, 3222, 2056, 2006, 9432, 2009, 18335, 2007, 2446, 6040, 2000, 10390, 2000, 18454, 2078, 2329, 12559, 2127, 6529, 5646, 3251, 5506, 11190, 4295, 2064, 2022, 11860, 2000, 8351, 1012, 102], [101, 2762, 1005, 1055, 4387, 2000, 1996, 2647, 2586, 1005, 1055, 15651, 2837, 14121, 1062, 9328, 5804, 2056, 2006, 9317, 10390, 2323, 4965, 8351, 4168, 4017, 2013, 3032, 2060, 2084, 3725, 2127, 1996, 4045, 6040, 2001, 24509, 1012, 102]], 'attention_mask': [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], 'labels': [[-100, 3, 0, 7, 0, 0, 0, 7, 0, 0, -100], [-100, 1, 2, -100], [-100, 5, 0, 0, 0, 0, 0, -100], [-100, 0, 3, 4, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -100], [-100, 5, 0, 0, 0, 0, 0, 3, 4, 0, 0, 0, 0, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, -100]]}
 
-
-
-### 3.5 对数据集datasets所有样本进行预处理
-
+#### 3.5 对数据集 datasets 所有样本进行预处理
 
 ```python
 tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
@@ -415,10 +357,9 @@ tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
     Loading cached processed dataset at C:\Users\hurui\.cache\huggingface\datasets\conll2003\conll2003\1.0.0\40e7cb6bcc374f7c349c83acd1e9352a4f09474eb691f64f364ee62eb65d0ca6\cache-ea32e2b3f93b1edb.arrow
     
 
-## 4 微调预训练模型
+### 4 微调预训练模型
 
-### 4.1 加载分类模型
-
+#### 4.1 加载分类模型
 
 ```python
 from transformers import AutoModelForTokenClassification, TrainingArguments, Trainer
@@ -434,8 +375,7 @@ model = AutoModelForTokenClassification.from_pretrained(
     You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
     
 
-### 4.2 设定训练参数
-
+#### 4.2 设定训练参数
 
 ```python
 args = TrainingArguments(
@@ -453,7 +393,6 @@ args = TrainingArguments(
 )
 ```
 
-
 ```python
 from transformers import DataCollatorForTokenClassification
 
@@ -461,21 +400,16 @@ from transformers import DataCollatorForTokenClassification
 data_collator = DataCollatorForTokenClassification(tokenizer)
 ```
 
-### 4.3 设定评估方法
-
+#### 4.3 设定评估方法
 
 ```python
 metric = load_metric("seqeval")
 ```
 
-
 ```python
 labels = [label_list[i] for i in example[f"{task}_tags"]]
 metric.compute(predictions=[labels], references=[labels])
 ```
-
-
-
 
     {'LOC': {'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'number': 2},
      'ORG': {'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'number': 1},
@@ -484,9 +418,6 @@ metric.compute(predictions=[labels], references=[labels])
      'overall_recall': 1.0,
      'overall_f1': 1.0,
      'overall_accuracy': 1.0}
-
-
-
 
 ```python
 import numpy as np
@@ -516,7 +447,6 @@ def compute_metrics(p):
     }
 ```
 
-
 ```python
 # 构造训练器Trainer
 trainer = Trainer(
@@ -530,19 +460,18 @@ trainer = Trainer(
 )
 ```
 
-### 4.4 训练模型
-
+#### 4.4 训练模型
 
 ```python
 trainer.train()
 ```
 
-
-
 <div>
 
   <progress value='2634' max='2634' style='width:300px; height:20px; vertical-align: middle;'></progress>
+
   [2634/2634 02:13, Epoch 3/3]
+
 </div>
 
 <table border="0" class="dataframe">
@@ -588,33 +517,21 @@ trainer.train()
   </tbody>
 </table><p>
 
-
-
-
-
     TrainOutput(global_step=2634, training_loss=0.02493840813546264, metrics={'train_runtime': 133.2372, 'train_samples_per_second': 316.151, 'train_steps_per_second': 19.769, 'total_flos': 511610930296956.0, 'train_loss': 0.02493840813546264, 'epoch': 3.0})
 
-
-
-### 4.5 模型评估
-
+#### 4.5 模型评估
 
 ```python
 trainer.evaluate()
 ```
 
-
-
 <div>
 
   <progress value='408' max='204' style='width:300px; height:20px; vertical-align: middle;'></progress>
+
   [204/204 00:07]
+
 </div>
-
-
-
-
-
 
     {'eval_loss': 0.06285537779331207,
      'eval_precision': 0.9257950530035336,
@@ -626,10 +543,7 @@ trainer.evaluate()
      'eval_steps_per_second': 52.449,
      'epoch': 3.0}
 
-
-
-### 4.6 输出单个类别的precision/recall/f1
-
+#### 4.6 输出单个类别的 precision/recall/f1
 
 ```python
 predictions, labels, _ = trainer.predict(tokenized_datasets["validation"])
@@ -648,9 +562,6 @@ true_labels = [
 results = metric.compute(predictions=true_predictions, references=true_labels)
 results
 ```
-
-
-
 
     {'LOC': {'precision': 0.9513574660633484,
       'recall': 0.9637127578304049,
@@ -673,9 +584,7 @@ results
      'overall_f1': 0.931814392886913,
      'overall_accuracy': 0.983843550923793}
 
+### 5 总结
 
-
-## 5 总结
-
-&emsp;&emsp;本次任务，主要介绍了用BERT模型解决序列标注任务的方法及步骤，步骤主要分为加载数据、数据预处理、微调预训练模型。在加载数据阶段中，使用CONLL 2003 dataset数据集，并观察实体类别及表示形式；在数据预处理阶段中，对tokenizer分词器的建模，将subtokens、words和标注的labels对齐，并完成数据集中所有样本的预处理；在微调预训练模型阶段，通过对模型参数进行设置，设置seqeval评估方法，并构建Trainner训练器，进行模型训练，对precision、recall和f1值进行评估比较。  
-&emsp;&emsp;其中在数据集下载时，需要使用外网方式建立代理。
+&emsp;&emsp; 本次任务，主要介绍了用 BERT 模型解决序列标注任务的方法及步骤，步骤主要分为加载数据、数据预处理、微调预训练模型。在加载数据阶段中，使用 CONLL 2003 dataset 数据集，并观察实体类别及表示形式；在数据预处理阶段中，对 tokenizer 分词器的建模，将 subtokens、words 和标注的 labels 对齐，并完成数据集中所有样本的预处理；在微调预训练模型阶段，通过对模型参数进行设置，设置 seqeval 评估方法，并构建 Trainner 训练器，进行模型训练，对 precision、recall 和 f1 值进行评估比较。
+&emsp;&emsp; 其中在数据集下载时，需要使用外网方式建立代理。

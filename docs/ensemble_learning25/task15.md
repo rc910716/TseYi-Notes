@@ -1,8 +1,9 @@
-# Task15 集成学习案例二 （蒸汽量预测）
+## Task15 集成学习案例二 （蒸汽量预测）
 
-## 1 主要思路
+### 1 主要思路
 
-### 1.1 基本思路
+#### 1.1 基本思路
+
 1. 导入数据集，标记数据来源，并合并训练集和测试集
 2. 探索数据分布，目的是找出相关性低的特征，降维
   - 采用核密度估计对特征值进行分析
@@ -10,23 +11,24 @@
   - 查看特征之间的相关性，并删除相关性低的特征
   - 对数据归一化
 3. 特征工程，目的是对各列（特征列和目标列）进行正态化
-  - 对各特征列比较Box-Cox变换前后，并进行变换
+  - 对各特征列比较 Box-Cox 变换前后，并进行变换
   - 对目标列进行正态分布检验，并使用指数变换
 4. 模型构建并使用集成学习
   - 构建训练集、验证集和测试集
-  - 编写RMES、MES评价函数
-  - 使用Z检验寻找并删除离群点
+  - 编写 RMES、MES 评价函数
+  - 使用 Z 检验寻找并删除离群点
   - 训练模型，并进行模型融合
 5. 预测结果并保存
 
-### 1.2 评价指标
-最终的评价指标为均方误差MSE，即：
+#### 1.2 评价指标
+
+最终的评价指标为均方误差 MSE，即：
+
 $$Score = \frac{1}{n} \sum_1 ^n (y_i - y ^*)^2$$
 
-## 2 Baseline代码实战
+### 2 Baseline 代码实战
 
-### 2.1 导入package
-
+#### 2.1 导入 package
 
 ```python
 from sklearn.preprocessing import PolynomialFeatures, MinMaxScaler, StandardScaler
@@ -50,14 +52,12 @@ warnings.filterwarnings("ignore")
 %matplotlib inline
 ```
 
-### 2.2 加载数据
-
+#### 2.2 加载数据
 
 ```python
 data_train = pd.read_csv('../assets/ch06/case02/data/train.txt',sep = '\t')
 data_test = pd.read_csv('../assets/ch06/case02/data/test.txt',sep = '\t')
 ```
-
 
 ```python
 # 标记数据来源
@@ -68,9 +68,6 @@ data_all = pd.concat([data_train, data_test], axis=0, ignore_index=True)
 # 显示前5条数据
 data_all.head()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -100,7 +97,7 @@ data_all.head()
       <th>V7</th>
       <th>V8</th>
       <th>V9</th>
-      <th>...</th>
+      <th>…</th>
       <th>V30</th>
       <th>V31</th>
       <th>V32</th>
@@ -126,7 +123,7 @@ data_all.head()
       <td>-2.360</td>
       <td>-0.436</td>
       <td>-2.114</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.109</td>
       <td>-0.615</td>
       <td>0.327</td>
@@ -150,7 +147,7 @@ data_all.head()
       <td>-2.360</td>
       <td>0.332</td>
       <td>-2.114</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.124</td>
       <td>0.032</td>
       <td>0.600</td>
@@ -174,7 +171,7 @@ data_all.head()
       <td>-2.360</td>
       <td>0.396</td>
       <td>-2.114</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.361</td>
       <td>0.277</td>
       <td>-0.116</td>
@@ -198,7 +195,7 @@ data_all.head()
       <td>-2.086</td>
       <td>0.403</td>
       <td>-2.114</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.417</td>
       <td>0.279</td>
       <td>0.603</td>
@@ -222,7 +219,7 @@ data_all.head()
       <td>-2.086</td>
       <td>0.314</td>
       <td>-2.114</td>
-      <td>...</td>
+      <td>…</td>
       <td>1.078</td>
       <td>0.328</td>
       <td>0.418</td>
@@ -239,14 +236,12 @@ data_all.head()
 <p>5 rows × 40 columns</p>
 </div>
 
+#### 2.3 探索数据分布
 
+##### 2.3.1 采用核密度估计对所有的特征值进行分析
 
-### 2.3 探索数据分布
-
-#### 2.3.1 采用核密度估计对所有的特征值进行分析
-由于是传感器的数据（连续变量），所以使用 kdeplot(核密度估计图) 进行数据的初步分析，即EDA。  
-核密度估计(kernel density estimation)是在概率论中用来估计未知的密度函数，属于非参数检验方法之一。通过核密度估计图可以比较直观的看出数据样本本身的分布特征。
-
+由于是传感器的数据（连续变量），所以使用 kdeplot(核密度估计图) 进行数据的初步分析，即 EDA。
+核密度估计 (kernel density estimation) 是在概率论中用来估计未知的密度函数，属于非参数检验方法之一。通过核密度估计图可以比较直观的看出数据样本本身的分布特征。
 
 ```python
 fcols = 6
@@ -269,14 +264,11 @@ for column in data_all.columns[0:-2]:
     g = g.legend(["train", "test"])
 ```
 
-
 ![png](images/ch15/01.png)
 
+从以上的图中可以看出特征 "V5","V9","V11","V17","V22","V28" 中训练集数据分布和测试集数据分布不均，所以我们删除这些特征数据
 
-从以上的图中可以看出特征"V5","V9","V11","V17","V22","V28"中训练集数据分布和测试集数据分布不均，所以我们删除这些特征数据
-
-#### 2.3.2 删除分布不均的特征
-
+##### 2.3.2 删除分布不均的特征
 
 ```python
 del_columns = ["V5", "V9", "V11", "V17", "V22", "V28"]
@@ -295,19 +287,16 @@ for column in del_columns:
     g = g.legend(["train","test"])
 ```
 
-
 ![png](images/ch15/02.png)
-
-
 
 ```python
 # 删除分布不均的特征
 data_all.drop(del_columns, axis=1, inplace=True)
 ```
 
-#### 2.3.3 查看特征之间的相关性（相关程度）
-通过corr计算特征之间的相关性，数值越大，说明线性相关性越高；采用heatmap热力图展示各特征值与target的相关性。
+##### 2.3.3 查看特征之间的相关性（相关程度）
 
+通过 corr 计算特征之间的相关性，数值越大，说明线性相关性越高；采用 heatmap 热力图展示各特征值与 target 的相关性。
 
 ```python
 # 删除origin标识，得到原始数据，用于计算相关系数矩阵
@@ -329,13 +318,11 @@ g = sns.heatmap(mcorr, mask=mask, cmap=cmap, square=True, annot=True, fmt='0.2f'
 plt.show()
 ```
 
-
 ![png](images/ch15/03.png)
 
+##### 2.3.4 删除相关性低的特征列
 
-#### 2.3.4 删除相关性低的特征列
-对数据进一步降维，将相关性的绝对值小于阈值（设置为0.1）的特征列删除
-
+对数据进一步降维，将相关性的绝对值小于阈值（设置为 0.1）的特征列删除
 
 ```python
 # 设置阈值为0.1
@@ -348,8 +335,7 @@ drop_col = corr_matrix[corr_matrix["target"] < threshold].index
 data_all.drop(drop_col, axis=1, inplace=True)
 ```
 
-#### 2.3.5 对数据进行归一化
-
+##### 2.3.5 对数据进行归一化
 
 ```python
 cols_numeric=list(data_all.columns)
@@ -359,9 +345,6 @@ df = data_all[data_all.columns[0:-2]]
 df = (df-df.min())/(df.max()-df.min())
 df.describe()
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -391,7 +374,7 @@ df.describe()
       <th>V8</th>
       <th>V10</th>
       <th>V12</th>
-      <th>...</th>
+      <th>…</th>
       <th>V20</th>
       <th>V23</th>
       <th>V24</th>
@@ -417,7 +400,7 @@ df.describe()
       <td>4813.000000</td>
       <td>4813.000000</td>
       <td>4813.000000</td>
-      <td>...</td>
+      <td>…</td>
       <td>4813.000000</td>
       <td>4813.000000</td>
       <td>4813.000000</td>
@@ -441,7 +424,7 @@ df.describe()
       <td>0.715607</td>
       <td>0.348518</td>
       <td>0.578507</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.456147</td>
       <td>0.744438</td>
       <td>0.356712</td>
@@ -465,7 +448,7 @@ df.describe()
       <td>0.118105</td>
       <td>0.134882</td>
       <td>0.105088</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.134083</td>
       <td>0.134085</td>
       <td>0.265512</td>
@@ -489,7 +472,7 @@ df.describe()
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -513,7 +496,7 @@ df.describe()
       <td>0.664934</td>
       <td>0.284327</td>
       <td>0.532892</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.370475</td>
       <td>0.719362</td>
       <td>0.040616</td>
@@ -537,7 +520,7 @@ df.describe()
       <td>0.742884</td>
       <td>0.366469</td>
       <td>0.591635</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.447305</td>
       <td>0.788817</td>
       <td>0.381736</td>
@@ -561,7 +544,7 @@ df.describe()
       <td>0.790835</td>
       <td>0.432965</td>
       <td>0.641971</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.522660</td>
       <td>0.792706</td>
       <td>0.574728</td>
@@ -585,7 +568,7 @@ df.describe()
       <td>1.000000</td>
       <td>1.000000</td>
       <td>1.000000</td>
-      <td>...</td>
+      <td>…</td>
       <td>1.000000</td>
       <td>1.000000</td>
       <td>1.000000</td>
@@ -602,23 +585,19 @@ df.describe()
 <p>8 rows × 25 columns</p>
 </div>
 
-
-
-
 ```python
 # 原数据拼接
 data_all = pd.concat(
     [df, data_all['target'], data_all['origin']], axis=1, ignore_index=False)
 ```
 
-### 2.4 特征工程
+#### 2.4 特征工程
 
-绘图显示Box-Cox变换对数据分布影响，Box-Cox用于连续的响应变量不满足正态分布的情况。在进行Box-Cox变换之后，可以一定程度上减小不可观测的误差和预测变量的相关性。
+绘图显示 Box-Cox 变换对数据分布影响，Box-Cox 用于连续的响应变量不满足正态分布的情况。在进行 Box-Cox 变换之后，可以一定程度上减小不可观测的误差和预测变量的相关性。
 
-对于quantitle-quantile(q-q)图，可参考： https://blog.csdn.net/u012193416/article/details/83210790
+对于 quantitle-quantile(q-q) 图，可参考： <https://blog.csdn.net/u012193416/article/details/83210790>
 
-#### 2.4.1 对各特征数据绘制使用Box-Cox前后的对比图
-
+##### 2.4.1 对各特征数据绘制使用 Box-Cox 前后的对比图
 
 ```python
 fcols = 6
@@ -682,12 +661,9 @@ for var in cols_numeric:
             'corr='+'{:.2f}'.format(np.corrcoef(trans_var, dat['target'])[0][1]))
 ```
 
-
 ![png](images/ch15/04.png)
 
-
-#### 2.4.2 对各特征列数据进行Box-Cox变换
-
+##### 2.4.2 对各特征列数据进行 Box-Cox 变换
 
 ```python
 # 进行Box-Cox变换
@@ -697,8 +673,7 @@ for col in cols_transform:
     data_all.loc[:, col], _ = stats.boxcox(data_all.loc[:, col]+1)
 ```
 
-#### 2.4.3 对目标列数据进行正态分布检验
-
+##### 2.4.3 对目标列数据进行正态分布检验
 
 ```python
 print(data_all.target.describe())
@@ -723,14 +698,11 @@ _ = stats.probplot(data_all.target.dropna(), plot=plt)
     Name: target, dtype: float64
     
 
-
 ![png](images/ch15/05.png)
 
+##### 2.4.5 对目标列数据使用对数变换
 
-#### 2.4.5 对目标列数据使用对数变换
-
-使用指数变换target目标值提升特征数据的正态性，可参考：https://www.zhihu.com/question/22012482
-
+使用指数变换 target 目标值提升特征数据的正态性，可参考：<https://www.zhihu.com/question/22012482>
 
 ```python
 sp = data_train.target
@@ -756,14 +728,11 @@ _ = stats.probplot(data_train.target1.dropna(), plot=plt)
     Name: target, dtype: float64
     
 
-
 ![png](images/ch15/06.png)
 
+#### 2.5 模型构建以及集成学习
 
-### 2.5 模型构建以及集成学习
-
-#### 2.5.1 构建训练集和测试集
-
+##### 2.5.1 构建训练集和测试集
 
 ```python
 def get_training_data():
@@ -787,8 +756,7 @@ def get_test_data():
     return df_test.drop(["origin", "target"], axis=1)
 ```
 
-#### 2.5.2 编写rmse、mse的评价函数
-
+##### 2.5.2 编写 rmse、mse 的评价函数
 
 ```python
 from sklearn.metrics import make_scorer
@@ -812,8 +780,7 @@ rmse_scorer = make_scorer(rmse, greater_is_better=False)
 mse_scorer = make_scorer(mse, greater_is_better=False)
 ```
 
-#### 2.5.3 寻找并删除离群值
-
+##### 2.5.3 寻找并删除离群值
 
 ```python
 # function to detect outliers based on the predictions of a model
@@ -871,7 +838,6 @@ def find_outliers(model, X, y, sigma=3):
     return outliers
 ```
 
-
 ```python
 # get training data
 X_train, X_valid, y_train, y_valid = get_training_data()
@@ -896,14 +862,11 @@ y_t = y_train.drop(outliers)
     [2655, 2159, 1164, 2863, 1145, 2697, 2528, 2645, 691, 1085, 1874, 2647, 884, 2696, 2668, 1310, 1901, 1458, 2769, 2002, 2669, 1972]
     
 
-
 ![png](images/ch15/07.png)
 
+从图中可看出，有 22 个标红色的离群点。
 
-从图中可看出，有22个标红色的离群点。
-
-#### 2.5.4 训练模型
-
+##### 2.5.4 训练模型
 
 ```python
 def get_trainning_data_omitoutliers():
@@ -912,7 +875,6 @@ def get_trainning_data_omitoutliers():
     X = X_t.copy()
     return X, y
 ```
-
 
 ```python
 def train_model(model, param_grid=[], X=[], y=[], 
@@ -968,7 +930,6 @@ def train_model(model, param_grid=[], X=[], y=[],
     return model, cv_score, grid_results
 ```
 
-
 ```python
 # 定义训练变量存储数据
 opt_models = dict()
@@ -977,7 +938,6 @@ score_models = pd.DataFrame(columns=['mean','std'])
 splits=5
 repeats=5
 ```
-
 
 ```python
 # 使用Ridge模型，可使用集成学习，融合更多的模型
@@ -1015,14 +975,9 @@ plt.ylabel('score')
 
     Text(0, 0.5, 'score')
 
-
-
-
 ![png](images/ch15/08.png)
 
-
-#### 2.5.5 预测结果并保存
-
+##### 2.5.5 预测结果并保存
 
 ```python
 # 预测函数
@@ -1043,7 +998,6 @@ def model_predict(test_data, test_y=[]):
         y_predict_mean = pd.Series(y_predict_mean)
         return y_predict_mean
 ```
-
 
 ```python
 y_ = model_predict(test)

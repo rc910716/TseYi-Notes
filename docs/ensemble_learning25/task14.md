@@ -1,10 +1,11 @@
-# Task14 集成学习案例一（幸福感预测）
+## Task14 集成学习案例一（幸福感预测）
 
-## 1 主要思路
+### 1 主要思路
 
-### 1.1 基本思路
-1. 导入数据集，并删除幸福感为-8的数据行
-2. 将训练集的特征列数据和测试集的数据进行合并形成`data`，主要用于数据预处理中利用众数和均值进行缺失值填充
+#### 1.1 基本思路
+
+1. 导入数据集，并删除幸福感为 -8 的数据行
+2. 将训练集的特征列数据和测试集的数据进行合并形成 `data`，主要用于数据预处理中利用众数和均值进行缺失值填充
 3. 数据预处理阶段
   - 标记问题数据
   - 填充缺失值
@@ -14,21 +15,22 @@
   - 使用均值处理异常值
 4. 数据增广
  - 添加自定义的特征
- - 删除数据特别少的和之前用过的特征（263维）
- - 选择重要的49个特征构建训练集（49维）
- - 部分特征进行one-hot编码（383维）
-5. 特征建模：分别对263维、49维、383维特征数据进行建模，训练模型并进行集成学习
-6. 模型融合：将上述4种模型进行融合，使用集成学习
+ - 删除数据特别少的和之前用过的特征（263 维）
+ - 选择重要的 49 个特征构建训练集（49 维）
+ - 部分特征进行 one-hot 编码（383 维）
+5. 特征建模：分别对 263 维、49 维、383 维特征数据进行建模，训练模型并进行集成学习
+6. 模型融合：将上述 4 种模型进行融合，使用集成学习
 7. 保存结果
 
-### 1.2 评价指标
-最终的评价指标为均方误差MSE，即：
+#### 1.2 评价指标
+
+最终的评价指标为均方误差 MSE，即：
+
 $$Score = \frac{1}{n} \sum_1 ^n (y_i - y ^*)^2$$
 
-## 2 Baseline代码实战
+### 2 Baseline 代码实战
 
-### 2.1 导入package
-
+#### 2.1 导入 package
 
 ```python
 import os
@@ -71,8 +73,7 @@ warnings.filterwarnings('ignore')  # 消除warning
 %matplotlib inline
 ```
 
-### 2.2 导入数据集
-
+#### 2.2 导入数据集
 
 ```python
 # latin-1向下兼容ASCII
@@ -82,21 +83,14 @@ test = pd.read_csv(
     "../assets/ch06/case01/data/test.csv", parse_dates=['survey_time'], encoding='latin-1')
 ```
 
-
 ```python
 # 查看幸福感
 train["happiness"].unique()
 ```
 
-
-
-
     array([ 4,  5,  2,  3,  1, -8], dtype=int64)
 
-
-
-由于个人幸福感为1、2、3、4、5，其中1代表幸福感最低，5代表幸福感最高，可删除幸福感为-8的数据行。
-
+由于个人幸福感为 1、2、3、4、5，其中 1 代表幸福感最低，5 代表幸福感最高，可删除幸福感为 -8 的数据行。
 
 ```python
 # 删除幸福感为-8的数据行
@@ -104,13 +98,7 @@ train = train[train["happiness"] != -8].reset_index(drop=True)
 train["happiness"].unique()
 ```
 
-
-
-
     array([4, 5, 2, 3, 1], dtype=int64)
-
-
-
 
 ```python
 train_data_copy = train.copy()
@@ -126,16 +114,12 @@ del train_data_copy[target_col]
 data = pd.concat([train_data_copy, test], axis=0, ignore_index=True)
 ```
 
-### 2.3 查看数据的基本信息
-
+#### 2.3 查看数据的基本信息
 
 ```python
 # 数据的基本信息
 train.happiness.describe() 
 ```
-
-
-
 
     count    7988.000000
     mean        3.867927
@@ -147,15 +131,13 @@ train.happiness.describe()
     max         5.000000
     Name: happiness, dtype: float64
 
+可知整个训练集有 7988 项数据，但是 75% 的数据都是幸福感 4 以上，数据有倾斜。
 
+#### 2.4 数据预处理
 
-可知整个训练集有7988项数据，但是75%的数据都是幸福感4以上，数据有倾斜。
+##### 2.4.1 标记问题数据
 
-### 2.4 数据预处理
-
-#### 2.4.1 标记问题数据
 参考“index.xlsx”文档，通用含义中介绍“-1 = 不适用; -2 = 不知道; -3 = 拒绝回答; -8 = 无法回答”，对数据中出现的负数值进行处理
-
 
 ```python
 # csv中有负数值：-1、-2、-3、-8，将他们视为有问题的特征，并记录有问题特征的个数，但是不删去
@@ -179,7 +161,6 @@ def getres5(row):
     return len([x for x in row.values if type(x) == int and x == -3])
 ```
 
-
 ```python
 # 标记数据<0的特征个数
 data['neg1'] = data[data.columns].apply(lambda row: getres1(row), axis=1)
@@ -196,17 +177,14 @@ data['neg4'] = data[data.columns].apply(lambda row: getres4(row), axis=1)
 data['neg5'] = data[data.columns].apply(lambda row: getres5(row), axis=1)
 ```
 
-#### 2.4.2 填充缺失值
-使用`fillna(value)`补全缺失值，其中`value`的数值根据具体的情况来确定。例如将大部分缺失信息认为是零，将家庭成员数认为是1，将家庭收入这个特征认为是66365，即所有家庭的收入平均值。
+##### 2.4.2 填充缺失值
 
+使用 `fillna(value)` 补全缺失值，其中 `value` 的数值根据具体的情况来确定。例如将大部分缺失信息认为是零，将家庭成员数认为是 1，将家庭收入这个特征认为是 66365，即所有家庭的收入平均值。
 
 ```python
 # 筛选出有缺失值的特征列
 data.T[data.T.isna().T.any()].index
 ```
-
-
-
 
     Index(['edu_other', 'edu_status', 'edu_yr', 'join_party', 'property_other',
            'hukou_loc', 'social_neighbor', 'social_friend', 'work_status',
@@ -216,17 +194,14 @@ data.T[data.T.isna().T.any()].index
            's_work_type'],
           dtype='object')
 
-
-
-其中edu_other，join_party，property_other，invest_other这4列不进行处理
+其中 edu_other，join_party，property_other，invest_other 这 4 列不进行处理
 
 |变量名|问题描述|
 |:--|:--|
-|edu_other|您目前的最高教育程度是-其他|
+|edu_other|您目前的最高教育程度是 - 其他|
 |join_party|您目前政治面貌是共产党员，入党时间|
-|property_other|您现在这座房子的产权属于-其他，请注明|
-|invest_other|您家目前是否从事以下投资活动-其他，请注明|
-
+|property_other|您现在这座房子的产权属于 - 其他，请注明|
+|invest_other|您家目前是否从事以下投资活动 - 其他，请注明|
 
 ```python
 data['work_status'] = data['work_status'].fillna(0)
@@ -253,13 +228,9 @@ data['social_neighbor'] = data['social_neighbor'].fillna(0)
 data['social_friend'] = data['social_friend'].fillna(0)
 ```
 
-
 ```python
 data['hukou_loc'].value_counts(dropna=False)
 ```
-
-
-
 
     1.0    8038
     2.0    1800
@@ -268,14 +239,10 @@ data['hukou_loc'].value_counts(dropna=False)
     NaN       4
     Name: hukou_loc, dtype: int64
 
-
-
-
 ```python
 # 该缺失值填充为1，默认值：当前户口登记地为本乡（镇、街道）
 data['hukou_loc'] = data['hukou_loc'].fillna(1)
 ```
-
 
 ```python
 # 取去年全年家庭总收入的平均值
@@ -283,9 +250,9 @@ family_income_mean = int(data['family_income'].mean())
 data['family_income'] = data['family_income'].fillna(family_income_mean)
 ```
 
-#### 2.4.3 处理特殊格式的数据
-比如与时间有关的信息，这里主要分为两部分进行处理：首先是将“连续”的年龄，进行分层处理，即划分年龄段，可将年龄分为了6个区间。其次是计算具体的年龄，在Excel表格中，只有出生年月以及调查时间等信息，根据此计算出每一位调查者的真实年龄。
+##### 2.4.3 处理特殊格式的数据
 
+比如与时间有关的信息，这里主要分为两部分进行处理：首先是将“连续”的年龄，进行分层处理，即划分年龄段，可将年龄分为了 6 个区间。其次是计算具体的年龄，在 Excel 表格中，只有出生年月以及调查时间等信息，根据此计算出每一位调查者的真实年龄。
 
 ```python
 # 防止时间格式不同的报错errors='coerce'
@@ -296,7 +263,6 @@ data['survey_time'] = data['survey_time'].dt.year
 data['age'] = data['survey_time'] - data['birth']
 ```
 
-
 ```python
 # 查看年龄的分布
 age_value = data['age'].unique()
@@ -304,17 +270,11 @@ age_value.sort()
 age_value
 ```
 
-
-
-
     array([18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,
            35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
            52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
            69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
            86, 87, 88, 89, 90, 91, 92, 93, 94, 95], dtype=int64)
-
-
-
 
 ```python
 # 将年龄分为6个区间
@@ -322,10 +282,9 @@ bins = [0, 17, 26, 34, 50, 63, 100]
 data['age_bin'] = pd.cut(data['age'], bins, labels=[0, 1, 2, 3, 4, 5])
 ```
 
-#### 2.4.4 按照日常生活情况处理异常数据
+##### 2.4.4 按照日常生活情况处理异常数据
 
-使用我们日常生活中的真实情况，例如“宗教信息”特征为负数的认为是“不信仰宗教”，并认为“参加宗教活动的频率”为1，即没有参加过宗教活动，主观的进行补全。就像自己填表一样，这里可按照填表人的想法自行进行缺省值的补全。
-
+使用我们日常生活中的真实情况，例如“宗教信息”特征为负数的认为是“不信仰宗教”，并认为“参加宗教活动的频率”为 1，即没有参加过宗教活动，主观的进行补全。就像自己填表一样，这里可按照填表人的想法自行进行缺省值的补全。
 
 ```python
 # 对宗教处理
@@ -387,10 +346,9 @@ data.loc[data['leisure_2'] < 0, 'leisure_2'] = 5
 data.loc[data['leisure_3'] < 0, 'leisure_3'] = 3
 ```
 
-#### 2.4.5 使用众数处理异常值
+##### 2.4.5 使用众数处理异常值
 
-使用众数（代码中使用`mode()`来实现异常值的修正），由于这里的特征是空闲活动，所以采用众数对于缺失值进行处理比较合理。
-
+使用众数（代码中使用 `mode()` 来实现异常值的修正），由于这里的特征是空闲活动，所以采用众数对于缺失值进行处理比较合理。
 
 ```python
 # 对空闲活动处理，取众数
@@ -439,9 +397,9 @@ data.loc[data['insur_3'] == 0, 'insur_3'] = 0
 data.loc[data['insur_4'] == 0, 'insur_4'] = 0
 ```
 
-#### 2.4.6 使用均值处理异常值 
-取均值进行缺失值的补全（代码实现为`means()`），在这里因为家庭的收入是连续值，所以不能再使用取众数的方法进行处理，这里就直接使用了均值进行缺失值的补全。
+##### 2.4.6 使用均值处理异常值
 
+取均值进行缺失值的补全（代码实现为 `means()`），在这里因为家庭的收入是连续值，所以不能再使用取众数的方法进行处理，这里就直接使用了均值进行缺失值的补全。
 
 ```python
 # 对家庭情况处理
@@ -496,25 +454,26 @@ for i in range(1, 13+1):
              ] = data['trust_'+str(i)].dropna().mode()[0]
 ```
 
-### 2.5 数据增广
+#### 2.5 数据增广
 
-#### 2.5.1 添加自动义特征
+##### 2.5.1 添加自动义特征
+
 需要进一步分析每一个特征之间的关系，从而进行数据增广。经过思考，添加了如下的特征：
+
   - 第一次结婚年龄
   - 最近结婚年龄
   - 是否再婚
   - 配偶年龄
   - 配偶年龄差
   - 各种收入比（与配偶之间的收入比、十年后预期收入与现在收入之比等等）
-  - 收入与住房面积比（其中也包括10年后期望收入等等各种情况）
-  - 社会阶级（10年后的社会阶级、14年后的社会阶级等等）
+  - 收入与住房面积比（其中也包括 10 年后期望收入等等各种情况）
+  - 社会阶级（10 年后的社会阶级、14 年后的社会阶级等等）
   - 悠闲指数
-  - 满意指数 
+  - 满意指数
   - 信任指数
   - 同一省、市、县进行了归一化（同一省市内的收入的平均值）
   - 一个个体相对于同省、市、县其他人的各个指标的情况
   - 同龄人之间的相互比较（即在同龄人中的收入情况、健康情况等等）
-
 
 ```python
 # 第一次结婚年龄
@@ -759,7 +718,6 @@ data['public_service_sum/age'] = data['public_service_sum'] / \
 data['trust_sum/age'] = data['trust_sum']/(data['age_trust_sum_mean'])
 ```
 
-
 ```python
 print('shape',data.shape)
 data.head()
@@ -767,9 +725,6 @@ data.head()
 
     shape (10956, 272)
     
-
-
-
 
 <div>
 <style scoped>
@@ -799,7 +754,7 @@ data.head()
       <th>birth</th>
       <th>nationality</th>
       <th>religion</th>
-      <th>...</th>
+      <th>…</th>
       <th>depression/age</th>
       <th>floor_area/age</th>
       <th>health/age</th>
@@ -825,7 +780,7 @@ data.head()
       <td>1959</td>
       <td>1</td>
       <td>1</td>
-      <td>...</td>
+      <td>…</td>
       <td>1.285211</td>
       <td>0.410351</td>
       <td>0.848837</td>
@@ -849,7 +804,7 @@ data.head()
       <td>1992</td>
       <td>1</td>
       <td>1</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.733333</td>
       <td>0.952824</td>
       <td>1.179337</td>
@@ -873,7 +828,7 @@ data.head()
       <td>1967</td>
       <td>1</td>
       <td>0</td>
-      <td>...</td>
+      <td>…</td>
       <td>1.343537</td>
       <td>0.972328</td>
       <td>1.150485</td>
@@ -897,7 +852,7 @@ data.head()
       <td>1943</td>
       <td>1</td>
       <td>1</td>
-      <td>...</td>
+      <td>…</td>
       <td>1.111663</td>
       <td>0.642329</td>
       <td>1.276353</td>
@@ -921,7 +876,7 @@ data.head()
       <td>1994</td>
       <td>1</td>
       <td>1</td>
-      <td>...</td>
+      <td>…</td>
       <td>0.750000</td>
       <td>0.587284</td>
       <td>1.177106</td>
@@ -938,11 +893,9 @@ data.head()
 <p>5 rows × 272 columns</p>
 </div>
 
+##### 2.5.2 删除数值特别少的和之前用过的特征
 
-
-#### 2.5.2 删除数值特别少的和之前用过的特征
-删去有效样本数很少的特征，例如负值太多的特征或者是缺失值太多的特征，这里一共删除了包括“目前的最高教育程度”在内的9类特征。
-
+删去有效样本数很少的特征，例如负值太多的特征或者是缺失值太多的特征，这里一共删除了包括“目前的最高教育程度”在内的 9 类特征。
 
 ```python
 del_list = ['id', 'survey_time', 'edu_other', 'invest_other',
@@ -965,15 +918,9 @@ X_test_263 = data[train_shape:][use_feature].values
 X_train_263.shape
 ```
 
-
-
-
     (7988, 263)
 
-
-
-#### 2.5.3 选择重要的49个特征
-
+##### 2.5.3 选择重要的 49 个特征
 
 ```python
 imp_fea_49 = ['equity', 'depression', 'health', 'class', 'family_status', 'health_problem', 'class_10_after',
@@ -998,16 +945,11 @@ X_test_49 = data[train_shape:][imp_fea_49].values
 X_train_49.shape
 ```
 
-
-
-
     (7988, 49)
 
+##### 2.5.4 进行 one-hot 编码
 
-
-#### 2.5.4 进行one-hot编码
-使用One-hot进行编码的原因：有部分特征为分离值，例如性别中男女，男为1，女为2，通过使用One-hot将其变为男为0，女为1，来增强机器学习算法的鲁棒性能；再如民族这个特征，原本是1-56这56个数值，如果直接分类会让分类器的鲁棒性变差，所以使用One-hot编码将其变为6个特征进行非零即一的处理。
-
+使用 One-hot 进行编码的原因：有部分特征为分离值，例如性别中男女，男为 1，女为 2，通过使用 One-hot 将其变为男为 0，女为 1，来增强机器学习算法的鲁棒性能；再如民族这个特征，原本是 1-56 这 56 个数值，如果直接分类会让分类器的鲁棒性变差，所以使用 One-hot 编码将其变为 6 个特征进行非零即一的处理。
 
 ```python
 # 已经是0、1的值不需要onehot
@@ -1031,19 +973,13 @@ X_test_383 = np.column_stack([data[train_shape:][noc_fea].values, X_test_oh])
 X_train_383.shape
 ```
 
-
-
-
     (7988, 383)
 
+#### 2.6 特征建模
 
+##### 2.6.1 对 one-hot 编码之前的特征（263 维）进行建模
 
-### 2.6 特征建模
-
-#### 2.6.1 对one-hot编码之前的特征（263维）进行建模
-
-##### 1. LightGBM
-
+###### 1. LightGBM
 
 ```python
 ##### lgb_263 #
@@ -1185,8 +1121,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_lgb_263, target)))
     CV score: 0.45183444
     
 
-接着，使用已经训练完的lightGBM的模型进行特征重要性的判断以及可视化，从结果可以看出，排在重要性第一位的是health/age，就是同龄人中的健康程度，与我们主观的看法基本一致。
-
+接着，使用已经训练完的 lightGBM 的模型进行特征重要性的判断以及可视化，从结果可以看出，排在重要性第一位的是 health/age，就是同龄人中的健康程度，与我们主观的看法基本一致。
 
 ```python
 # ---------------特征重要性
@@ -1207,14 +1142,9 @@ plt.title('Features importance (averaged/folds)')
 plt.tight_layout()
 ```
 
-
-    
 ![png](images/ch14/01.png)
-    
 
-
-##### 2. XGBoost
-
+###### 2. XGBoost
 
 ```python
 # xgb_263
@@ -1280,8 +1210,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_xgb_263, target)))
     CV score: 0.45235743
     
 
-##### 3.RandomForestRegressor随机森林
-
+###### 3.RandomForestRegressor 随机森林
 
 ```python
 # RandomForestRegressor随机森林
@@ -1315,8 +1244,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_rfr_263, target)))
     CV score: 0.47793348
     
 
-##### 4.GradientBoostingRegressor梯度提升决策树
-
+###### 4.GradientBoostingRegressor 梯度提升决策树
 
 ```python
 # GradientBoostingRegressor梯度提升决策树
@@ -1346,8 +1274,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_gbr_263, target)))
     CV score: 0.45699559
     
 
-##### 5.ExtraTreesRegressor 极端随机森林回归
-
+###### 5.ExtraTreesRegressor 极端随机森林回归
 
 ```python
 # ExtraTreesRegressor 极端随机森林回归
@@ -1377,8 +1304,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_etr_263, target)))
     CV score: 0.48610236
     
 
-得到了以上5种模型的预测结果以及模型架构及参数。其中在每一种特征工程中，进行5折的交叉验证，并重复两次（Kernel Ridge Regression，核脊回归），取得每一个特征数下的模型的结果。
-
+得到了以上 5 种模型的预测结果以及模型架构及参数。其中在每一种特征工程中，进行 5 折的交叉验证，并重复两次（Kernel Ridge Regression，核脊回归），取得每一个特征数下的模型的结果。
 
 ```python
 train_stack2 = np.vstack(
@@ -1424,12 +1350,9 @@ mean_squared_error(target.values, oof_stack2)
 
     0.44808285995555786
 
+##### 2.6.2 对重要的特征（49 维）进行建模
 
-
-#### 2.6.2 对重要的特征（49维）进行建模
-
-##### 1.LightGBM
-
+###### 1.LightGBM
 
 ```python
 # lgb_49
@@ -1529,8 +1452,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_lgb_49, target)))
     CV score: 0.46930531
     
 
-##### 2.XGBoost
-
+###### 2.XGBoost
 
 ```python
 # xgb_49
@@ -1595,8 +1517,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_xgb_49, target)))
     CV score: 0.47024327
     
 
-##### 3.GradientBoostingRegressor梯度提升决策树
-
+###### 3.GradientBoostingRegressor 梯度提升决策树
 
 ```python
 folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=2018)
@@ -1626,8 +1547,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_gbr_49, target)))
     CV score: 0.47133568
     
 
-至此，得到了以上3种模型的基于49个特征的预测结果、模型以及参数。其中在每一种特征工程中，进行5折的交叉验证，并重复两次（Kernel Ridge Regression，核脊回归），取得每一个特征下的模型结果。
-
+至此，得到了以上 3 种模型的基于 49 个特征的预测结果、模型以及参数。其中在每一种特征工程中，进行 5 折的交叉验证，并重复两次（Kernel Ridge Regression，核脊回归），取得每一个特征下的模型结果。
 
 ```python
 train_stack3 = np.vstack([oof_lgb_49, oof_xgb_49, oof_gbr_49]).transpose()
@@ -1670,12 +1590,9 @@ mean_squared_error(target.values, oof_stack3)
 
     0.4674133026936052
 
+##### 2.6.3 对 one-hot 编码之后的特征（383 维）进行建模
 
-
-#### 2.6.3 对one-hot编码之后的特征（383维）进行建模
-
-##### 1.Kernel Ridge Regression 基于核的岭回归
-
+###### 1.Kernel Ridge Regression 基于核的岭回归
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1705,8 +1622,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_kr_383, target)))
     CV score: 0.52582616
     
 
-##### 2.普通岭回归
-
+###### 2.普通岭回归
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1735,8 +1651,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_ridge_383, target)))
     CV score: 0.48687670
     
 
-##### 3.ElasticNet 弹性网络
-
+###### 3.ElasticNet 弹性网络
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1765,8 +1680,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_en_383, target)))
     CV score: 0.53296555
     
 
-##### 4.BayesianRidge贝叶斯岭回归
-
+###### 4.BayesianRidge 贝叶斯岭回归
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1795,8 +1709,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_br_383, target)))
     CV score: 0.48717330
     
 
-至此，得到了以上4种模型的基于383个特征的预测结果、模型及参数。其中在每一种特征工程中，进行5折的交叉验证，并重复两次（LinearRegression简单的线性回归），取得每一个特征下的模型结果。
-
+至此，得到了以上 4 种模型的基于 383 个特征的预测结果、模型及参数。其中在每一种特征工程中，进行 5 折的交叉验证，并重复两次（LinearRegression 简单的线性回归），取得每一个特征下的模型结果。
 
 ```python
 train_stack1 = np.vstack(
@@ -1839,12 +1752,9 @@ mean_squared_error(target.values, oof_stack1)
 
     0.4879737673389125
 
+##### 2.6.4 对重要的特征（49 维）进行更多的建模
 
-
-#### 2.6.4 对重要的特征（49维）进行更多的建模
-
-##### 1.KernelRidge核岭回归
-
+###### 1.KernelRidge 核岭回归
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1872,8 +1782,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_kr_49, target)))
     CV score: 0.50255991
     
 
-##### 2.Ridge岭回归
-
+###### 2.Ridge 岭回归
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1901,8 +1810,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_ridge_49, target)))
     CV score: 0.49451286
     
 
-##### 3.BayesianRidge贝叶斯岭回归
-
+###### 3.BayesianRidge 贝叶斯岭回归
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1930,8 +1838,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_br_49, target)))
     CV score: 0.49534595
     
 
-##### 4.ElasticNet弹性网络
-
+###### 4.ElasticNet 弹性网络
 
 ```python
 folds = KFold(n_splits=5, shuffle=True, random_state=13)
@@ -1959,8 +1866,7 @@ print("CV score: {:<8.8f}".format(mean_squared_error(oof_en_49, target)))
     CV score: 0.53841695
     
 
-可得到了以上4种新模型的基于49个特征的预测结果、模型及参数。其中在每一种特征工程中，进行5折的交叉验证，并重复两次（LinearRegression简单的线性回归），取得每一个特征下的模型结果。
-
+可得到了以上 4 种新模型的基于 49 个特征的预测结果、模型及参数。其中在每一种特征工程中，进行 5 折的交叉验证，并重复两次（LinearRegression 简单的线性回归），取得每一个特征下的模型结果。
 
 ```python
 train_stack4 = np.vstack(
@@ -2003,12 +1909,9 @@ mean_squared_error(target.values, oof_stack4)
 
     0.49491522644555636
 
+#### 2.7 模型融合
 
-
-### 2.7 模型融合
-
-将以上的4种集成学习模型再次进行集成学习的训练，可直接使用LinearRegression简单线性回归的进行集成。
-
+将以上的 4 种集成学习模型再次进行集成学习的训练，可直接使用 LinearRegression 简单线性回归的进行集成。
 
 ```python
 train_stack5 = np.vstack(
@@ -2051,23 +1954,14 @@ mean_squared_error(target.values, oof_stack5)
 
     0.44806916574215994
 
-
-
-### 2.8 保存结果
-
+#### 2.8 保存结果
 
 ```python
 predictions_lr5
 ```
 
-
-
-
     array([3.82311463, 2.87474409, 3.47787113, ..., 4.00686539, 3.99606513,
            4.90726537])
-
-
-
 
 ```python
 # 读取样例文件，用于得到提交格式
@@ -2077,9 +1971,6 @@ submit_example['happiness'] = predictions_lr5
 # 查看幸福感分布
 submit_example.happiness.describe()
 ```
-
-
-
 
     count    2968.000000
     mean        3.880071
@@ -2091,10 +1982,7 @@ submit_example.happiness.describe()
     max         5.036309
     Name: happiness, dtype: float64
 
-
-
-由于预测结果是1-5的连续值，但是需要的是整数值，必须进行整数解的近似，并保存到了csv文件中。
-
+由于预测结果是 1-5 的连续值，但是需要的是整数值，必须进行整数解的近似，并保存到了 csv 文件中。
 
 ```python
 submit_example['happiness'] = submit_example['happiness'].apply(
@@ -2103,9 +1991,6 @@ submit_example['happiness'] = submit_example['happiness'].apply(
 submit_example.to_csv("submision.csv", index=False)
 submit_example.happiness.describe()
 ```
-
-
-
 
     count    2968.000000
     mean        3.866577
@@ -2116,5 +2001,3 @@ submit_example.happiness.describe()
     75%         4.000000
     max         5.000000
     Name: happiness, dtype: float64
-
-

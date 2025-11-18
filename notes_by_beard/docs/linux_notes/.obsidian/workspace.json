@@ -1,0 +1,221 @@
+{
+  "main": {
+    "id": "78cd48a0df9ce5a2",
+    "type": "split",
+    "children": [
+      {
+        "id": "4cf07d826e217132",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5c425ecba27d80ff",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5ed943e7aad2ccce",
+    "type": "split",
+    "children": [
+      {
+        "id": "31bdbbeaea4c50f2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "49fe74ad0f1b2300",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "adfadde11307985c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "cf865933784dba4a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 378.5
+  },
+  "right": {
+    "id": "09cfd59271da50bb",
+    "type": "split",
+    "children": [
+      {
+        "id": "eed6f777c9d1abc1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ca522cf6c280e3b1",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "81f12cfa853a087b",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "df36d55c7001fad3",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "8ef5d28a1fde6970",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "37659642b18d3a69",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:创建新数据库": false
+    }
+  },
+  "active": "49fe74ad0f1b2300",
+  "lastOpenFiles": [
+    "未命名.canvas",
+    "驱动大全笔记/同步与互斥/内联汇编.md",
+    "uboot/Untitled.md",
+    "uboot/uboot编译.md",
+    "uboot/img/image-20251017191011499.png",
+    "uboot/Linux平台下Mini210S裸机程序开发指南.pdf",
+    "uboot/DDI0406C_C_arm_architecture_reference_manual.pdf",
+    "uboot/ARMv7-AR Architecture Reference Manual.pdf",
+    "uboot/img/image-20251019212740064.png",
+    "uboot/img/image-20251019195105256.png",
+    "uboot/img/image-20251019164936926.png",
+    "uboot/img/image-20251019194839861.png",
+    "uboot/img/image-20251019161814492.png",
+    "uboot/img/image-20251017190435716.png",
+    "uboot/ec0ef-main/README.md",
+    "uboot/ec0ef-main/Linux平台下Mini210S裸机程序开发指南.pdf",
+    "private/嵌入式新领域/嵌入式docker.md",
+    "linux语言学习/内核c语言学习.md",
+    "linux设备驱动开发详解——笔记/boorom.md",
+    "linux设备驱动开发详解——笔记/barrier.md",
+    "linux设备驱动开发详解——笔记/模块.md",
+    "linux基础学习/linux与freertos的不同.md",
+    "linux基础学习/linux内核文件夹解析.md",
+    "linux基础学习/字符设备驱动框架.md",
+    "linux基础学习/中断嵌套.md",
+    "linux基础学习/虚拟地址.md",
+    "linux基础学习/编译进内核.md",
+    "linux基础学习/sr501学习/sr501学习心得.md",
+    "linux基础学习/sr501学习/无中断情况下.md",
+    "linux基础学习/linux下的一些函数/dispatch and thread.md",
+    "linux基础学习/linux上c语言/宏.md",
+    "linux基础学习/输入子系统/input子系统框架.md",
+    "linux基础学习/设备树/设备树入门.md",
+    "linux基础学习/5_分离设备思想和总线设备模型/platform总线.md",
+    "虚拟机配置/虚拟机配置.md",
+    "系统移植/uboot使用.md",
+    "系统移植/README.md",
+    "驱动大全笔记/input子系统/应用开发——input/img/image-20250917215430884.png",
+    "private/嵌入式新领域"
+  ]
+}

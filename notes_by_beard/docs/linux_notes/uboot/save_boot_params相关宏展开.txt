@@ -1,0 +1,46 @@
+ENTRY(save_boot_params)
+
+#define ENTRY(name) \
+	.globl SYMBOL_NAME(name); \
+	LENTRY(name)
+	
+#define SYMBOL_NAME(X)		X
+
+#define SYMBOL_NAME_LABEL(X)	X##:
+
+#define LENTRY(name) \
+	ALIGN; \
+	SYMBOL_NAME_LABEL(name)
+	
+#ifndef __ALIGN
+#define __ALIGN .align		4
+
+
+.globl save_boot_params;
+.align		4; save_boot_params
+
+	
+	
+	
+	
+
+
+ENDPROC(save_boot_params)
+
+#define ENDPROC(name) \
+	.type name STT_FUNC; \
+	END(name)
+	
+#ifndef END
+#define END(name) \
+	.size name, .-name
+#endif
+	
+
+#伪指令，需要连接器声明这是一个函数
+.type save_boot_params STT_FUNC; \
+#伪指令，声明这个函数的大小，
+.size save_boot_params, .-save_boot_params
+
+#'.'意思就是标号开头处的地址，用它减去上面那个宏的标号的地址，也就是得到了size
+.-save_boot_params
